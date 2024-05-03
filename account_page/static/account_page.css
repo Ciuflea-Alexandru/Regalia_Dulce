@@ -1,13 +1,13 @@
 body {
-  background-color: #CE563C;
-  background-image:url("/static/background.gif");
-  background-attachment: fixed;
-  background-size: cover;
+            background-color: #CE563C;
+            background-image:url("/static/background.gif");
+            background-attachment: fixed;
+            background-size: cover;
 }
 
 .error-message {
-    color: #CE563C;
-    font-size: 20px;
+            color: #CE563C;
+            font-size: 20px;
 }
 
 
@@ -16,7 +16,6 @@ body {
             border: 1px ;
             padding: 20px;
             width: 650px;
-            height: 900px;
             background-color: #050505;
         }
 
@@ -32,8 +31,8 @@ body {
             color: #CE563C ;
         }
 ::Placeholder{
-        color: #050505 ;
-        opacity: 10
+            color: #050505 ;
+            opacity: 10
         }
 
 .Tab-Content {
@@ -63,12 +62,12 @@ body {
             transition: 0.5s;
         }
 
-.Tab-Button {
+.Profile-Button {
             background-color: #CE563C;
             font-size:20px;
             color: #050505;
-            margin: 0px 10px;
-            display: inline-block;
+            margin: 0 auto 20px;
+            display: block;
             padding: 10px 30px;
             border: 1px solid #050505;
             outline-style: outset;
@@ -77,18 +76,16 @@ body {
 
         }
 
-.Tab-Button:hover {
+.Profile-Button:hover {
             background-color: #050505;
             color: #CE563C;
             transition: 0.5s;
         }
-#image-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+
+.profile-picture {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: block;
 }
-#profile-picture {
-    max-width: 200px;
-    max-height: 200px;
-    border-radius: 100%;
-    }

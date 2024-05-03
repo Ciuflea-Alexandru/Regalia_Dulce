@@ -5,50 +5,45 @@
     <link rel="stylesheet" href="{% static 'account_page.css' %}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>
+        function chooseFile() {
+            document.getElementById("profile-picture-input").click();
+        }
+    </script>
 </head>
 <body>
 
-    <div class="Container">
-        <h2 class="Welcome-Text"> Welcome! </h2>
-        <h2 class="Welcome-Text">{{user.username}}</h2>
-        <div id="image-container">
-         <img id="profile-picture" src="{% if user.profile_picture %}{{ user.profile_picture.url }}{% else %}{% static 'avatar.jpg' %}{% endif %}" >
-        </div>
+<div class="Container">
+    <h2 class="Welcome-Text"> Welcome! </h2>
+    <h2 class="Welcome-Text">{{ user.username }}</h2>
 
+    <!-- Profile picture -->
+    {% if user.profile_picture %}
+    <img class="profile-picture" src="{{ user.profile_picture.url }}" alt="Profile Picture">
+    {% endif %}
 
     <div id="information" class="Tab-Content" style="display:block;">
         <h2 class="User-Text">User Information</h2>
         <p><strong>Username:</strong></p>
-        <P>{{ user.username }}</P>
+        <p>{{ user.username }}</p>
         <p><strong>First Name:</strong></p>
-        <P>{{ user.first_name }}</P>
+        <p>{{ user.first_name }}</p>
         <p><strong>Last Name:</strong></p>
-        <P>{{ user.last_name }}</P>
+        <p>{{ user.last_name }}</p>
         <p><strong>Email:</strong></p>
-        <P>{{ user.email }}</P>
+        <p>{{ user.email }}</p>
         <p><strong>Date Joined:</strong></p>
-        <P>{{ user.date_joined }}</P>
-    </div>
- <input type="file" id="file-input" onchange="handleFileSelect(event)">
+        <p>{{ user.date_joined }}</p>
     </div>
 
-<script>
-        function handleFileSelect(event) {
-            const fileInput = event.target;
-            const fileList = fileInput.files;
+    <!-- Profile picture input -->
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="file" name="profile_picture" id="profile-picture-input" class="Profile-Picture-Input"
+               style="display:none;" onchange="this.form.submit()">
+        <button class="Profile-Button" type="button" onclick="chooseFile()">Choose Profile Picture</button>
+    </form>
+</div>
 
-            if (fileList.length > 0) {
-                const file = fileList[0];
-                const reader = new FileReader();
-
-                reader.onload = function(e) {
-                    const imgElement = document.getElementById('profile-picture');
-                    imgElement.src = e.target.result;
-                };
-
-                reader.readAsDataURL(file);
-            }
-        }
-    </script>
 </body>
 </html>
