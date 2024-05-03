@@ -1,0 +1,63 @@
+body {
+  background-color: #CE563C;
+  background-image:url("/static/background.gif");
+  background-attachment: fixed;
+  background-size: cover;
+}
+
+.error-message {
+    color: #CE563C;
+    font-size: 25px;
+    margin: 50px 140px;
+}
+
+.Verify-Code-Container {
+            position: fixed;
+            top: 25%;
+            left: 35%;
+            border: 1px ;
+            padding: 20px;
+            width: 550px;
+            height: 500px;
+            background-color: #050505;
+        }
+
+.Verify-Code-Text {
+            text-align:center;
+            font-size:50px;
+            color: #CE563C ;
+        }
+
+.Verify-Code-Box {
+            font-size:25px;
+            text-align:center;
+            margin: 20px 0px;
+            display: block;
+            width: 95%;
+            padding: 10px;
+            border: 1px solid #050505;
+            outline-style: outset;
+            outline-color: #CE563C;
+            background-color:#CE563C;
+            font-family:'verdana'
+
+        }
+
+.Verify-Code-Button {
+            background-color: #CE563C;
+            font-size:30px;
+            color: #050505;
+            margin: 50px 140px;
+            display: inline-block;
+            padding: 20px 80px;
+            border: 1px solid #050505;
+            outline-style: outset;
+            outline-color: #CE563C ;
+            cursor: pointer;
+
+        }
+.Verify-Code-Button:hover {
+            background-color: #050505;
+            color: #CE563C;
+            transition: 0.5s;
+        }

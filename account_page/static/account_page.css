@@ -1,0 +1,94 @@
+body {
+  background-color: #CE563C;
+  background-image:url("/static/background.gif");
+  background-attachment: fixed;
+  background-size: cover;
+}
+
+.error-message {
+    color: #CE563C;
+    font-size: 20px;
+}
+
+
+.Container {
+            margin:auto;
+            border: 1px ;
+            padding: 20px;
+            width: 650px;
+            height: 900px;
+            background-color: #050505;
+        }
+
+.Welcome-Text {
+            text-align:center;
+            font-size:50px;
+            margin: 10px;
+            color: #CE563C ;
+        }
+.User-Text {
+            text-align:center;
+            font-size:40px;
+            color: #CE563C ;
+        }
+::Placeholder{
+        color: #050505 ;
+        opacity: 10
+        }
+
+.Tab-Content {
+            font-size:25px;
+            Text-align: center;
+            color: #CE563C;
+            margin: 20px 0px;
+            display: block;
+            border: 1px solid #050505;
+            outline-style: outset;
+            width: 95%;
+            padding: 10px;
+            font-family:'verdana'
+
+        }
+
+.Sign-Up-Link {
+            font-size: 20px;
+            color: #CE563C ;
+            font-family:'verdana';
+            text-decoration: none;
+            margin: 50px 140px;
+        }
+
+.Sign-Up-Link:hover {
+            color:#ffcc00;
+            transition: 0.5s;
+        }
+
+.Tab-Button {
+            background-color: #CE563C;
+            font-size:20px;
+            color: #050505;
+            margin: 0px 10px;
+            display: inline-block;
+            padding: 10px 30px;
+            border: 1px solid #050505;
+            outline-style: outset;
+            outline-color: #CE563C ;
+            cursor: pointer;
+
+        }
+
+.Tab-Button:hover {
+            background-color: #050505;
+            color: #CE563C;
+            transition: 0.5s;
+        }
+#image-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+#profile-picture {
+    max-width: 200px;
+    max-height: 200px;
+    border-radius: 100%;
+    }
