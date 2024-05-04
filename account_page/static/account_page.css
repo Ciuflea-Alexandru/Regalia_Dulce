@@ -30,10 +30,6 @@ body {
             font-size:40px;
             color: #CE563C ;
         }
-::Placeholder{
-            color: #050505 ;
-            opacity: 10
-        }
 
 .Tab-Content {
             font-size:25px;
@@ -88,3 +84,21 @@ body {
     cursor: pointer;
     z-index: 1;
 }
+.Button-Container {
+    text-align: center;
+}
+
+.Logout-Button {
+            background-color: #CE563C;
+            font-size:20px;
+            color: #050505;
+            border: none;
+            padding: 10px 10px;
+            cursor: pointer;
+        }
+
+.Logout-Button:hover {
+            background-color: #050505;
+            color: #CE563C;
+            transition: 0.5s;
+        }
