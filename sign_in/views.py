@@ -48,21 +48,20 @@ def signin(request):
 def verify_code(request):
     if request.method == 'POST':
         entered_code = request.POST.get('code')
-        user = request.user
+        user = None
 
-        verification_code = VerificationCode.objects.filter(user=user).last()
+        verification_code = VerificationCode.objects.filter(code=entered_code).last()
 
         if verification_code:
-            stored_code = verification_code.code
+            user = verification_code.user
+            verification_code.delete()
 
-            if entered_code == stored_code:
-                login(request, user)
+            # Authenticate the user
+            login(request, user)
 
-                verification_code.delete()
-
-                return redirect('account_page')
-            else:
-                messages.error(request, 'Invalid verification code')
+            return redirect('account_page')
+        else:
+            messages.error(request, 'Invalid verification code')
 
     return render(request, 'Verify_Code.html')
 

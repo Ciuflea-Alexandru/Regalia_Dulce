@@ -65,8 +65,8 @@ body {
 .Profile-Picture-Container {
     position: relative;
     margin: 0px 35%;
-    width: 200px; /* Adjust as needed */
-    height: 200px; /* Adjust as needed */
+    width: 200px;
+    height: 200px;
 }
 
 .profile-picture {
@@ -82,9 +82,9 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: transparent; /* Make the button background transparent */
-    color: transparent; /* Make the button text transparent */
+    background-color: transparent;
+    color: transparent;
     border: none;
     cursor: pointer;
-    z-index: 1; /* Ensure the button stays behind the profile picture */
+    z-index: 1;
 }
