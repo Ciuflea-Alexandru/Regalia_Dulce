@@ -5,11 +5,16 @@
     <link rel="stylesheet" href="{% static 'account_page.css' %}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script>
-        function chooseFile() {
-            document.getElementById("profile-picture-input").click();
-        }
-    </script>
+<script>
+    function chooseFile() {
+        document.getElementById("profile-picture-input").click();
+    }
+
+    // Function to submit the form when a file is selected
+    function submitForm() {
+        document.getElementById("profile-picture-form").submit();
+    }
+</script>
 </head>
 <body>
 
@@ -17,10 +22,19 @@
     <h2 class="Welcome-Text"> Welcome! </h2>
     <h2 class="Welcome-Text">{{ user.username }}</h2>
 
-    <!-- Profile picture -->
-    {% if user.profile_picture %}
-    <img class="profile-picture" src="{{ user.profile_picture.url }}" alt="Profile Picture">
-    {% endif %}
+    <div class="Profile-Picture-Container">
+        <!-- Profile picture -->
+        {% if user.profile_picture %}
+        <img class="profile-picture" src="{{ user.profile_picture.url }}" alt="avatar.jpg">
+        {% endif %}
+        <!-- Profile picture input -->
+<form method="POST" enctype="multipart/form-data" id="profile-picture-form">
+    {% csrf_token %}
+    <input type="file" name="profile_picture" id="profile-picture-input" class="Profile-Picture-Input"
+           style="display:none;" onchange="submitForm()">
+    <button class="Profile-Button" type="button" onclick="chooseFile()"></button>
+</form>
+    </div>
 
     <div id="information" class="Tab-Content" style="display:block;">
         <h2 class="User-Text">User Information</h2>
@@ -36,13 +50,6 @@
         <p>{{ user.date_joined }}</p>
     </div>
 
-    <!-- Profile picture input -->
-    <form method="POST" enctype="multipart/form-data">
-        {% csrf_token %}
-        <input type="file" name="profile_picture" id="profile-picture-input" class="Profile-Picture-Input"
-               style="display:none;" onchange="this.form.submit()">
-        <button class="Profile-Button" type="button" onclick="chooseFile()">Choose Profile Picture</button>
-    </form>
 </div>
 
 </body>
