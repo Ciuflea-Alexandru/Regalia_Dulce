@@ -14,7 +14,7 @@ from django.contrib import messages
 from .models import EmailConfiguration
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout
-from sign_up.forms import ProfilePictureForm
+from .forms import ProfilePictureForm
 
 
 @csrf_protect
