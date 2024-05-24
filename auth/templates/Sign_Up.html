@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+
+<head>
+
+  <title>{% block title %}{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'sign_up.css' %}">
+
+</head>
+
+<body>
+
+    <div class="Sign-Up-Container">
+
+        <h2 class="Sign-Up-Text"> Sing Up</h2>
+      <form method="post" action="{% url 'signup' %}">
+
+        {% csrf_token %}
+
+        <input name="username" type="text" placeholder="Username" class="Name-Box">
+        <div class="error-message">{{ form.username.errors }}</div>
+
+        <input name="email" type="text" placeholder="Email" class="Email-Box">
+        <div class="error-message">{{ form.email.errors }}</div>
+
+        <input name="password1" type="password" placeholder="Password" class="Password-Box">
+        <div class="error-message">{{ form.password1.errors }}</div>
+
+        <input name="password2" type="password" placeholder="Verify Password" class="Verify-Password-Box">
+        <div class="error-message">{{ form.password2.errors }}</div>
+
+        <a class="Sign-In-Link" href="http://127.0.0.1:8000/signin/">Already have an account ?</a>
+
+        <button class="Sign-Up-Button">Sign Up</button>
+      </form>
+
+    </div>
+
+    <div>
+
+    </div>
+
+
+</body>
+
+</html>

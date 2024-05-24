@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="{% static 'account_page.css' %}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>
+        function chooseFile() {
+            document.getElementById("profile-picture-input").click();
+        }
+
+        // Function to submit the form when a file is selected
+        function submitForm() {
+            document.getElementById("profile-picture-form").submit();
+        }
+    </script>
+</head>
+<body>
+
+<div class="Container">
+    <h2 class="Welcome-Text"> Welcome! </h2>
+    <h2 class="Welcome-Text">{{ user.username }}</h2>
+
+    <div class="Profile-Picture-Container">
+        {% if user.profile_picture %}
+        <img class="profile-picture" src="{{ user.profile_picture.url }}" alt="avatar.jpg">
+        {% endif %}
+        <form method="POST" enctype="multipart/form-data" id="profile-picture-form">
+            {% csrf_token %}
+            <input type="file" name="profile_picture" id="profile-picture-input" class="Profile-Picture-Input"
+                   style="display:none;" onchange="submitForm()">
+            <button class="Profile-Button" type="button" onclick="chooseFile()"></button>
+        </form>
+    </div>
+
+    <div id="information" class="Tab-Content" style="display:block;">
+        <h2 class="User-Text">User Information</h2>
+        <p><strong>Username:</strong></p>
+        <p>{{ user.username }}</p>
+        <p><strong>First Name:</strong></p>
+        <p>{{ user.first_name }}</p>
+        <p><strong>Last Name:</strong></p>
+        <p>{{ user.last_name }}</p>
+        <p><strong>Email:</strong></p>
+        <p>{{ user.email }}</p>
+        <p><strong>Date Joined:</strong></p>
+        <p>{{ user.date_joined }}</p>
+    </div>
+
+    <div class="Button-Container">
+        <form method="POST">
+            {% csrf_token %}
+            <button class="Logout-Button" type="submit" name="logout">Logout</button>
+        </form>
+    </div>
+
+</div>
+
+</body>
+</html>

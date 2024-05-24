@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+
+<head>
+
+  <title>{% block title %}{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'sign_in.css' %}">
+
+</head>
+
+<body>
+
+    <div class="Sign-In-Container">
+
+        <h2 class="Sign-In-Text"> Sing In</h2>
+      <form method="post" action="{% url 'signin' %}">
+          {% csrf_token %}
+
+    <input name="username" type="text" placeholder="Username" class="Username-Box">
+
+    <input name="password" type="text" placeholder="Password" class="Password-Box">
+
+          {% for message in messages %}
+      <div class="error-message">
+        <p>{{ message }}</p>
+      </div>
+    {% endfor %}
+
+    <a class="Sign-Up-Link" href="http://127.0.0.1:8000/signup/">Don't have an account ?</a>
+
+    <button type="submit" class="Sign-In-Button">Log In</button>
+      </form>
+    </div>
+
+
+</body>
+
+</html>
