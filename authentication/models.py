@@ -7,7 +7,7 @@ from django.utils import timezone
 class Person(AbstractUser):
     email = models.EmailField(unique=True)
     authenticated = models.BooleanField(default=False)
-    profile_picture = models.ImageField(upload_to='profile_pictures/', null=True, blank=True, editable=True)
+    profile_picture = models.ImageField(upload_to='profile_pictures/', null=True, blank=True)
 
     def __str__(self):
         return self.username

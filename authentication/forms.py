@@ -4,6 +4,9 @@ from django.conf import settings
 from django.contrib.auth.forms import UserCreationForm
 from django import forms
 from .models import Person
+from django.utils.text import get_valid_filename
+from django.core.files.storage import default_storage
+from django.core.exceptions import ObjectDoesNotExist
 
 
 class SignUpForm(UserCreationForm):
@@ -31,16 +34,24 @@ class ProfilePictureForm(forms.ModelForm):
     def save(self, commit=True):
         person = super(ProfilePictureForm, self).save(commit=False)
 
-        # If the form is bound to an existing instance, delete the old image file
         if person.pk:
-            old_profile_picture = Person.objects.get(pk=person.pk).profile_picture
-            if old_profile_picture:
-                # Delete the old profile picture file from the storage
-                os.remove(os.path.join(settings.MEDIA_ROOT, str(old_profile_picture)))
+            try:
+                old_profile_picture = Person.objects.get(pk=person.pk).profile_picture
+                if old_profile_picture and old_profile_picture.name:
+                    old_file_path = os.path.join(settings.MEDIA_ROOT, old_profile_picture.name)
+                    if default_storage.exists(old_file_path):
+                        default_storage.delete(old_file_path)
+            except ObjectDoesNotExist:
+                pass
+            except Exception as e:
+                print(f"Error deleting old profile picture: {e}")
 
-        # Generate a unique filename for the new profile picture
-        filename = str(uuid4()) + os.path.splitext(self.cleaned_data['profile_picture'].name)[-1]
-        person.profile_picture.name = os.path.join('profile_pictures', filename)
+        new_profile_picture = self.cleaned_data.get('profile_picture')
+        if new_profile_picture:
+            extension = os.path.splitext(new_profile_picture.name)[-1]
+            unique_filename = f"{uuid4()}{extension}"
+            valid_filename = get_valid_filename(unique_filename)
+            person.profile_picture.name = os.path.join(valid_filename)
 
         if commit:
             person.save()

@@ -20,7 +20,7 @@ environ.Env.read_env(env_file="/my_auth_site/.env")
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-MEDIA_ROOT = Path(BASE_DIR, 'account_page/media')
+MEDIA_ROOT = Path(BASE_DIR, 'authentication/media')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
@@ -42,9 +42,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # 'sign_up',
-    # 'sign_in',
-    # 'account_page',
     'authentication',
 ]
 

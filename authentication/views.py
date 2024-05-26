@@ -18,16 +18,48 @@ from .forms import ProfilePictureForm
 
 
 @csrf_protect
-def signup(request, ):
+def signup(request):
     if request.method == 'POST':
         form = SignUpForm(request.POST)
         if form.is_valid():
-            user_data = form.cleaned_data
-            form.save()
-            return redirect('signin')
+            user = form.save()
+
+            verification_code = get_random_string(length=6)
+            VerificationCode.objects.create(user=user, code=verification_code)
+
+            send_mail(
+                'Verification Code',
+                f'Your verification code is: {verification_code}',
+                'EMAIL_HOST_USER',
+                [user.email],
+                fail_silently=False,
+            )
+
+            return redirect('verify_code')
     else:
         form = SignUpForm()
     return render(request, 'Sign_Up.html', {'form': form})
+
+
+@csrf_protect
+def verify_code(request):
+    if request.method == 'POST':
+        entered_code = request.POST.get('code')
+
+        if not entered_code:
+            messages.error(request, 'Please enter a verification code.')
+            return render(request, 'Verify_Code.html')
+
+        verification_code = VerificationCode.objects.filter(code=entered_code).last()
+
+        if verification_code:
+            verification_code.delete()
+
+            return redirect('signin')
+        else:
+            messages.error(request, 'Invalid verification code.')
+
+    return render(request, 'Verify_Code.html')
 
 
 @csrf_protect
@@ -38,50 +70,12 @@ def signin(request):
         user = authenticate(request, username=username, password=password)
 
         if user is not None:
-            user.authenticated = True
-            user.save()
-
-            user_email = user.email
-
-            verification_code = get_random_string(length=6)
-
-            VerificationCode.objects.create(user=user, code=verification_code)
-
-            send_mail(
-                'Verification Code',
-                f'Your verification code is: {verification_code}',
-                'EMAIL_HOST_USER',
-                [user_email],
-                fail_silently=False,
-            )
-
-            return redirect('verify_code')
-        else:
-            messages.error(request, 'Invalid username or email')
-
-    return render(request, 'Sign_In.html')
-
-
-@csrf_protect
-def verify_code(request):
-    if request.method == 'POST':
-        entered_code = request.POST.get('code')
-        user = None
-
-        verification_code = VerificationCode.objects.filter(code=entered_code).last()
-
-        if verification_code:
-            user = verification_code.user
-            verification_code.delete()
-
-            # Authenticate the user
             login(request, user)
-
             return redirect('account_page')
         else:
-            messages.error(request, 'Invalid verification code')
+            messages.error(request, 'Invalid username or password')
 
-    return render(request, 'Verify_Code.html')
+    return render(request, 'Sign_In.html')
 
 
 @login_required
