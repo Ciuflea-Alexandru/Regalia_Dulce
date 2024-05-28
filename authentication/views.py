@@ -1,20 +1,16 @@
-from django.shortcuts import render, redirect
-from .forms import SignUpForm
-from django.views.decorators.csrf import csrf_protect
-from django.dispatch import receiver
-from .models import DatabaseConfiguration
 import os
 from django.conf import settings
+from django.shortcuts import render, redirect
+from .forms import SignUpForm, ProfilePictureForm
+from django.views.decorators.csrf import csrf_protect
+from .models import DatabaseConfiguration, VerificationCode, EmailConfiguration
+from django.dispatch import receiver
 from django.db.models.signals import post_save
 from django.utils.crypto import get_random_string
-from django.contrib.auth import authenticate, login
-from .models import VerificationCode
 from django.core.mail import send_mail
 from django.contrib import messages
-from .models import EmailConfiguration
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth import logout
-from .forms import ProfilePictureForm
+from django.contrib.auth import authenticate, login, logout
 
 
 @csrf_protect
@@ -22,7 +18,9 @@ def signup(request):
     if request.method == 'POST':
         form = SignUpForm(request.POST)
         if form.is_valid():
-            user = form.save()
+            user = form.save(commit=False)
+            user.is_active = False
+            user.save()
 
             verification_code = get_random_string(length=6)
             VerificationCode.objects.create(user=user, code=verification_code)
@@ -52,9 +50,17 @@ def verify_code(request):
 
         verification_code = VerificationCode.objects.filter(code=entered_code).last()
 
-        if verification_code:
+        if verification_code.expired():
             verification_code.delete()
+            messages.error(request, 'Verification code has expired. Please request a new one.')
 
+        if verification_code:
+            user = verification_code.user
+            verification_code.delete()
+            user.is_active = True
+            user.save()
+
+            messages.success(request, 'Your account has been verified successfully. You can now log in.')
             return redirect('signin')
         else:
             messages.error(request, 'Invalid verification code.')
