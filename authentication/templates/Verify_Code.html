@@ -16,7 +16,8 @@
     <form method="post">
         {% csrf_token %}
 
-        <input class="Verify-Code-Box" type="text" id="code" name="code" required><br>
+        <input class="Verify-Code-Box" type="text" id="code" name="code"><br>
+        <button class="Resend-Code-Button">Resend Verification Code</button>
 
          {% for message in messages %}
       <div class="error-message">

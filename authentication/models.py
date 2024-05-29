@@ -32,8 +32,9 @@ class VerificationCode(models.Model):
 
         super().save(*args, **kwargs)
 
-    def expired(self):
-        expiration_time = self.created_at + timezone.timedelta(seconds=10)  # Adjust the duration as needed
+    @staticmethod
+    def expired():
+        expiration_time = timezone.now() + timezone.timedelta(minutes=1)
         return timezone.now() > expiration_time
 
 
