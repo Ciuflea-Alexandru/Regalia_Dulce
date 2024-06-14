@@ -13,7 +13,7 @@ from django.shortcuts import redirect
 from django.contrib import messages
 
 from .forms import SignUpForm, ProfilePictureForm
-from .models import DatabaseConfiguration, EmailConfiguration, VerificationCode
+from .models import DatabaseConfiguration, EmailConfiguration, VerificationCode, Person
 
 
 @csrf_protect
@@ -25,51 +25,80 @@ def signup(request):
             user.is_active = False
             user.save()
 
-            verification_code = get_random_string(length=6)
-            VerificationCode.objects.create(user=user, code=verification_code)
+            request.session['user_email'] = user.email
 
-            send_mail(
-                'Verification Code',
-                f'Your verification code is: {verification_code}',
-                'EMAIL_HOST_USER',
-                [user.email],
-                fail_silently=False,
-            )
+            send_code(user)
 
             return redirect('verify_code')
     else:
         form = SignUpForm()
+
     return render(request, 'Sign_Up.html', {'form': form})
+
 
 @csrf_protect
 def verify_code(request):
     if request.method == 'POST':
-        entered_code = request.POST.get('code')
+        if 'resend' in request.POST:
+            user_email = request.session.get('user_email')
 
-        if not entered_code:
-            messages.error(request, 'Please enter a verification code.')
+            if user_email:
+                user = Person.objects.filter(email=user_email).first()
+
+                if user:
+                    verification_code = VerificationCode.objects.filter(user=user).last()
+                    if verification_code:
+                        verification_code.delete()
+
+                    send_code(user)
+
+                    messages.success(request, 'A new verification code has been sent to your email.')
+                else:
+                    messages.error(request, 'No user email found.')
+
             return render(request, 'Verify_Code.html')
 
-        verification_code = VerificationCode.objects.filter(code=entered_code).last()
+        else:
+            entered_code = request.POST.get('code')
 
-        if verification_code is None:
-            messages.error(request, 'Invalid verification code.')
-            return render(request, 'Verify_Code.html')
+            if not entered_code:
+                messages.error(request, 'Please enter a verification code.')
+                return render(request, 'Verify_Code.html')
 
-        if verification_code.expired():
+            verification_code = VerificationCode.objects.filter(code=entered_code).last()
+
+            if verification_code is None:
+                messages.error(request, 'Invalid verification code.')
+                return render(request, 'Verify_Code.html')
+
+            if verification_code.expired():
+                verification_code.delete()
+                messages.error(request, 'Verification code has expired.')
+                return render(request, 'Verify_Code.html')
+
+            user = verification_code.user
             verification_code.delete()
-            messages.error(request, 'Verification code has expired.')
-            return render(request, 'Verify_Code.html')
+            user.is_active = True
+            user.save()
 
-        user = verification_code.user
-        verification_code.delete()
-        user.is_active = True
-        user.save()
+            request.session.pop('user_email', None)
 
-        messages.success(request, 'Your account has been verified successfully. You can now log in.')
-        return redirect('signin')
+            messages.success(request, 'Your account has been verified successfully. You can now log in.')
+            return redirect('signin')
 
     return render(request, 'Verify_Code.html')
+
+
+def send_code(user):
+    code = get_random_string(length=6)
+    VerificationCode.objects.create(user=user, code=code)
+    send_mail(
+        'Verification Code',
+        f'Your new verification code is: {code}',
+        'EMAIL_HOST_USER',
+        [user.email],
+        fail_silently=False,
+    )
 
 
 @csrf_protect

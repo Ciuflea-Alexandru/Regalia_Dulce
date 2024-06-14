@@ -1,4 +1,6 @@
-from django.db import models, connection
+from datetime import timedelta
+
+from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.conf import settings
 from django.utils import timezone
@@ -9,13 +11,6 @@ class Person(AbstractUser):
     authenticated = models.BooleanField(default=False)
     profile_picture = models.ImageField(upload_to='profile_pictures/', null=True, blank=True)
 
-    def save(self, *args, **kwargs):
-        if not self.pk:
-            with connection.cursor() as cursor:
-                cursor.execute("ALTER TABLE authentication_person AUTO_INCREMENT = 1")
-
-        super().save(*args, **kwargs)
-
     def __str__(self):
         return self.username
 
@@ -25,16 +20,10 @@ class VerificationCode(models.Model):
     code = models.CharField(max_length=6)
     created_at = models.DateTimeField(default=timezone.now)
 
-    def save(self, *args, **kwargs):
-        if not self.pk:
-            with connection.cursor() as cursor:
-                cursor.execute("ALTER TABLE authentication_verificationcode AUTO_INCREMENT = 1")
-
-        super().save(*args, **kwargs)
-
-    @staticmethod
-    def expired():
-        expiration_time = timezone.now() + timezone.timedelta(minutes=1)
+    # Only works with self.created_at
+    def expired(self):
+        expiration_period = timedelta(minutes=1)
+        expiration_time = self.created_at + expiration_period
         return timezone.now() > expiration_time
 
 
