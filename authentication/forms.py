@@ -57,3 +57,15 @@ class ProfilePictureForm(forms.ModelForm):
             person.save()
 
         return person
+
+
+class UserUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Person
+        fields = ['username', 'email']
+
+
+class ProfileUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Person
+        fields = ['first_name', 'last_name', 'country', 'gender']

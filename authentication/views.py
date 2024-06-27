@@ -5,14 +5,13 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.utils.crypto import get_random_string
 from django.views.decorators.csrf import csrf_protect
 from django.core.mail import send_mail
-from django.shortcuts import redirect
 from django.contrib import messages
 
-from .forms import SignUpForm, ProfilePictureForm
+from .forms import SignUpForm, ProfilePictureForm, UserUpdateForm, ProfileUpdateForm
 from .models import DatabaseConfiguration, EmailConfiguration, VerificationCode, Person
 
 
@@ -83,7 +82,7 @@ def verify_code(request):
 
             request.session.pop('user_email', None)
 
-            messages.success(request, 'Your account has been verified successfully. You can now log in.')
+            messages.success(request, 'Your account has been verified successfully.')
             return redirect('signin')
 
     return render(request, 'Verify_Code.html')
@@ -119,19 +118,37 @@ def signin(request):
 
 @login_required
 def account_page(request):
+    user_form = UserUpdateForm(instance=request.user)
+    profile_form = ProfileUpdateForm(instance=request.user)
+    picture_form = ProfilePictureForm(instance=request.user)
+
     if request.method == 'POST':
         if 'logout' in request.POST:
             logout(request)
             return redirect('signin')
-        else:
-            form = ProfilePictureForm(request.POST, request.FILES, instance=request.user)
-            if form.is_valid():
-                form.save()
+        elif 'save_account' in request.POST:
+            user_form = UserUpdateForm(request.POST, instance=request.user)
+            if user_form.is_valid():
+                user_form.save()
                 return redirect('account_page')
-    else:
-        form = ProfilePictureForm(instance=request.user)
+        elif 'save_personal' in request.POST:
+            profile_form = ProfileUpdateForm(request.POST, instance=request.user)
+            if profile_form.is_valid():
+                profile_form.save()
+                return redirect('account_page')
+        elif 'profile_picture' in request.FILES:
+            picture_form = ProfilePictureForm(request.POST, request.FILES, instance=request.user)
+            if picture_form.is_valid():
+                picture_form.save()
+                return redirect('account_page')
 
-    return render(request, 'account_page.html', {'form': form})
+    context = {
+        'user_form': user_form,
+        'profile_form': profile_form,
+        'picture_form': picture_form
+    }
+
+    return render(request, 'account_page.html', context)
 
 
 @receiver(post_save, sender=DatabaseConfiguration)

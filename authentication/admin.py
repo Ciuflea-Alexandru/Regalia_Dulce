@@ -1,10 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.models import Group
-from .models import Person
-from .models import DatabaseConfiguration
-from .models import EmailConfiguration
+from .models import Person, DatabaseConfiguration, EmailConfiguration
 from django import forms
-
 
 class PersonAdmin(admin.ModelAdmin):
     fields = ('username', 'first_name', 'last_name', 'email', 'date_joined', 'last_login', 'groups')
@@ -18,9 +15,14 @@ class PersonAdmin(admin.ModelAdmin):
     def has_add_permission(self, request):
         return request.user.is_superuser
 
+    def save_model(self, request, obj, form, change):
+        """
+        Override save_model to ensure the user exists before logging.
+        """
+        obj.save()
+        super().save_model(request, obj, form, change)
 
 admin.site.register(Person, PersonAdmin)
-
 
 @admin.register(DatabaseConfiguration)
 class DatabaseConfigurationAdmin(admin.ModelAdmin):
@@ -35,7 +37,6 @@ class DatabaseConfigurationAdmin(admin.ModelAdmin):
     def has_delete_permission(self, request, obj=None):
         return False
 
-
 class EmailConfigurationAdminForm(forms.ModelForm):
     class Meta:
         model = EmailConfiguration
@@ -45,7 +46,6 @@ class EmailConfigurationAdminForm(forms.ModelForm):
         if EmailConfiguration.objects.exists() and self.instance.pk is None:
             raise forms.ValidationError("Only one instance of EmailConfiguration is allowed.")
         return super().clean()
-
 
 @admin.register(EmailConfiguration)
 class EmailConfigurationAdmin(admin.ModelAdmin):

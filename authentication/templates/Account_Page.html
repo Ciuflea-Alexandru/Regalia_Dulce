@@ -2,56 +2,71 @@
 {% load static %}
 <html lang="en">
 <head>
-    <link rel="stylesheet" href="{% static 'account_page.css' %}">
+    <script src="{% static 'js/account_page.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'css/account_page.css' %}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script>
-        function chooseFile() {
-            document.getElementById("profile-picture-input").click();
-        }
-
-        // Function to submit the form when a file is selected
-        function submitForm() {
-            document.getElementById("profile-picture-form").submit();
-        }
-    </script>
 </head>
 <body>
-
-<div class="Container">
-    <h2 class="Welcome-Text"> Welcome! </h2>
-    <h2 class="Welcome-Text">{{ user.username }}</h2>
+<div class="Main-Container">
 
     <div class="Profile-Picture-Container">
         {% if user.profile_picture %}
         <img class="profile-picture" src="{{ user.profile_picture.url }}" alt="avatar.jpg">
         {% endif %}
-        <form method="POST" enctype="multipart/form-data" id="profile-picture-form">
+        <form method="POST" enctype="multipart/form-data" id="profile-picture-form" action="{% url 'account_page' %}">
             {% csrf_token %}
             <input type="file" name="profile_picture" id="profile-picture-input" class="Profile-Picture-Input"
                    style="display:none;" onchange="submitForm()">
-            <button class="Profile-Button" type="button" onclick="chooseFile()"></button>
+            <button class="Profile-Button" type="button" onclick="chooseFile()">Choose File</button>
         </form>
     </div>
 
-    <div id="information" class="Tab-Content" style="display:block;">
-        <h2 class="User-Text">User Information</h2>
-        <p><strong>Username:</strong></p>
-        <p>{{ user.username }}</p>
-        <p><strong>First Name:</strong></p>
-        <p>{{ user.first_name }}</p>
-        <p><strong>Last Name:</strong></p>
-        <p>{{ user.last_name }}</p>
-        <p><strong>Email:</strong></p>
-        <p>{{ user.email }}</p>
-        <p><strong>Date Joined:</strong></p>
-        <p>{{ user.date_joined }}</p>
+    <div class="Welcome-Container">
+        <h2 class="Welcome-Text">{{ user.username }}</h2>
     </div>
 
-    <div class="Button-Container">
-        <form method="POST">
+    <button class="Main-Button" onclick="showContainer('account-container')">Account Information</button>
+
+    <button class="Main-Button" onclick="showContainer('personal-container')">Personal Information</button>
+
+    <form method="POST" class="Logout-Form" action="{% url 'account_page' %}">
+        {% csrf_token %}
+        <button class="Main-Button" type="submit" name="logout">Logout</button>
+    </form>
+
+    <div class="Information-Container" id="account-container">
+        <h2 class="User-Text">User Information</h2>
+        <form method="POST" action="{% url 'account_page' %}">
             {% csrf_token %}
-            <button class="Logout-Button" type="submit" name="logout">Logout</button>
+            <p><strong>Username:</strong></p>
+            <input class="Info-Box" type="text" name="username" value="{{ user.username }}"><br>
+            <p><strong>Email:</strong></p>
+            <input class="Info-Box" type="email" name="email" value="{{ user.email }}"><br>
+            <p><strong>Date Joined:</strong> {{ user.date_joined }}</p>
+            <button class="Info-Button" type="submit" name="save_account">Save</button>
+            <button class="Info-Button" type="reset">Cancel</button>
+        </form>
+    </div>
+
+    <div class="Information-Container" id="personal-container">
+        <h2 class="User-Text">Personal Information</h2>
+        <form method="POST" action="{% url 'account_page' %}">
+            {% csrf_token %}
+            <p><strong>First Name:</strong></p>
+            <input class="Info-Box" type="text" name="first_name" value="{{ user.first_name }}"><br>
+            <p><strong>Last Name:</strong></p>
+            <input class="Info-Box" type="text" name="last_name" value="{{ user.last_name }}"><br>
+            <p><strong>Gender:</strong></p>
+            <select name="gender" class="Info-Box">
+                <option value="M" {% if user.gender == 'M' %} selected {% endif %}>Male</option>
+                <option value="F" {% if user.gender == 'F' %} selected {% endif %}>Female</option>
+            </select><br>
+
+            <p><strong>Country:</strong></p>
+            <input class="Info-Box" type="text" name="country" value="{{ user.country}}"><br>
+            <button class="Info-Button" type="submit" name="save_personal">Save</button>
+            <button class="Info-Button" type="reset">Cancel</button>
         </form>
     </div>
 
