@@ -1,8 +1,9 @@
 body {
-  background-color: #CE563C;
-  background-image:url("/static/images/background.gif");
+  background-color: #050505;
+  background-image:url("/static/images/");
   background-attachment: fixed;
   background-size: cover;
+  overflow: hidden;
 }
 
 .error-message {
@@ -12,9 +13,13 @@ body {
 
 .Sign-Up-Container {
             position: fixed;
-            top: 10%;
-            left: 35%;
-            border: 1px ;
+            border: 1px solid #CE563C;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
             padding: 20px;
             width: 550px;
             height: 800px;

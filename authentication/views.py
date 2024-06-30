@@ -1,8 +1,9 @@
 import os
 
 from django.conf import settings
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import PasswordChangeForm
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.shortcuts import render, redirect
@@ -121,6 +122,7 @@ def account_page(request):
     user_form = UserUpdateForm(instance=request.user)
     profile_form = ProfileUpdateForm(instance=request.user)
     picture_form = ProfilePictureForm(instance=request.user)
+    password_form = PasswordChangeForm(request.user)
 
     if request.method == 'POST':
         if 'logout' in request.POST:
@@ -141,11 +143,21 @@ def account_page(request):
             if picture_form.is_valid():
                 picture_form.save()
                 return redirect('account_page')
+        elif 'change_password' in request.POST:
+            password_form = PasswordChangeForm(request.user, request.POST)
+            if password_form.is_valid():
+                user = password_form.save()
+                update_session_auth_hash(request, user)
+                messages.success(request, 'Your password was successfully updated!')
+                return redirect('account_page')
+            else:
+                messages.error(request, 'Please correct the error below.')
 
     context = {
         'user_form': user_form,
         'profile_form': profile_form,
-        'picture_form': picture_form
+        'picture_form': picture_form,
+        'password_form': password_form
     }
 
     return render(request, 'account_page.html', context)

@@ -9,68 +9,111 @@
 </head>
 <body>
 <div class="Main-Container">
+    <div class="Switch-Container">
+        <div class="Profile-Picture-Container">
+            {% if user.profile_picture %}
+            <img class="profile-picture" src="{{ user.profile_picture.url }}" alt="avatar.jpg">
+            {% endif %}
+            <form method="POST" enctype="multipart/form-data" id="profile-picture-form" action="{% url 'account_page' %}">
+                {% csrf_token %}
+                <input type="file" name="profile_picture" id="profile-picture-input" class="Profile-Picture-Input"
+                       style="display:none;" onchange="submitForm()">
+                <button class="Profile-Button" type="button" onclick="chooseFile()"></button>
+            </form>
+        </div>
 
-    <div class="Profile-Picture-Container">
-        {% if user.profile_picture %}
-        <img class="profile-picture" src="{{ user.profile_picture.url }}" alt="avatar.jpg">
-        {% endif %}
-        <form method="POST" enctype="multipart/form-data" id="profile-picture-form" action="{% url 'account_page' %}">
+        <div class="Welcome-Container">
+            <h2 class="Welcome-Text">Welcome</h2>
+            <h2 class="Welcome-Text">{{ user.username }}</h2>
+        </div>
+
+        <button class="Main-Button" onclick="showContainer('account-container')">Account Information</button>
+        <button class="Main-Button" onclick="showContainer('personal-container')">Personal Information</button>
+
+        <form method="POST" class="Logout-Form" action="{% url 'account_page' %}">
             {% csrf_token %}
-            <input type="file" name="profile_picture" id="profile-picture-input" class="Profile-Picture-Input"
-                   style="display:none;" onchange="submitForm()">
-            <button class="Profile-Button" type="button" onclick="chooseFile()">Choose File</button>
+            <button class="Main-Button" type="submit" name="logout">Logout</button>
         </form>
     </div>
-
-    <div class="Welcome-Container">
-        <h2 class="Welcome-Text">{{ user.username }}</h2>
-    </div>
-
-    <button class="Main-Button" onclick="showContainer('account-container')">Account Information</button>
-
-    <button class="Main-Button" onclick="showContainer('personal-container')">Personal Information</button>
-
-    <form method="POST" class="Logout-Form" action="{% url 'account_page' %}">
-        {% csrf_token %}
-        <button class="Main-Button" type="submit" name="logout">Logout</button>
-    </form>
 
     <div class="Information-Container" id="account-container">
-        <h2 class="User-Text">User Information</h2>
         <form method="POST" action="{% url 'account_page' %}">
             {% csrf_token %}
-            <p><strong>Username:</strong></p>
-            <input class="Info-Box" type="text" name="username" value="{{ user.username }}"><br>
-            <p><strong>Email:</strong></p>
-            <input class="Info-Box" type="email" name="email" value="{{ user.email }}"><br>
-            <p><strong>Date Joined:</strong> {{ user.date_joined }}</p>
-            <button class="Info-Button" type="submit" name="save_account">Save</button>
-            <button class="Info-Button" type="reset">Cancel</button>
+            <h2 class="User-Text">User Information</h2>
+            <div class="Left-Box-Container">
+                <p><strong>Username:</strong></p>
+                <input class="Info-Box" type="text" name="username" value="{{ user.username }}"><br>
+
+                <p><strong>Date Joined:</strong> {{ user.date_joined }}</p>
+            </div>
+            <div class="Right-Box-Container">
+                <p><strong>Email:</strong></p>
+                <input class="Info-Box" type="email" name="email" value="{{ user.email }}"><br>
+            </div>
+
+
+            <div class="Info-Button-Container">
+                <button class="Info-Button" type="button" onclick="showContainer('change-password-container')">Change Password</button>
+                <button class="Info-Button" type="submit" name="save_account">Save</button>
+                <button class="Info-Button" type="reset">Cancel</button>
+            </div>
         </form>
     </div>
 
+    <div class="Information-Container" id="change-password-container">
+        <form method="POST" action="{% url 'account_page' %}" id="change-password-form">
+            {% csrf_token %}
+            <h2 class="User-Text">Change Password</h2>
+            <div class="Middle-Box-Container">
+                <p><strong>Old Password:</strong></p>
+                <input class="Info-Box" type="password" name="old_password"><br>
+
+                <p><strong>New Password:</strong></p>
+                <input class="Info-Box" type="password" name="new_password1"><br>
+
+                <p><strong>Confirm New Password:</strong></p>
+                <input class="Info-Box" type="password" name="new_password2"><br>
+            </div>
+
+            <div class="Info-Button-Container">
+                <button class="Info-Button" type="submit" name="change_password">Save</button>
+                <button class="Info-Button" type="button" onclick="cancelChangePassword()">Cancel</button>
+            </div>
+        </form>
+    </div>
+
+
     <div class="Information-Container" id="personal-container">
-        <h2 class="User-Text">Personal Information</h2>
         <form method="POST" action="{% url 'account_page' %}">
             {% csrf_token %}
-            <p><strong>First Name:</strong></p>
-            <input class="Info-Box" type="text" name="first_name" value="{{ user.first_name }}"><br>
-            <p><strong>Last Name:</strong></p>
-            <input class="Info-Box" type="text" name="last_name" value="{{ user.last_name }}"><br>
-            <p><strong>Gender:</strong></p>
-            <select name="gender" class="Info-Box">
-                <option value="M" {% if user.gender == 'M' %} selected {% endif %}>Male</option>
-                <option value="F" {% if user.gender == 'F' %} selected {% endif %}>Female</option>
-            </select><br>
 
-            <p><strong>Country:</strong></p>
-            <input class="Info-Box" type="text" name="country" value="{{ user.country}}"><br>
-            <button class="Info-Button" type="submit" name="save_personal">Save</button>
-            <button class="Info-Button" type="reset">Cancel</button>
+            <h2 class="User-Text">Personal Information</h2>
+            <div class="Left-Box-Container">
+
+                <p><strong>First Name:</strong></p>
+                <input class="Info-Box" type="text" name="first_name" value="{{ user.first_name }}"><br>
+                <p><strong>Country:</strong></p>
+                <input class="Info-Box" type="text" name="country" value="{{ user.country}}"><br>
+            </div>
+            <div class="Right-Box-Container">
+                <p><strong>Last Name:</strong></p>
+                <input class="Info-Box" type="text" name="last_name" value="{{ user.last_name }}"><br>
+
+                <p><strong>Gender:</strong></p>
+                <select name="gender" class="Info-Box">
+                    <option value="M" {% if user.gender == 'M' %} selected {% endif %}>Male</option>
+                    <option value="F" {% if user.gender == 'F' %} selected {% endif %}>Female</option>
+                </select><br>
+            </div>
+
+            <div class="Info-Button-Container">
+                <button class="Info-Button" type="submit" name="save_personal">Save</button>
+                <button class="Info-Button" type="reset">Cancel</button>
+            </div>
         </form>
+
     </div>
 
 </div>
-
 </body>
 </html>

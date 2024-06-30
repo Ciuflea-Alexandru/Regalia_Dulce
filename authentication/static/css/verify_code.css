@@ -1,8 +1,9 @@
 body {
-  background-color: #CE563C;
-  background-image:url("/static/images/background.gif");
+  background-color: #050505;
+  background-image:url("/static/images/");
   background-attachment: fixed;
   background-size: cover;
+  overflow: hidden;
 }
 
 .error-message {
@@ -15,10 +16,10 @@ body {
 
 .Verify-Code-Container {
             position: fixed;
+            border: 1px solid #CE563C;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            border: 1px ;
             padding: 20px;
             width: auto;
             min-height: 400px;

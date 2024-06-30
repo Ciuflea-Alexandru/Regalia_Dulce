@@ -6,6 +6,14 @@ function submitForm() {
     document.getElementById("profile-picture-form").submit();
 }
 
+function cancelChangePassword() {
+    document.getElementById("change-password-form").reset();
+
+    document.getElementById("change-password-container").style.display = "none";
+
+    document.getElementById("account-container").style.display = "block";
+}
+
 function showContainer(containerId) {
     var containers = document.querySelectorAll('.Information-Container');
     containers.forEach(function(container) {
