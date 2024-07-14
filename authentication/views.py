@@ -30,8 +30,14 @@ def signup(request):
             send_code(user)
 
             return redirect('verify_code')
+        else:
+            request.session['signup_form_errors'] = form.errors
+            return redirect('signup')
     else:
         form = SignUpForm()
+
+    if 'signup_form_errors' in request.session:
+        form.errors.update(request.session.pop('signup_form_errors'))
 
     return render(request, 'Sign_Up.html', {'form': form})
 
@@ -52,9 +58,9 @@ def verify_code(request):
 
                     send_code(user)
 
-                    messages.success(request, 'A new verification code has been sent to your email.')
-                else:
-                    messages.error(request, 'No user email found.')
+                    messages.success(request, 'A new verification code has been sent to your email.'
+                                     , extra_tags='verify_code')
+                    return redirect('verify_code')
 
             return render(request, 'Verify_Code.html')
 
@@ -62,19 +68,19 @@ def verify_code(request):
             entered_code = request.POST.get('code')
 
             if not entered_code:
-                messages.error(request, 'Please enter a verification code.')
-                return render(request, 'Verify_Code.html')
+                messages.error(request, 'Please enter a verification code.', extra_tags='verify_code')
+                return redirect('verify_code')
 
             verification_code = VerificationCode.objects.filter(code=entered_code).last()
 
             if verification_code is None:
-                messages.error(request, 'Invalid verification code.')
-                return render(request, 'Verify_Code.html')
+                messages.error(request, 'Invalid verification code.', extra_tags='verify_code')
+                return redirect('verify_code')
 
             if verification_code.expired():
                 verification_code.delete()
-                messages.error(request, 'Verification code has expired.')
-                return render(request, 'Verify_Code.html')
+                messages.error(request, 'Verification code has expired.', extra_tags='verify_code')
+                return redirect('verify_code')
 
             user = verification_code.user
             verification_code.delete()
@@ -112,7 +118,8 @@ def signin(request):
             login(request, user)
             return redirect('account_page')
         else:
-            messages.error(request, 'Invalid username or password')
+            messages.error(request, 'Invalid username or password', extra_tags='sign_in')
+            return redirect('signin')
 
     return render(request, 'Sign_In.html')
 
@@ -132,26 +139,50 @@ def account_page(request):
             user_form = UserUpdateForm(request.POST, instance=request.user)
             if user_form.is_valid():
                 user_form.save()
+                messages.success(request, 'Your account details have been updated successfully.',
+                                 extra_tags='account')
+                return redirect('account_page')
+            else:
+                request.session['user_form_errors'] = user_form.errors
                 return redirect('account_page')
         elif 'save_personal' in request.POST:
             profile_form = ProfileUpdateForm(request.POST, instance=request.user)
             if profile_form.is_valid():
                 profile_form.save()
+                messages.success(request, 'Your personal information has been updated successfully.',
+                                 extra_tags='personal')
+                return redirect('account_page')
+            else:
+                request.session['profile_form_errors'] = profile_form.errors
                 return redirect('account_page')
         elif 'profile_picture' in request.FILES:
             picture_form = ProfilePictureForm(request.POST, request.FILES, instance=request.user)
             if picture_form.is_valid():
                 picture_form.save()
                 return redirect('account_page')
+            else:
+                request.session['picture_form_errors'] = picture_form.errors
+                return redirect('account_page')
         elif 'change_password' in request.POST:
             password_form = PasswordChangeForm(request.user, request.POST)
             if password_form.is_valid():
                 user = password_form.save()
                 update_session_auth_hash(request, user)
-                messages.success(request, 'Your password was successfully updated!')
+                messages.success(request, 'Your password was successfully updated!',
+                                 extra_tags='password')
                 return redirect('account_page')
             else:
-                messages.error(request, 'Please correct the error below.')
+                request.session['password_form_errors'] = password_form.errors
+                return redirect('account_page')
+
+    if 'user_form_errors' in request.session:
+        user_form.errors.update(request.session.pop('user_form_errors'))
+    if 'profile_form_errors' in request.session:
+        profile_form.errors.update(request.session.pop('profile_form_errors'))
+    if 'picture_form_errors' in request.session:
+        picture_form.errors.update(request.session.pop('picture_form_errors'))
+    if 'password_form_errors' in request.session:
+        password_form.errors.update(request.session.pop('password_form_errors'))
 
     context = {
         'user_form': user_form,

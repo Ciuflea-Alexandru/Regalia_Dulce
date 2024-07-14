@@ -1,4 +1,4 @@
-body {
+Body {
     background-color: #050505;
     background-image: url("/static/images/");
     background-attachment: fixed;
@@ -6,7 +6,7 @@ body {
     overflow: hidden;
 }
 
-.error-message {
+.Message {
     color: #CE563C;
     font-size: 20px;
 }
@@ -43,7 +43,7 @@ body {
     align-items: center;
 }
 
-.profile-picture {
+.Profile-picture {
     width: 70%;
     height: 100%;
     border-radius: 50%;
@@ -173,7 +173,17 @@ body {
     font-family: 'verdana';
 }
 
-.Info-Button-Container {
+.Button-Container-1 {
+    color: #CE563C;
+    font-size: 14px;
+    position: absolute;
+    Bottom:10%;
+    width: 100%;
+    text-align: center;
+}
+
+
+.Button-Container-2 {
     display: flex;
     justify-content: center;
     align-items: center;

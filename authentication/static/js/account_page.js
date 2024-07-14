@@ -6,12 +6,10 @@ function submitForm() {
     document.getElementById("profile-picture-form").submit();
 }
 
-function cancelChangePassword() {
-    document.getElementById("change-password-form").reset();
+function resetPassword() {
+    window.location.reload();
 
-    document.getElementById("change-password-container").style.display = "none";
-
-    document.getElementById("account-container").style.display = "block";
+    localStorage.setItem('changePasswordVisible', 'false');
 }
 
 function showContainer(containerId) {
@@ -23,10 +21,25 @@ function showContainer(containerId) {
             container.style.display = 'none';
         }
     });
+
+    if (containerId === 'change-password-container') {
+        localStorage.setItem('changePasswordVisible', 'true');
+    } else {
+        localStorage.setItem('changePasswordVisible', 'false');
+    }
 }
 
 document.addEventListener("DOMContentLoaded", function() {
-    showContainer('account-container');
+    const changePasswordVisible = localStorage.getItem('changePasswordVisible');
+    const initialContainer = localStorage.getItem('initialContainer');
+
+    if (changePasswordVisible === 'true') {
+        showContainer('change-password-container');
+    } else if (initialContainer === 'personal-container') {
+        showContainer('personal-container');
+    } else {
+        showContainer('account-container');
+    }
 
     const buttons = document.querySelectorAll('.Main-Button');
     buttons.forEach(button => {
@@ -36,6 +49,9 @@ document.addEventListener("DOMContentLoaded", function() {
             });
 
             this.classList.add('active');
+
+            const containerId = this.dataset.container;
+            localStorage.setItem('initialContainer', containerId);
         });
     });
 });

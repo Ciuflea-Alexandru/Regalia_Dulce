@@ -12,9 +12,10 @@
     <div class="Switch-Container">
         <div class="Profile-Picture-Container">
             {% if user.profile_picture %}
-            <img class="profile-picture" src="{{ user.profile_picture.url }}" alt="avatar.jpg">
+            <img class="Profile-picture" src="{{ user.profile_picture.url }}" alt="avatar.jpg">
             {% endif %}
-            <form method="POST" enctype="multipart/form-data" id="profile-picture-form" action="{% url 'account_page' %}">
+            <form method="POST" enctype="multipart/form-data"
+                  id="profile-picture-form" action="{% url 'account_page' %}">
                 {% csrf_token %}
                 <input type="file" name="profile_picture" id="profile-picture-input" class="Profile-Picture-Input"
                        style="display:none;" onchange="submitForm()">
@@ -27,8 +28,12 @@
             <h2 class="Welcome-Text">{{ user.username }}</h2>
         </div>
 
-        <button class="Main-Button" onclick="showContainer('account-container')">Account Information</button>
-        <button class="Main-Button" onclick="showContainer('personal-container')">Personal Information</button>
+        <button class="Main-Button" onclick="showContainer('account-container')" data-container="account-container">
+            Account Information
+        </button>
+        <button class="Main-Button" onclick="showContainer('personal-container')" data-container="personal-container">
+            Personal Information
+        </button>
 
         <form method="POST" class="Logout-Form" action="{% url 'account_page' %}">
             {% csrf_token %}
@@ -37,83 +42,161 @@
     </div>
 
     <div class="Information-Container" id="account-container">
-        <form method="POST" action="{% url 'account_page' %}">
+        <form method="POST" action="{% url 'account_page' %}" novalidate>
             {% csrf_token %}
-            <h2 class="User-Text">User Information</h2>
+            <h2 class="User-Text">Account Information</h2>
             <div class="Left-Box-Container">
                 <p><strong>Username:</strong></p>
-                <input class="Info-Box" type="text" name="username" value="{{ user.username }}"><br>
+                <input class="Info-Box" type="text" name="username" value="{{ user.username }}">
+                {% for error in user_form.username.errors %}
+                    <div class="Message">
+                        <p>{{ error }}</p>
+                    </div>
+                {% endfor %}
+                <br>
 
                 <p><strong>Date Joined:</strong> {{ user.date_joined }}</p>
             </div>
             <div class="Right-Box-Container">
                 <p><strong>Email:</strong></p>
-                <input class="Info-Box" type="email" name="email" value="{{ user.email }}"><br>
+                <input class="Info-Box" type="email" name="email" value="{{ user.email }}">
+                {% for error in user_form.email.errors %}
+                    <div class="Message">
+                        <p>{{ error }}</p>
+                    </div>
+                {% endfor %}
+                <br>
             </div>
 
+            <div class="Button-Container-1">
+                {% for message in messages %}
+                {% if 'account' in message.tags %}
+                <div class="Message">
+                    {{ message }}
+                </div>
+                {% endif %}
+                {% endfor %}
+                <button class="Info-Button" type="button"
+                        onclick="showContainer('change-password-container')">Change Password
+                </button>
+            </div>
 
-            <div class="Info-Button-Container">
-                <button class="Info-Button" type="button" onclick="showContainer('change-password-container')">Change Password</button>
+            <div class="Button-Container-2">
                 <button class="Info-Button" type="submit" name="save_account">Save</button>
-                <button class="Info-Button" type="reset">Cancel</button>
+                <button class="Info-Button" type="button" onclick="window.location.reload();">Reset</button>
             </div>
         </form>
     </div>
 
     <div class="Information-Container" id="change-password-container">
-        <form method="POST" action="{% url 'account_page' %}" id="change-password-form">
+        <form method="POST" action="{% url 'account_page' %}" id="change-password-form" novalidate>
             {% csrf_token %}
             <h2 class="User-Text">Change Password</h2>
             <div class="Middle-Box-Container">
                 <p><strong>Old Password:</strong></p>
-                <input class="Info-Box" type="password" name="old_password"><br>
+                <input class="Info-Box" type="password" id="password" name="old_password">
+                {% for error in password_form.old_password.errors %}
+                    <div class="Message">
+                        <p>{{ error }}</p>
+                    </div>
+                {% endfor %}
 
                 <p><strong>New Password:</strong></p>
-                <input class="Info-Box" type="password" name="new_password1"><br>
+                <input class="Info-Box" type="password" name="new_password1">
+                {% for error in password_form.new_password1.errors %}
+                    <div class="Message">
+                        <p>{{ error }}</p>
+                    </div>
+                {% endfor %}
 
                 <p><strong>Confirm New Password:</strong></p>
-                <input class="Info-Box" type="password" name="new_password2"><br>
+                <input class="Info-Box" type="password" name="new_password2">
+                {% for error in password_form.new_password2.errors %}
+                    <div class="Message">
+                        <p>{{ error }}</p>
+                    </div>
+                {% endfor %}
             </div>
 
-            <div class="Info-Button-Container">
+            <div class="Button-Container-1">
+                {% for message in messages %}
+                {% if 'password' in message.tags %}
+                <div class="Message">
+                    {{ message }}
+                </div>
+                {% endif %}
+                {% endfor %}
+            </div>
+
+            <div class="Button-Container-2">
                 <button class="Info-Button" type="submit" name="change_password">Save</button>
-                <button class="Info-Button" type="button" onclick="cancelChangePassword()">Cancel</button>
+                <button class="Info-Button" type="button" onclick="resetPassword()">Cancel</button>
             </div>
         </form>
     </div>
 
-
     <div class="Information-Container" id="personal-container">
-        <form method="POST" action="{% url 'account_page' %}">
+        <form method="POST" action="{% url 'account_page' %}" novalidate>
             {% csrf_token %}
-
             <h2 class="User-Text">Personal Information</h2>
             <div class="Left-Box-Container">
-
                 <p><strong>First Name:</strong></p>
-                <input class="Info-Box" type="text" name="first_name" value="{{ user.first_name }}"><br>
+                <input class="Info-Box" type="text" name="first_name" value="{{ user.first_name }}">
+                {% for error in profile_form.first_name.errors %}
+                    <div class="Message">
+                        <p>{{ error }}</p>
+                    </div>
+                {% endfor %}
+                <br>
                 <p><strong>Country:</strong></p>
-                <input class="Info-Box" type="text" name="country" value="{{ user.country}}"><br>
+                <input class="Info-Box" type="text" name="country" value="{{ user.country }}">
+                {% for error in profile_form.country.errors %}
+                    <div class="Message">
+                        <p>{{ error }}</p>
+                    </div>
+                {% endfor %}
+                <br>
             </div>
             <div class="Right-Box-Container">
                 <p><strong>Last Name:</strong></p>
-                <input class="Info-Box" type="text" name="last_name" value="{{ user.last_name }}"><br>
+                <input class="Info-Box" type="text" name="last_name" value="{{ user.last_name }}">
+                {% for error in profile_form.last_name.errors %}
+                    <div class="Message">
+                        <p>{{ error }}</p>
+                    </div>
+                {% endfor %}
+                <br>
 
                 <p><strong>Gender:</strong></p>
                 <select name="gender" class="Info-Box">
                     <option value="M" {% if user.gender == 'M' %} selected {% endif %}>Male</option>
                     <option value="F" {% if user.gender == 'F' %} selected {% endif %}>Female</option>
-                </select><br>
+                </select>
+                {% for error in profile_form.gender.errors %}
+                    <div class="Message">
+                        <p>{{ error }}</p>
+                    </div>
+                {% endfor %}
+                <br>
             </div>
 
-            <div class="Info-Button-Container">
+            <div class="Button-Container-1">
+                {% for message in messages %}
+                {% if 'personal' in message.tags %}
+                <div class="Message">
+                    {{ message }}
+                </div>
+                {% endif %}
+                {% endfor %}
+            </div>
+
+
+            <div class="Button-Container-2">
                 <button class="Info-Button" type="submit" name="save_personal">Save</button>
-                <button class="Info-Button" type="reset">Cancel</button>
+                <button class="Info-Button" type="button" onclick="window.location.reload();">Reset</button>
             </div>
         </form>
-
     </div>
-
 </div>
 </body>
 </html>

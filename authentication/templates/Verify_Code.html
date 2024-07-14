@@ -5,29 +5,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{% static 'css/verify_code.css' %}">
-    <title>Verification Code</title>
 </head>
 <body>
 
 <div class="Verify-Code-Container">
 
-    <h2 class="Verify-Code-Text">Enter Verification Code</h2>
 
-    <form method="post" action="{% url 'verify_code' %}">
+    <form method="post" action="{% url 'verify_code' %}" novalidate>
         {% csrf_token %}
+        <h2 class="Verify-Code-Text">Enter Verification Code</h2>
         <input type="hidden" name="user_id" value="{{ user.id }}">
         <div>
             <input class="Verify-Code-Box" type="text" id="code" name="code"><br>
         </div>
+        {% for message in messages %}
+        {% if 'verify_code' in message.tags %}
+        <div class="Message">
+            <p>{{ message }}</p>
+        </div>
+        {% endif %}
+        {% endfor %}
+        <button class="Verify-Code-Button" type="submit" name="submit">Submit</button>
         <div>
             <button class="Resend-Code-Button" type="submit" name="resend">Resend Verification Code</button>
         </div>
-        {% for message in messages %}
-        <div class="error-message">
-            <p>{{ message }}</p>
-        </div>
-        {% endfor %}
-        <button class="Verify-Code-Button" type="submit" name="submit">Submit</button>
     </form>
 
 </div>

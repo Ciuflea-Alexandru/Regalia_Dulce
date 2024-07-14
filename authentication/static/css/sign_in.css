@@ -1,14 +1,14 @@
-body {
-  background-color: #050505;
-  background-image:url("/static/images/");
-  background-attachment: fixed;
-  background-size: cover;
-  overflow: hidden;
+Body {
+    background-color: #050505;
+    background-image: url("/static/images/");
+    background-attachment: fixed;
+    background-size: cover;
+    overflow: hidden;
 }
 
-.error-message {
+.Message {
     color: #CE563C;
-    font-size: 20px;
+    font-size: 30px;
 }
 
 
@@ -16,6 +16,7 @@ body {
             position: fixed;
             border: 1px solid #CE563C;
             display: flex;
+            text-align: center;
             flex-direction: column;
             align-items: center;
             top: 50%;
@@ -42,6 +43,7 @@ body {
             font-size:25px;
             margin: 20px 0px;
             display: block;
+            text-align: center;
             width: 95%;
             padding: 10px;
             border: 1px solid #050505;
@@ -56,32 +58,7 @@ body {
             font-size:25px;
             margin: 20px 0px;
             display: block;
-            width: 95%;
-            padding: 10px;
-            border: 1px solid #050505;
-            outline-style: outset;
-            outline-color: #CE563C ;
-            background-color:#CE563C ;
-            font-family:'verdana'
-        }
-
-.Verify-Password-Box {
-            font-size:25px;
-            margin: 20px 0px;
-            display: block;
-            width: 95%;
-            padding: 10px;
-            border: 1px solid #050505;
-            outline-style: outset;
-            outline-color: #CE563C ;
-            background-color:#CE563C ;
-            font-family:'verdana'
-        }
-
-.Email-Box {
-            font-size:25px;
-            margin: 20px 0px;
-            display: block;
+            text-align: center;
             width: 95%;
             padding: 10px;
             border: 1px solid #050505;

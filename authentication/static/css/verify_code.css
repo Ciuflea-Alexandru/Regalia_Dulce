@@ -1,17 +1,14 @@
-body {
-  background-color: #050505;
-  background-image:url("/static/images/");
-  background-attachment: fixed;
-  background-size: cover;
-  overflow: hidden;
+Body {
+    background-color: #050505;
+    background-image: url("/static/images/");
+    background-attachment: fixed;
+    background-size: cover;
+    overflow: hidden;
 }
 
-.error-message {
+.Message {
     color: #CE563C;
-    font-size: 25px;
-    margin: 0 auto;
-    padding: 20px;
-    text-align: center;
+    font-size: 30px;
 }
 
 .Verify-Code-Container {
@@ -29,7 +26,6 @@ body {
             display: flex;
             text-align: center;
             flex-direction: column;
-            justify-content: center;
             align-items: center;
         }
 
@@ -42,9 +38,8 @@ body {
 .Verify-Code-Box {
             font-size:25px;
             text-align:center;
-            margin: 20px auto;
+            margin: 30px auto;
             display: block;
-            width: auto;
             padding: 10px;
             border: 1px solid #050505;
             outline-style: outset;
@@ -58,7 +53,7 @@ body {
             background-color: #CE563C;
             font-size:40px;
             color: #050505;
-            margin: 50px auto;
+            margin: 10px auto;
             display: inline-block;
             padding: 20px 80px;
             border: 1px solid #050505;
@@ -76,7 +71,6 @@ body {
 .Resend-Code-Button {
             background: none;
             border: none;
-            padding:0px 30px;
             color: #CE563C;
             display: inline-block;
             cursor: pointer;

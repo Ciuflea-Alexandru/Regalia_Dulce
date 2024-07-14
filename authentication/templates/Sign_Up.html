@@ -13,26 +13,42 @@
 
     <div class="Sign-Up-Container">
 
-        <h2 class="Sign-Up-Text"> Sing Up</h2>
-      <form method="post" action="{% url 'signup' %}">
+        <h2 class="Sign-Up-Text">Sign Up</h2>
+      <form method="post" action="{% url 'signup' %}" autocomplete="on" novalidate>
 
         {% csrf_token %}
 
-        <input name="username" type="text" placeholder="Username" class="Name-Box">
-        <div class="error-message">{{ form.username.errors }}</div>
+        <input name="username" type="text" placeholder="Username"
+               class="Name-Box" autocomplete="username">
+                {% for error in form.username.errors %}
+                    <div class="Message">
+                        <p>{{ error }}</p>
+                    </div>
+                {% endfor %}
+        <input name="email" type="email" placeholder="Email"
+               class="Email-Box" autocomplete="email">
+                {% for error in form.email.errors %}
+                    <div class="Message">
+                        <p>{{ error }}</p>
+                    </div>
+                {% endfor %}
+        <input name="password1" type="password" placeholder="Password"
+               class="Password-Box" autocomplete="new-password">
+                {% for error in form.password1.errors %}
+                    <div class="Message">
+                        <p>{{ error }}</p>
+                    </div>
+                {% endfor %}
+        <input name="password2" type="password" placeholder="Verify Password"
+               class="Verify-Password-Box" autocomplete="new-password">
+                {% for error in form.password2.errors %}
+                    <div class="Message">
+                        <p>{{ error }}</p>
+                    </div>
+                {% endfor %}
+        <a class="Sign-In-Link" href="http://127.0.0.1:8000/signin/">Already have an account?</a>
 
-        <input name="email" type="text" placeholder="Email" class="Email-Box">
-        <div class="error-message">{{ form.email.errors }}</div>
-
-        <input name="password1" type="password" placeholder="Password" class="Password-Box">
-        <div class="error-message">{{ form.password1.errors }}</div>
-
-        <input name="password2" type="password" placeholder="Verify Password" class="Verify-Password-Box">
-        <div class="error-message">{{ form.password2.errors }}</div>
-
-        <a class="Sign-In-Link" href="http://127.0.0.1:8000/signin/">Already have an account ?</a>
-
-        <button class="Sign-Up-Button">Sign Up</button>
+        <button type="submit" class="Sign-Up-Button">Sign Up</button>
       </form>
 
     </div>
@@ -40,7 +56,6 @@
     <div>
 
     </div>
-
 
 </body>
 
