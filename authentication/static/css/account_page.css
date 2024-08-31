@@ -66,8 +66,10 @@ Body {
 
 .Welcome-Container {
     text-align: center;
+    position: static;
     height: 80px;
     width: 100%;
+    margin: -1px;
     background-color: #CE563C;
     display: flex;
     flex-direction: column;

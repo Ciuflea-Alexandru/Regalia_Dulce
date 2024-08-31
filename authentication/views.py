@@ -3,14 +3,19 @@ import os
 from django.conf import settings
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.forms import PasswordChangeForm
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.shortcuts import render, redirect
 from django.utils.crypto import get_random_string
+from django.utils.encoding import force_str
 from django.views.decorators.csrf import csrf_protect
 from django.core.mail import send_mail
 from django.contrib import messages
+from django.contrib.auth.hashers import make_password
 
 from .forms import SignUpForm, ProfilePictureForm, UserUpdateForm, ProfileUpdateForm
 from .models import DatabaseConfiguration, EmailConfiguration, VerificationCode, Person
@@ -58,8 +63,8 @@ def verify_code(request):
 
                     send_code(user)
 
-                    messages.success(request, 'A new verification code has been sent to your email.'
-                                     , extra_tags='verify_code')
+                    messages.success(request, 'A new verification code has been sent to your email.',
+                                     extra_tags='verify_code')
                     return redirect('verify_code')
 
             return render(request, 'Verify_Code.html')
@@ -122,6 +127,70 @@ def signin(request):
             return redirect('signin')
 
     return render(request, 'Sign_In.html')
+
+
+@csrf_protect
+def forgot_password_link(request):
+    if request.method == 'POST':
+        email = request.POST.get('email')
+
+        try:
+            user = Person.objects.get(email=email)
+            token = default_token_generator.make_token(user)
+            uid = urlsafe_base64_encode(force_bytes(user.pk))
+            domain = settings.SITE_URL
+            reset_link = f"{domain}/forgot_password/reset/{uid}/{token}/"
+
+            subject = "Password Reset Request"
+            message = f"""
+            Hello {user.username},
+
+            You requested a password reset. Click the link below to reset your password:
+
+            {reset_link}
+
+            If you didn't request this pin, i recommend you change your password.
+            """
+            send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [email])
+
+            messages.success(request, 'A password reset link has been sent to your email address.',
+                             extra_tags="forgot_password_link")
+            return redirect('forgot_password_link')
+        except Person.DoesNotExist:
+            messages.error(request, 'User with this email does not exist.',
+                           extra_tags='forgot_password_link')
+            return redirect('forgot_password_link')
+
+    return render(request, 'Forgot_Password_Link.html')
+
+
+def forgot_password_reset(request, uidb64, token):
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = Person.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, Person.DoesNotExist):
+        user = None
+
+    if user is not None and default_token_generator.check_token(user, token):
+        if request.method == 'POST':
+            new_password = request.POST.get('new-password')
+            confirm_password = request.POST.get('confirm-password')
+
+            if new_password and new_password == confirm_password:
+                user.password = make_password(new_password)
+                user.save()
+
+                messages.success(request, 'Your password has been reset successfully.',
+                                 extra_tags="sign_in")
+                return redirect('signin')
+            else:
+                messages.error(request, 'Passwords do not match.',
+                               extra_tags='forgot_password_reset')
+    else:
+        messages.error(request, 'The reset link is invalid.',
+                       extra_tags='forgot_password_reset')
+
+    return render(request, 'Forgot_Password_Reset.html', {'uidb64': uidb64, 'token': token})
 
 
 @login_required
@@ -191,7 +260,7 @@ def account_page(request):
         'password_form': password_form
     }
 
-    return render(request, 'account_page.html', context)
+    return render(request, 'Account_Page.html', context)
 
 
 @receiver(post_save, sender=DatabaseConfiguration)
