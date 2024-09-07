@@ -1,2 +1,61 @@
 Explanaition for the requirements for my_auth_site
 
+If you want to use my_auth_site you will need the following packages:
+
+CORE PYTHON LIBRARIES
+Many of these packages are standard Python libraries that are often included by default, these include:
+
+six
+urllib3
+python-dateutil
+idna
+asttokens
+executing
+
+DEVELOPMENT TOOLS
+For developing or working on a Python project, you'll need:
+
+pip
+setuptools
+pipreqs
+black
+mypy
+jedi
+ipython
+jupyter_core
+nbconvert
+nbclient
+nbformat
+jupyterlab_pygments
+pandocfilters
+mistune
+
+WEB DEVELOPMENT
+For web development, you'll probably need:
+
+Django
+asgiref
+sqlparse
+mysqlclient
+Jinja2
+MarkupSafe
+Pygments
+traitlets
+decorator
+backcall
+pickleshare
+jupyter_client
+prompt_toolkit
+wcwidth
+
+DATA SCIENCE AND MACHINE LEARNING
+For data analysis or machine learning, you might need:
+
+numpy
+pandas
+scikit-learn
+matplotlib
+seaborn
+scipy
+tensorflow
+pytorch
