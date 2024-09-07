@@ -10,11 +10,13 @@ class Person(AbstractUser):
     GENDER_CHOICES = [
         ('M', 'Male'),
         ('F', 'Female'),
+        ('N', 'None'),
     ]
 
     authenticated = models.BooleanField(default=False)
     email = models.EmailField(unique=True)
-    profile_picture = models.ImageField(upload_to='profile_pictures/', null=True, blank=True)
+    profile_picture = models.ImageField(upload_to='profile_pictures/', null=True, blank=True,
+                                        default='profile_pictures/avatar.jpg')
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES, null=True, blank=True)
     country = models.CharField(max_length=100, null=True, blank=True)
 
@@ -23,11 +25,11 @@ class Person(AbstractUser):
 
 
 class VerificationCode(models.Model):
+    objects = models.Manager()
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     code = models.CharField(max_length=6)
     created_at = models.DateTimeField(default=timezone.now)
 
-    # Only works with self.created_at
     def expired(self):
         expiration_period = timedelta(minutes=1)
         expiration_time = self.created_at + expiration_period
@@ -35,7 +37,7 @@ class VerificationCode(models.Model):
 
 
 class DatabaseConfiguration(models.Model):
-
+    objects = models.Manager()
     engine = models.CharField(max_length=100)
     name = models.CharField(max_length=100)
     user = models.CharField(max_length=100)
@@ -48,6 +50,7 @@ class DatabaseConfiguration(models.Model):
 
 
 class EmailConfiguration(models.Model):
+    objects = models.Manager()
     EMAIL_BACKEND_CHOICES = [
         ('django.core.mail.backends.smtp.EmailBackend', 'SMTP Backend'),
     ]

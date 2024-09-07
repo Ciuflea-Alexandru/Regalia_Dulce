@@ -1,1 +1,3 @@
-.env
+/my_auth_site/.env
+/my_auth_site/authentication/media/
+/my_auth_site/cron.log

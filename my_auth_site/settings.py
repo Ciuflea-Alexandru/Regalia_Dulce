@@ -10,6 +10,9 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
+# Quick-start development settings - unsuitable for production
+# https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
+
 import environ
 
 from pathlib import Path
@@ -19,12 +22,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 env = environ.Env()
 environ.Env.read_env(env_file=BASE_DIR / '.env')
 
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-(bd02e2tpjlg2-rb57@d_09yb9gx8%4(+x3%4)-p*@f7jk!(wn'
+SECRET_KEY = env('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -75,20 +73,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'my_auth_site.wsgi.application'
 
-# Database
-# https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-
-DATABASES = {
-    'default': {
-        'ENGINE': env('ENGINE'),
-        'NAME': env('NAME'),
-        'USER': env('USER'),
-        'PASSWORD': env('PASSWORD'),
-        'HOST': env('HOST'),
-        'PORT': env('PORT'),
-    }
-}
-
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 
@@ -118,14 +102,14 @@ USE_I18N = True
 
 USE_TZ = True
 
-# Static files (CSS, JavaScript, Images)
+# Static files (CSS, JavaScript)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 MEDIA_URL = 'media/'
 MEDIA_ROOT = Path(
     BASE_DIR, 'authentication/media')
 
-STATIC_URL = '/static/'
+STATIC_URL = 'static/'
 STATICFILES_DIRS = [
     BASE_DIR / "authentication" / "static",
 ]
@@ -135,9 +119,13 @@ STATICFILES_DIRS = [
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# Custom user model that your application will use
 AUTH_USER_MODEL = 'authentication.Person'
 
+# URL used for generating the password reset link
 SITE_URL = 'http://localhost:8000'
+
+# URL path to redirect users to when they need to log in
 LOGIN_URL = 'http://127.0.0.1:8000/signin/'
 
 EMAIL_BACKEND = env.str('EMAIL_BACKEND', default='django.core.mail.backends.smtp.EmailBackend')
@@ -146,3 +134,17 @@ EMAIL_PORT = env('EMAIL_PORT')
 EMAIL_USE_TLS = env('EMAIL_USE_TLS')
 EMAIL_HOST_USER = env('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
+
+# Database
+# https://docs.djangoproject.com/en/4.2/ref/settings/#databases
+
+DATABASES = {
+    'default': {
+        'ENGINE': env('ENGINE'),
+        'NAME': env('NAME'),
+        'USER': env('USER'),
+        'PASSWORD': env('PASSWORD'),
+        'HOST': env('HOST'),
+        'PORT': env('PORT'),
+    }
+}

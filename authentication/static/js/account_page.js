@@ -8,7 +8,6 @@ function submitForm() {
 
 function resetPassword() {
     window.location.reload();
-
     localStorage.setItem('changePasswordVisible', 'false');
 }
 
@@ -21,7 +20,6 @@ function showContainer(containerId) {
             container.style.display = 'none';
         }
     });
-
     if (containerId === 'change-password-container') {
         localStorage.setItem('changePasswordVisible', 'true');
     } else {
@@ -29,10 +27,20 @@ function showContainer(containerId) {
     }
 }
 
+function handleGenderSelection() {
+    const genderSelect = document.getElementById('genderSelect');
+    const savedGender = localStorage.getItem('selectedGender');
+    if (savedGender) {
+        genderSelect.value = savedGender;
+    }
+    genderSelect.addEventListener('change', function() {
+        localStorage.setItem('selectedGender', this.value);
+    });
+}
+
 document.addEventListener("DOMContentLoaded", function() {
     const changePasswordVisible = localStorage.getItem('changePasswordVisible');
     const initialContainer = localStorage.getItem('initialContainer');
-
     if (changePasswordVisible === 'true') {
         showContainer('change-password-container');
     } else if (initialContainer === 'personal-container') {
@@ -40,16 +48,14 @@ document.addEventListener("DOMContentLoaded", function() {
     } else {
         showContainer('account-container');
     }
-
+    handleGenderSelection();
     const buttons = document.querySelectorAll('.Main-Button');
     buttons.forEach(button => {
         button.addEventListener('click', function() {
             buttons.forEach(btn => {
                 btn.classList.remove('active');
             });
-
             this.classList.add('active');
-
             const containerId = this.dataset.container;
             localStorage.setItem('initialContainer', containerId);
         });

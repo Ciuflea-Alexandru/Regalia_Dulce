@@ -3,6 +3,7 @@ from django.contrib.auth.models import Group
 from django import forms
 from .models import Person, DatabaseConfiguration, EmailConfiguration
 
+
 class PersonAdmin(admin.ModelAdmin):
     fields = ('username', 'first_name', 'last_name', 'email', 'date_joined', 'last_login', 'groups')
     readonly_fields = ('email', 'last_login', 'date_joined')
@@ -22,7 +23,9 @@ class PersonAdmin(admin.ModelAdmin):
         obj.save()
         super().save_model(request, obj, form, change)
 
+
 admin.site.register(Person, PersonAdmin)
+
 
 @admin.register(DatabaseConfiguration)
 class DatabaseConfigurationAdmin(admin.ModelAdmin):
@@ -37,6 +40,7 @@ class DatabaseConfigurationAdmin(admin.ModelAdmin):
     def has_delete_permission(self, request, obj=None):
         return False
 
+
 class EmailConfigurationAdminForm(forms.ModelForm):
     class Meta:
         model = EmailConfiguration
@@ -46,6 +50,7 @@ class EmailConfigurationAdminForm(forms.ModelForm):
         if EmailConfiguration.objects.exists() and self.instance.pk is None:
             raise forms.ValidationError("Only one instance of EmailConfiguration is allowed.")
         return super().clean()
+
 
 @admin.register(EmailConfiguration)
 class EmailConfigurationAdmin(admin.ModelAdmin):
