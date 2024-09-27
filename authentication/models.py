@@ -6,6 +6,10 @@ from django.conf import settings
 from django.utils import timezone
 
 
+def profile_picture_path(instance, filename):
+    return f'profile_pictures/{instance.id}/{filename}'
+
+
 class Person(AbstractUser):
     GENDER_CHOICES = [
         ('M', 'Male'),
@@ -15,8 +19,7 @@ class Person(AbstractUser):
 
     authenticated = models.BooleanField(default=False)
     email = models.EmailField(unique=True)
-    profile_picture = models.ImageField(upload_to='profile_pictures/', null=True, blank=True,
-                                        default='profile_pictures/avatar.jpg')
+    profile_picture = models.ImageField(upload_to=profile_picture_path, default='profile_pictures/Avatar/avatar.jpg')
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES, null=True, blank=True)
     country = models.CharField(max_length=100, null=True, blank=True)
 
@@ -65,3 +68,15 @@ class EmailConfiguration(models.Model):
 
     def __str__(self):
         return 'Email Configuration'
+
+
+class AWSConfiguration(models.Model):
+    objects = models.Manager()
+    access_key_id = models.CharField(max_length=20)
+    secret_access_key = models.CharField(max_length=40)
+    storage_bucket_name = models.CharField(max_length=100)
+    s3_file_overwrite = models.BooleanField(default=False)
+    default_file_storage = models.CharField(max_length=100, default='storages.backends.s3boto3.S3Boto3Storage')
+
+    def __str__(self):
+        return "AWS Configuration"

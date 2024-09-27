@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.models import Group
 from django import forms
-from .models import Person, DatabaseConfiguration, EmailConfiguration
+from .models import Person, DatabaseConfiguration, EmailConfiguration, AWSConfiguration
 
 
 class PersonAdmin(admin.ModelAdmin):
@@ -65,6 +65,25 @@ class EmailConfigurationAdmin(admin.ModelAdmin):
 
     def has_add_permission(self, request):
         if EmailConfiguration.objects.exists():
+            return False
+        return super().has_add_permission(request)
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
+@admin.register(AWSConfiguration)
+class AWSConfigurationAdmin(admin.ModelAdmin):
+    list_display = ('access_key_id', 'storage_bucket_name', 's3_file_overwrite')
+    fieldsets = (
+        (None, {
+            'fields': ('access_key_id', 'secret_access_key',
+                       'storage_bucket_name', 's3_file_overwrite', 'default_file_storage')
+        }),
+    )
+
+    def has_add_permission(self, request):
+        if AWSConfiguration.objects.exists():
             return False
         return super().has_add_permission(request)
 

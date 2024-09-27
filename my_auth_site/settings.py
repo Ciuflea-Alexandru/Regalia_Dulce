@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'authentication',
+    'storages'
 ]
 
 MIDDLEWARE = [
@@ -102,17 +103,6 @@ USE_I18N = True
 
 USE_TZ = True
 
-# Static files (CSS, JavaScript)
-# https://docs.djangoproject.com/en/4.2/howto/static-files/
-
-MEDIA_URL = 'media/'
-MEDIA_ROOT = Path(
-    BASE_DIR, 'authentication/media')
-
-STATIC_URL = 'static/'
-STATICFILES_DIRS = [
-    BASE_DIR / "authentication" / "static",
-]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
@@ -128,7 +118,7 @@ SITE_URL = 'http://localhost:8000'
 # URL path to redirect users to when they need to log in
 LOGIN_URL = 'http://127.0.0.1:8000/signin/'
 
-EMAIL_BACKEND = env.str('EMAIL_BACKEND', default='django.core.mail.backends.smtp.EmailBackend')
+EMAIL_BACKEND = env.str('EMAIL_BACKEND')
 EMAIL_HOST = env('EMAIL_HOST')
 EMAIL_PORT = env('EMAIL_PORT')
 EMAIL_USE_TLS = env('EMAIL_USE_TLS')
@@ -148,3 +138,22 @@ DATABASES = {
         'PORT': env('PORT'),
     }
 }
+
+AWS_ACCESS_KEY_ID = env('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = env('AWS_SECRET_ACCESS_KEY')
+AWS_STORAGE_BUCKET_NAME = env('AWS_STORAGE_BUCKET_NAME')
+AWS_S3_FILE_OVERWRITE = env('AWS_S3_FILE_OVERWRITE')
+DEFAULT_FILE_STORAGE = env('AWS_DEFAULT_FILE_STORAGE')
+AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
+
+MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/'
+MEDIA_ROOT = Path(
+    BASE_DIR, 'authentication/media')
+
+# Static files (CSS, JavaScript)
+# https://docs.djangoproject.com/en/4.2/howto/static-files/
+
+STATIC_URL = 'static/'
+STATICFILES_DIRS = [
+    BASE_DIR / "authentication" / "static",
+]

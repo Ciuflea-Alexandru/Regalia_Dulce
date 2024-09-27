@@ -18,7 +18,7 @@ from django.contrib import messages
 from django.contrib.auth.hashers import make_password
 
 from .forms import SignUpForm, ProfilePictureForm, UserUpdateForm, ProfileUpdateForm
-from .models import DatabaseConfiguration, EmailConfiguration, VerificationCode, Person
+from .models import DatabaseConfiguration, EmailConfiguration, AWSConfiguration, VerificationCode, Person
 
 
 @csrf_protect
@@ -266,14 +266,22 @@ def account_page(request):
 @receiver(post_save, sender=DatabaseConfiguration)
 def update_env_file(instance, **kwargs):
     env_file_path = os.path.join(settings.BASE_DIR, '.env')
+    aws_env_fields = {
+        'ENGINE': 'engine',
+        'NAME': 'name',
+        'USER': 'user',
+        'PASSWORD': 'password',
+        'HOST': 'host',
+        'PORT': 'port',
+    }
     with open(env_file_path, 'r') as env_file:
         lines = env_file.readlines()
-
     with open(env_file_path, 'w') as env_file:
         for line in lines:
             key = line.split('=')[0]
-            if key in ['ENGINE', 'NAME', 'USER', 'PASSWORD', 'HOST', 'PORT']:
-                env_file.write(f"{key}={getattr(instance, key.lower(), '')}\n")
+            if key in aws_env_fields:
+                value = getattr(instance, aws_env_fields[key], '')
+                env_file.write(f"{key}={value}\n")
             else:
                 env_file.write(line)
 
@@ -281,14 +289,43 @@ def update_env_file(instance, **kwargs):
 @receiver(post_save, sender=EmailConfiguration)
 def update_env_file(instance, **kwargs):
     env_file_path = os.path.join(settings.BASE_DIR, '.env')
+    aws_env_fields = {
+        'EMAIL_BACKEND': 'email_backend',
+        'EMAIL_HOST': 'email_host',
+        'EMAIL_PORT': 'email_port',
+        'EMAIL_USE_TLS': 'email_use_tls',
+        'EMAIL_HOST_USER': 'email_host_user',
+        'EMAIL_HOST_PASSWORD': 'email_host_password',
+    }
     with open(env_file_path, 'r') as env_file:
         lines = env_file.readlines()
-
     with open(env_file_path, 'w') as env_file:
         for line in lines:
             key = line.split('=')[0]
-            if key in ['EMAIL_BACKEND', 'EMAIL_HOST',
-                       'EMAIL_PORT', 'EMAIL_USE_TLS', 'EMAIL_HOST_USER', 'EMAIL_HOST_PASSWORD']:
-                env_file.write(f"{key}={getattr(instance, key.lower(), '')}\n")
+            if key in aws_env_fields:
+                value = getattr(instance, aws_env_fields[key], '')
+                env_file.write(f"{key}={value}\n")
+            else:
+                env_file.write(line)
+
+
+@receiver(post_save, sender=AWSConfiguration)
+def update_env_file(instance, **kwargs):
+    env_file_path = os.path.join(settings.BASE_DIR, '.env')
+    aws_env_fields = {
+        'AWS_ACCESS_KEY_ID': 'access_key_id',
+        'AWS_SECRET_ACCESS_KEY': 'secret_access_key',
+        'AWS_STORAGE_BUCKET_NAME': 'storage_bucket_name',
+        'AWS_S3_FILE_OVERWRITE': 's3_file_overwrite',
+        'AWS_DEFAULT_FILE_STORAGE': 'default_file_storage',
+    }
+    with open(env_file_path, 'r') as env_file:
+        lines = env_file.readlines()
+    with open(env_file_path, 'w') as env_file:
+        for line in lines:
+            key = line.split('=')[0]
+            if key in aws_env_fields:
+                value = getattr(instance, aws_env_fields[key], '')
+                env_file.write(f"{key}={value}\n")
             else:
                 env_file.write(line)
