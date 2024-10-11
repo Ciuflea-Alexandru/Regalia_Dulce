@@ -39,6 +39,14 @@ crontab -e
 0 0 * * * /home/alex/Project/my_auth_site/run_cron.sh
 ```
 ###  Set up the database 
+
+You will need to create a AWS account after that create a s3 bucket and a IAM user and give him the permission necessary for him to access the bucket.
+
+```bash
+# Generate a secret key
+python manage.py generate_secret_key
+```
+
 You will need the to create a .env file in the root folder with you own information which should look this:
 ```
 EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
@@ -55,11 +63,13 @@ PASSWORD='your_password',
 HOST=localhost
 PORT=3306
 
+AWS_ACCESS_KEY_ID='your_users_secret_key'
+AWS_SECRET_ACCESS_KEY='your_users_secret_access_key'
+AWS_STORAGE_BUCKET_NAME='your_bucket_name'
+AWS_S3_FILE_OVERWRITE=False
+AWS_DEFAULT_FILE_STORAGE=storages.backends.s3boto3.S3Boto3Storage
+
 SECRET_KEY='your_secret_key' 
-```
-```bash
-# Generate a secret key
-python manage.py generate_secret_key
 ```
 ### Now you should have everything set up and the server should work just fine.
 

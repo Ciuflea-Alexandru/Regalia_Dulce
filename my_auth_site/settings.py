@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 # Quick-start development settings - unsuitable for production
 # https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
+import os
 import environ
 
 from pathlib import Path
@@ -39,7 +40,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'authentication',
-    'storages'
+    'shop',
+    'storages',
 ]
 
 MIDDLEWARE = [
@@ -147,8 +149,7 @@ DEFAULT_FILE_STORAGE = env('AWS_DEFAULT_FILE_STORAGE')
 AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
 
 MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/'
-MEDIA_ROOT = Path(
-    BASE_DIR, 'authentication/media')
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Static files (CSS, JavaScript)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
@@ -156,4 +157,5 @@ MEDIA_ROOT = Path(
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [
     BASE_DIR / "authentication" / "static",
+    BASE_DIR / "shop" / "static",
 ]

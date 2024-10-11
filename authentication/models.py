@@ -19,7 +19,7 @@ class Person(AbstractUser):
 
     authenticated = models.BooleanField(default=False)
     email = models.EmailField(unique=True)
-    profile_picture = models.ImageField(upload_to=profile_picture_path, default='profile_pictures/Avatar/avatar.jpg')
+    profile_picture = models.ImageField(upload_to=profile_picture_path, default='profile_pictures/avatar.jpg')
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES, null=True, blank=True)
     country = models.CharField(max_length=100, null=True, blank=True)
 

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <title>Home Page</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+    <script src="{% static 'js/home.js' %}"></script>
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <div class="site-name">Sites Name</div>
+            <div class="search-bar">Search</div>
+            <div class="favorites">Favorites</div>
+            <div class="cart">Cart</div>
+            <div class="account">Account</div>
+        </div>
+    </header>
+
+    <main>
+        <section class="promotion-slideshow">
+            <button class="prev-slide">&#10094;</button>
+            <button class="next-slide">&#10095;</button>
+        </section>
+
+        <section class="products-category"> electronics
+            <div class="product-grid">
+                <div class="product-card">
+                    <img class="product-img" src="{% static 'images/avatar.jpg' %}" alt="Italian Trulli">
+                    <div class="product-text">Product 1</div>
+                </div>
+                <div class="product-card">
+                    <img class="product-img" src="{% static 'images/avatar.jpg' %}" alt="Italian Trulli">
+                    <div class="product-text">Product 2</div>
+                </div>
+                <div class="product-card">
+                    <img class="product-img" src="{% static 'images/avatar.jpg' %}" alt="Italian Trulli">
+                    <div class="product-text">Product 3</div>
+                </div>
+                <div class="product-card">
+                    <img class="product-img" src="{% static 'images/avatar.jpg' %}" alt="Italian Trulli">
+                    <div class="product-text">Product 4</div>
+                </div>
+                <div class="product-card">
+                    <img class="product-img" src="{% static 'images/avatar.jpg' %}" alt="Italian Trulli">
+                    <div class="product-text">Product 5</div>
+                </div>
+                <div class="product-card">
+                    <img class="product-img" src="{% static 'images/avatar.jpg' %}" alt="Italian Trulli">
+                    <div class="product-text">Product 6</div>
+                </div>
+                </div>
+        </section>
+
+                <section class="products-category"> toys
+            <div class="product-grid">
+                <div class="product-card">
+                    <img class="product-img" src="{% static 'images/background.gif' %}" alt="Italian Trulli">
+                    Product 1</div>
+                </div>
+        </section>
+    </main>
+
+    <footer>
+        &copy; 2024 Your E-commerce Site
+    </footer>
+</body>
+</html>

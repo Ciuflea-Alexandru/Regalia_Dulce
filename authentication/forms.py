@@ -1,11 +1,5 @@
-import os
-from django.conf import settings
 from django.contrib.auth.forms import UserCreationForm
 from django import forms
-from django.utils.text import get_valid_filename
-from django.core.files.storage import default_storage
-from django.core.exceptions import ObjectDoesNotExist
-from uuid import uuid4
 from .models import Person
 
 
