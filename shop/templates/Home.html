@@ -11,11 +11,11 @@
 <body>
     <header>
         <div class="header-container">
-            <div class="site-name">Sites Name</div>
+            <div class="site-name">Merchants Guild</div>
             <div class="search-bar">Search</div>
-            <div class="favorites">Favorites</div>
-            <div class="cart">Cart</div>
-            <div class="account">Account</div>
+            <a class="cart-link">Cart</a>
+            <a class="favorites-link">Favorites</a>
+            <a class="account-link" href="http://127.0.0.1:8000/account/">Account</a>
         </div>
     </header>
 
@@ -23,41 +23,75 @@
         <section class="promotion-slideshow">
             <button class="prev-slide">&#10094;</button>
             <button class="next-slide">&#10095;</button>
+            <div class="slides">
+                <img src="{% static 'images/promotion1.gif' %}">
+                <img src="{% static 'images/promotion2.gif' %}">
+                <img src="{% static 'images/promotion3.gif' %}">
+            </div>
         </section>
 
-        <section class="products-category"> electronics
+
+        <section class="products-category">
+            <div class="category-text">Category 1</div>
             <div class="product-grid">
+                <button class="next-arrow">&#10097;</button>
+                <button class="prev-arrow">&#10096;</button>
                 <div class="product-card">
-                    <img class="product-img" src="{% static 'images/avatar.jpg' %}" alt="Italian Trulli">
+                    <img class="product-img" src="{% static 'images/product1.png' %}">
                     <div class="product-text">Product 1</div>
                 </div>
                 <div class="product-card">
-                    <img class="product-img" src="{% static 'images/avatar.jpg' %}" alt="Italian Trulli">
+                    <img class="product-img" src="{% static 'images/product2.png' %}">
                     <div class="product-text">Product 2</div>
                 </div>
                 <div class="product-card">
-                    <img class="product-img" src="{% static 'images/avatar.jpg' %}" alt="Italian Trulli">
+                    <img class="product-img" src="{% static 'images/product3.png' %}">
                     <div class="product-text">Product 3</div>
                 </div>
                 <div class="product-card">
-                    <img class="product-img" src="{% static 'images/avatar.jpg' %}" alt="Italian Trulli">
+                    <img class="product-img" src="{% static 'images/product4.png' %}">
                     <div class="product-text">Product 4</div>
                 </div>
                 <div class="product-card">
-                    <img class="product-img" src="{% static 'images/avatar.jpg' %}" alt="Italian Trulli">
+                    <img class="product-img" src="{% static 'images/product5.png' %}">
                     <div class="product-text">Product 5</div>
                 </div>
                 <div class="product-card">
-                    <img class="product-img" src="{% static 'images/avatar.jpg' %}" alt="Italian Trulli">
+                    <img class="product-img" src="{% static 'images/product6.png' %}">
                     <div class="product-text">Product 6</div>
                 </div>
+                <div class="product-card">
+                    <img class="product-img" src="{% static 'images/product6.png' %}">
+                    <div class="product-text">Product 6</div>
                 </div>
+                <div class="product-card">
+                    <img class="product-img" src="{% static 'images/product6.png' %}">
+                    <div class="product-text">Product 6</div>
+                </div>
+                <div class="product-card">
+                    <img class="product-img" src="{% static 'images/product6.png' %}">
+                    <div class="product-text">Product 6</div>
+                </div>
+                <div class="product-card">
+                    <img class="product-img" src="{% static 'images/product6.png' %}">
+                    <div class="product-text">Product 6</div>
+                </div>
+                <div class="product-card">
+                    <img class="product-img" src="{% static 'images/product6.png' %}">
+                    <div class="product-text">Product 6</div>
+                </div>
+                <div class="product-card">
+                    <img class="product-img" src="{% static 'images/product6.png' %}">
+                    <div class="product-text">Product 6</div>
+                </div>
+            </div>
         </section>
 
-                <section class="products-category"> toys
+                <section class="products-category">
+            <div class="category-text">Category 2</div>
             <div class="product-grid">
                 <div class="product-card">
-                    <img class="product-img" src="{% static 'images/background.gif' %}" alt="Italian Trulli">
+                    <img class="product-img" src="{% static 'images/product1.gif' %}">
                     Product 1</div>
                 </div>
         </section>

@@ -19,6 +19,7 @@ header {
 
 .site-name {
     font-weight: bold;
+    font-size: 30px;
 }
 
 .search-bar {
@@ -33,43 +34,118 @@ header {
     align-items: center;
 }
 
-.favorites, .cart, .account {
+.favorites-link, .cart-link, .account-link {
+    font-size: 20px;
+    color: #CE563C ;
+    font-family:'verdana';
+    text-decoration: none;
+    display: block;
     margin-left: 10px;
 }
 
 main {
     min-height: calc(100vh - 100px);
+    margin: 0 5%;
 }
 
 .promotion-slideshow {
-    flex: 1;
-    height: 300px;
-    width: 50%;
+    height: 500px;
+    width: 100%;
     background-color: #f0f0f0;
+    position: relative;
+    overflow: hidden;
+}
+
+.slides {
+    display: flex;
+    transition: transform 0.5s ease-in-out;
+    width: 102%;
+    height: 100%;
+    margin: 0 -1px;
+}
+
+.slides img {
+    flex-shrink: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.prev-slide, .next-slide {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 50px;
+    color: #333;
+    z-index: 1;
+}
+
+.prev-slide {
+    left: 20px;
+}
+
+.next-slide {
+    right: 20px;
 }
 
 .products-category {
-    flex: 2;
-    padding: 50px;
+    position: relative;
 }
 
+.prev-arrow, .next-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 50px;
+    color: #333;
+    z-index: 1;
+    display: block;
+    opacity: 1; /* Initially visible */
+}
+
+.prev-arrow {
+    left: -50px;
+}
+
+.next-arrow {
+    right: -50px;
+}
+
+.prev-arrow.hidden, .next-arrow.hidden {
+    opacity: 0;
+}
+
+.category-text{
+    font-size: 50px;
+    color: #CE563C;
+}
 .product-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(6, 1fr);
     color: #CE563C;
+    gap: 20px;
+    grid-auto-flow: column;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
 }
 
-.product-card {
-    border: 1px solid #CE563C;
-    color: #CE563C;
-    max-width: 250px;
-    width: 100%;
-    height: 300px;
+.product-card{
+    background: #141414;
+    height: 400px;
+    width: 250px ;
 }
+
 
 .product-img {
     width: 90%;
-    height:200px;
+    height: 200px;
+    object-fit: cover;
     margin: 10px;
 }
 
@@ -81,6 +157,8 @@ main {
     overflow: hidden;
     text-overflow: ellipsis;
     word-wrap: break-word;
+
+    width: 250px;
 }
 
 
