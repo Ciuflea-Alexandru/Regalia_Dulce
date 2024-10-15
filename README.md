@@ -1,6 +1,6 @@
-# my_auth_site
+# my-ecommerce-site
 
-This site is a project that ive been working on for around a year, it allows you to create, update and manage multiple users futuring easy access and modification of the automated database once setup
+This site is a project that ive been working on for around a year, it allows you to create, update and manage multiple users futuring easy access and modification of the automated database once setup.
 
 This site has been made in scope of expanding my knowledge in the web development domain and is intended to be deployed only in development 
 
