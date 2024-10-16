@@ -1,8 +1,8 @@
-# my_auth_site
+# my-ecmmerce-site
 
-This site is a project that ive been working on for around a year, it allows you to create, update and manage multiple users futuring easy access and modification of the automated database once setup
+This e-commerce site is a project that I've been working on to offer the user the ability to run their own online store.
 
-This site has been made in scope of expanding my knowledge in the web development domain and is intended to be deployed only in development 
+This site has been made in scope of expanding my knowledge in the web development domain and is intended to be deployed only in development.
 
 ## Installation
 #### First you should make sure that everything like programing language, frameworks, libraries, packages, etc. is set up
