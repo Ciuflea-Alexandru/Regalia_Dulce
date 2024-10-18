@@ -1,0 +1,120 @@
+body {
+    background: #050505;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+header {
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    background-color: #050505;
+    color: #CE563C;
+}
+
+.header-container {
+    display: flex;
+    align-items: center;
+}
+
+.site-name {
+    font-weight: bold;
+    font-size: 30px;
+}
+
+.search-bar {
+    flex: 1;
+    margin-left: 20px;
+    padding: 5px;
+    border: 1px solid #CE563C;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+}
+
+.favorites-link, .cart-link, .account-link {
+    font-size: 20px;
+    color: #CE563C ;
+    font-family:'verdana';
+    text-decoration: none;
+    display: block;
+    margin-left: 10px;
+}
+
+main {
+    margin: 0 5%;
+}
+
+.product-description {
+  display: flex;
+  color: #CE563C;
+  height: 500px;
+  width: 100%;
+}
+
+.product-image{
+  width: 500px;
+  height: 400px;
+  margin-left: 200px;
+}
+
+.color-options {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: 50px;
+}
+
+.product-info{
+  position: absolute;
+  width: 500px;
+  height: 500px;
+  color: #CE563C;
+  text-align: left;
+  right: 0px;
+  margin: 0px 150px;
+}
+
+.star {
+  color: #ccc;
+}
+
+.star.filled {
+  color: gold;
+}
+
+.half-star {
+  width: 50%;
+}
+
+.half-star.filled {
+  color: gold;
+}
+
+.price {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.price span:last-child {
+  color: red;
+  font-size: 14px;
+}
+
+
+
+.add-to-cart {
+    padding: 20px 20px;
+    background-color: #FF5733;
+    color: #141414;
+    border: none;
+    cursor: pointer;
+}
+
+footer {
+    text-align: center;
+    padding: 20px;
+    background-color: #050505;
+    color: #CE563C;
+}

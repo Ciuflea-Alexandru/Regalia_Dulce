@@ -9,9 +9,9 @@ def home(request):
 
 @csrf_protect
 def product(request):
-    return render(request, 'Home.html')
+    return render(request, 'Product.html')
 
 
 @csrf_protect
 def cart(request):
-    return render(request, 'Home.html')
+    return render(request, 'Cart.html')

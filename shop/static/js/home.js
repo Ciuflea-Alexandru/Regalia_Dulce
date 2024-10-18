@@ -70,3 +70,17 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 });
+
+function updateStarRating(rating) {
+  const stars = document.querySelectorAll('.product-rating .star');
+
+  // Fill whole stars
+  for (let i = 0; i < Math.floor(rating); i++) {
+    stars[i].classList.add('filled');
+  }
+
+  // Handle half-star
+  if (rating - Math.floor(rating) > 0) {
+    stars[Math.floor(rating)].classList.add('half');
+  }
+}
