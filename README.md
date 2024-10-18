@@ -1,4 +1,4 @@
-# my-ecmmerce-site
+# my_ecommerce_site
 
 This e-commerce site is a project that I've been working on to offer the user the ability to run their own online store.
 
