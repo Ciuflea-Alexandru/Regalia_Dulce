@@ -1,2 +1,4 @@
-/my_auth_site/.env
-/my_auth_site/cron.log
+/my_site/.env
+/my_site/cron.log
+/my_site/compose.yaml
+/my_site/README/Docker.md

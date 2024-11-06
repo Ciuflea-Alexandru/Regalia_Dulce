@@ -12,12 +12,7 @@
 <div class="Main-Container">
     <div class="Switch-Container">
         <div class="Profile-Picture-Container">
-            {% if user.profile_picture %}
-            <img class="Profile-picture"
-                 src="{% if user.profile_picture %}{{ user.profile_picture.url }}
-                 {% else %}{{ DEFAULT_AVATAR_URL }}{% endif %}"
-                 alt="Profile Picture">
-            {% endif %}
+            <img class="Profile-Picture" src="{{ user.profile_picture.url }}" onerror="this.src='{% static 'images/profile_pictures/' %}{{ user.id }}/profile_picture.jpg'">
             <form method="POST" enctype="multipart/form-data"
                   id="profile-picture-form" action="{% url 'account_page' %}">
                 {% csrf_token %}

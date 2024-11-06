@@ -267,12 +267,12 @@ def account_page(request):
 def update_env_file(instance, **kwargs):
     env_file_path = os.path.join(settings.BASE_DIR, '.env')
     aws_env_fields = {
-        'ENGINE': 'engine',
-        'NAME': 'name',
-        'USER': 'user',
-        'PASSWORD': 'password',
-        'HOST': 'host',
-        'PORT': 'port',
+        'DATABASE_ENGINE': 'engine',
+        'DATABASE_NAME': 'name',
+        'DATABASE_USER': 'user',
+        'DATABASE_PASSWORD': 'password',
+        'DATABASE_HOST': 'host',
+        'DATABASE_PORT': 'port',
     }
     with open(env_file_path, 'r') as env_file:
         lines = env_file.readlines()

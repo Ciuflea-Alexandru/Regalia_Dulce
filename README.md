@@ -36,7 +36,7 @@ crontab -e
 ```
 ```bash
 # Schedule a job
-0 0 * * * /home/alex/Project/my_auth_site/run_cron.sh
+0 0 * * * /home/alex/Project/my_site/run_cron.sh
 ```
 ###  Set up the database 
 
@@ -49,6 +49,8 @@ python manage.py generate_secret_key
 
 You will need the to create a .env file in the root folder with you own information which should look this:
 ```
+SECRET_KEY='your_secret_key'
+
 EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
 EMAIL_HOST=smtp.gmail.com
 EMAIL_PORT=587
@@ -69,7 +71,6 @@ AWS_STORAGE_BUCKET_NAME='your_bucket_name'
 AWS_S3_FILE_OVERWRITE=False
 AWS_DEFAULT_FILE_STORAGE=storages.backends.s3boto3.S3Boto3Storage
 
-SECRET_KEY='your_secret_key' 
 ```
 ### Now you should have everything set up and the server should work just fine.
 

@@ -1,5 +1,9 @@
+import os
+
 from django.contrib.auth.forms import UserCreationForm
 from django import forms
+
+from my_site import settings
 from .models import Person
 
 
@@ -30,7 +34,26 @@ class ProfilePictureForm(forms.ModelForm):
 
         new_profile_picture = self.cleaned_data.get('profile_picture')
         if new_profile_picture:
-            person.profile_picture = new_profile_picture
+            # Rename the picture to profile_picture.jpg
+            new_profile_picture.name = 'profile_picture.jpg'
+
+            if settings.AWS_ACCESS_KEY_ID and settings.AWS_SECRET_ACCESS_KEY:
+                person.profile_picture = new_profile_picture
+            else:
+                # Save to local folder (with folder creation)
+                filename, _ = os.path.splitext(new_profile_picture.name)  # Separate filename (already renamed)
+                user_folder = os.path.join(f'authentication/static/images/profile_pictures/{person.id}')  # Create user folder path
+
+                # Check if folder exists, create it if not
+                if not os.path.exists(user_folder):
+                    os.makedirs(user_folder)
+
+                filepath = os.path.join(user_folder, new_profile_picture.name)
+
+                with open(filepath, 'wb') as destination:
+                    for chunk in new_profile_picture.chunks():
+                        destination.write(chunk)
+                person.profile_picture = filepath
 
         if commit:
             person.save()

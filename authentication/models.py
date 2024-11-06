@@ -7,7 +7,10 @@ from django.utils import timezone
 
 
 def profile_picture_path(instance, filename):
-    return f'profile_pictures/{instance.id}/{filename}'
+    if settings.AWS_ACCESS_KEY_ID and settings.AWS_SECRET_ACCESS_KEY:
+        return f'profile_pictures/{instance.id}/{filename}'
+    else:
+        return f'authentication/static/images/profile_pictures/{instance.id}/{filename}'
 
 
 class Person(AbstractUser):
@@ -19,7 +22,8 @@ class Person(AbstractUser):
 
     authenticated = models.BooleanField(default=False)
     email = models.EmailField(unique=True)
-    profile_picture = models.ImageField(upload_to=profile_picture_path, default='profile_pictures/avatar.jpg')
+    profile_picture = models.ImageField(
+        upload_to=profile_picture_path, default='profile_pictures/avatar.jpg')
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES, null=True, blank=True)
     country = models.CharField(max_length=100, null=True, blank=True)
 
