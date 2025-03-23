@@ -35,40 +35,51 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 document.addEventListener('DOMContentLoaded', () => {
-    const productGrids = document.querySelectorAll('.product-grid');
-    const nextArrows = document.querySelectorAll('.next-arrow');
-    const prevArrows = document.querySelectorAll('.prev-arrow');
+  const productGrids = document.querySelectorAll('.product-grid');
 
-    productGrids.forEach((productGrid, index) => {
-        const cardWidth = productGrid.querySelector('.product-card').offsetWidth;
-        const totalCards = productGrid.querySelectorAll('.product-card').length;
-        const cardsPerStack = 6;
-        let currentStack = 0;
+  productGrids.forEach((productGrid, index) => {
+    const cardWidth = productGrid.querySelector('.product-card').offsetWidth;
+    const computedStyle = window.getComputedStyle(productGrid);
+    const gapSize = parseInt(computedStyle.getPropertyValue('gap'));
+    const totalCards = productGrid.querySelectorAll('.product-card').length;
+    const cardsPerStack = 5;
+    let currentStack = 0;
 
-        // Function to update arrow visibility
-        const updateArrowVisibility = () => {
-            prevArrows[index].classList.toggle('hidden', currentStack === 0);
-            nextArrows[index].classList.toggle('hidden', currentStack >= Math.ceil(totalCards / cardsPerStack) - 1);
-        };
+    // Calculate the total width of a stack, including gaps
+    const stackWidth = (cardWidth + gapSize) * cardsPerStack;
 
-        updateArrowVisibility();
+    // Function to update the scroll position
+    const updateScroll = () => {
+      productGrid.scrollLeft = currentStack * stackWidth;
+    };
 
-        nextArrows[index].addEventListener('click', () => {
-            if (currentStack < Math.ceil(totalCards / cardsPerStack) - 1) {
-                currentStack++;
-                productGrid.scrollLeft += 2000;
-            }
-            updateArrowVisibility();
-        });
+    // Function to update arrow visibility
+    const updateArrowVisibility = () => {
+      const prevArrow = productGrid.querySelector('.prev-arrow');
+      const nextArrow = productGrid.querySelector('.next-arrow');
 
-        prevArrows[index].addEventListener('click', () => {
-            if (currentStack > 0) {
-                currentStack--;
-                productGrid.scrollLeft -= 2000;
-            }
-            updateArrowVisibility();
-        });
+      prevArrow.classList.toggle('hidden', currentStack === 0);
+      nextArrow.classList.toggle('hidden', currentStack >= Math.ceil(totalCards / cardsPerStack) - 1);
+    };
+
+    updateArrowVisibility();
+
+    productGrid.querySelector('.next-arrow').addEventListener('click', () => {
+      if (currentStack < Math.ceil(totalCards / cardsPerStack) - 1) {
+        currentStack++;
+        updateScroll();
+      }
+      updateArrowVisibility();
     });
+
+    productGrid.querySelector('.prev-arrow').addEventListener('click', () => {
+      if (currentStack > 0) {
+        currentStack--;
+        updateScroll();
+      }
+      updateArrowVisibility();
+    });
+  });
 });
 
 function updateStarRating(rating) {

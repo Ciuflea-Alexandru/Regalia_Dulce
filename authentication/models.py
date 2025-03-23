@@ -27,6 +27,9 @@ class Person(AbstractUser):
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES, null=True, blank=True)
     country = models.CharField(max_length=100, null=True, blank=True)
 
+    class Meta:
+        db_table = 'authentication_person'
+
     def __str__(self):
         return self.username
 
@@ -36,6 +39,9 @@ class VerificationCode(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     code = models.CharField(max_length=6)
     created_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        db_table = 'authentication_verification_code'
 
     def expired(self):
         expiration_period = timedelta(minutes=1)
@@ -51,6 +57,9 @@ class DatabaseConfiguration(models.Model):
     password = models.CharField(max_length=100)
     host = models.CharField(max_length=100)
     port = models.CharField(max_length=100)
+
+    class Meta:
+        db_table = 'authentication_database_configuration'
 
     def __str__(self):
         return 'Database Configuration'
@@ -70,6 +79,9 @@ class EmailConfiguration(models.Model):
     email_host_user = models.EmailField()
     email_host_password = models.CharField(max_length=100)
 
+    class Meta:
+        db_table = 'authentication_email_configuration'
+
     def __str__(self):
         return 'Email Configuration'
 
@@ -81,6 +93,9 @@ class AWSConfiguration(models.Model):
     storage_bucket_name = models.CharField(max_length=100)
     s3_file_overwrite = models.BooleanField(default=False)
     default_file_storage = models.CharField(max_length=100, default='storages.backends.s3boto3.S3Boto3Storage')
+
+    class Meta:
+        db_table = 'authentication_aws_configuration'
 
     def __str__(self):
         return "AWS Configuration"

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en" xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html"
+      xmlns="http://www.w3.org/1999/html">
+<head>
+    <title>Home Page</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/add_product_family.css' %}">
+    <script src="{% static 'js/add_product_family.js' %}"></script>
+    <script>const categories = {{ categories|safe }};</script>
+</head>
+<body>
+<header>
+    <div class="header-container">
+        <a class="site-name" href="http://127.0.0.1:8000/home/">Merchants Guild</a>
+        <div class="search-bar">Search</div>
+        <a class="cart-link">Cart</a>
+        <a class="favorites-link">Favorites</a>
+        <a class="account-link" href="http://127.0.0.1:8000/account/">Account</a>
+    </div>
+</header>
+<main>
+    <section class="section1">
+        <p class="text">CREATE A PRODUCT FAMILY</p>
+
+        <div class="operation-buttons">
+            <button type="button" class="add-product">Add Product</button>
+            <button type="button" class="delete-button">Delete</button>
+            <form method="post" enctype="multipart/form-data" class="product-family-form">
+                {% csrf_token %}
+                <button type="submit" class="create-product-family">Create Product Family</button>
+                <textarea name="product_family_data" class="product_family_data" hidden="hidden"></textarea>
+            </form>
+        </div>
+
+        {% for message in messages %}
+        <div class="Message">
+            <p>{{ message }}</p>
+        </div>
+        {% endfor %}
+
+        <div class="family-schema">
+            <h2 class="text">Product Family Schema</h2>
+            <ul class="family-list"></ul>
+        </div>
+
+        <button id="showCacheButton">Show Details Cache</button>
+
+        <!-- This will be where the details cache is displayed -->
+        <pre id="cacheDisplay" style="color: white;white-space: pre-wrap;"></pre>
+
+    </section>
+
+    <section class="section2">
+
+    </section>
+</main>
+
+<footer>
+    &copy; E-commerce Site
+</footer>
+
+</body>
+</html>

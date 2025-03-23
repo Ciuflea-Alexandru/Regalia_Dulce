@@ -1,0 +1,309 @@
+body {
+    background: #050505;
+    margin: 0;
+    padding: 0;
+    display:flex;
+    flex-direction: column;
+}
+
+.Message {
+    margin-left: 10px;
+    color: #CE563C;
+    font-size: 20px;
+}
+
+header {
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    background-color: #050505;
+    color: #CE563C;
+}
+
+.header-container {
+    display: flex;
+    align-items: center;
+}
+
+.site-name {
+    font-weight: bold;
+    color: #CE563C ;
+    font-family:'verdana';
+    text-decoration: none;
+    font-size: 30px;
+}
+
+.search-bar {
+    flex: 1;
+    margin-left: 20px;
+    padding: 5px;
+    border: 1px solid #CE563C;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+}
+
+.favorites-link, .cart-link, .account-link {
+    font-size: 20px;
+    color: #CE563C ;
+    font-family:'verdana';
+    text-decoration: none;
+    display: block;
+    margin-left: 10px;
+}
+
+main {
+    max-width: 1500px;
+    height: 100%;
+    margin: auto;
+    display:flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+form{
+    display:flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.text, .category-text, .name-text, .ship-text, .price-stock-text, .description-text, .specifications-text, .features-text, .image-text{
+    color: #CE563C ;
+    font-family:'verdana';
+    text-decoration: none;
+    font-size: 30px;
+    border: 1px solid #CE563C ;
+    padding: 10px;
+    margin: 0px;
+}
+
+.Info-Box, .category-box, .name-box, .ship-box, .price-stock-box, .specifications, .features, .add-specifications, .add-features, .delete-specifications, .delete-feature, .create-product, .column,  .add-image, .image-preview{
+    font-size: 25px;
+    display: block;
+    padding: 10px;
+    border: 1px solid #CE563C ;
+    outline-color: #CE563C;
+    background-color: #050505;
+    font-family: 'verdana';
+    color: #CE563C;
+}
+
+.category{
+    display: grid;
+    grid-template-columns: minmax(100px, 575px);
+    grid-template-rows: minmax(50px, 100px) minmax(300px, 300px);
+    grid-template-rows: auto;
+    margin-top: 10px;
+}
+.category-text{
+    width: 400px;
+    height: 50px;
+    display: flex;
+    justify-content: center;
+    align-items:center;
+}
+.category-box{
+    width: 571px;
+    height: 50px;
+}
+
+.name{
+    display: grid;
+    grid-template-columns: minmax(100px, 575px);
+    grid-template-rows: minmax(50px, 100px) minmax(300px, 300px);
+    grid-template-rows: auto;
+    margin-top: 10px;
+}
+.name-text{
+    width: 250px;
+    height: 50px;
+    display: flex;
+    justify-content: center;
+    align-items:center;
+}
+.name-box{
+    width: 550px;
+    height: 50px;
+}
+.ship{
+    display: grid;
+    grid-template-columns: minmax(100px, 575px);
+    grid-template-rows: minmax(50px, 100px) minmax(300px, 300px);
+    grid-template-rows: auto;
+    margin-top: 10px;
+}
+.ship-text{
+    width: 300px;
+    height: 50px;
+    display: flex;
+    justify-content: center;
+    align-items:center;
+}
+.ship-box{
+    width: 550px;
+    height: 50px;
+}
+
+.price-stock{
+    display: grid;
+    grid-template-columns: minmax(100px, 300px) minmax(100px, 275px);
+    grid-template-rows: auto;
+    margin-top: 10px;
+}
+.price-stock-text{
+    width: 250px;
+    height: 50px;
+    display: flex;
+    justify-content: center;
+    align-items:center;
+}
+.price-stock-box{
+    width: 250px;
+    height: 50px;
+    margin-top: 10px;
+    text-align: center;
+}
+.image, .specifications, .features{
+    display: grid;
+    width: 575px;
+    height: 350px;
+    grid-template-columns: minmax(100px, 403px) minmax(100px, 172px);
+    grid-template-rows: minmax(70px, 70px);
+    overflow: auto;
+    scrollbar-width: none;
+    margin-top: 10px;
+    padding: 0px;
+}
+.image-text, .specifications-text, .features-text, .description-text{
+    width: 382px;
+    height: 49px;
+    display: flex;
+    justify-content: center;
+    align-items:center;
+}
+input[type="file"] {
+    display: none;
+}
+.image-preview{
+    width: 549px;
+    height: 254px;
+    display: flex;
+    flex-wrap: wrap;
+}
+.preview-image-container {
+    display: inline-block;
+    margin-right: 10px;
+    position: relative;
+}
+.preview-image-container img {
+    display: block;
+    width: 100px;  /* Ensures the image fills the container */
+    height: 100px;
+}
+.delete-preview, .move-left, .move-right {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background-color: rgba(206, 86, 60, 1); /* Red with transparency */
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    text-align: center;
+    display:flex;
+    justify-content: center;
+    align-items:center;
+}
+.move-left {
+    top: 20%;
+    left: 0px;
+    font-size: 20px;
+
+}
+.move-right {
+    top: 20%;
+    right: 0px;
+    font-size: 20px;
+}
+.add-image{
+    width: 146px;
+    height: 49px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items:center;
+}
+.description{
+    display:flex;
+    flex-direction: column;
+}
+.ql-toolbar {
+    height: 50px;
+    display: flex;
+    justify-content: center !important ;
+    border: 1px solid rgba(206, 86, 60, 1) !important;
+}
+
+.ql-picker-options, .ql-picker-item, .ql-font, .ql-picker, .ql-expanded{
+    color: rgba(206, 86, 60, 1) !important;
+}
+.ql-toolbar .ql-stroke {
+    stroke: rgba(206, 86, 60, 1) !important;
+}
+.ql-toolbar .ql-color-label {
+    stroke: inherit !important;
+}
+
+
+.ql-container {
+    width: 710px;
+    height: 200px !important;
+    font-family: Arial, sans-serif;
+    border: 1px solid rgba(206, 86, 60, 1) !important;
+    color: rgba(206, 86, 60, 1);
+    padding: 5px;
+}
+
+.add-specifications, .add-features{
+    width: 172px;
+    height: 70px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items:center;
+}
+.specification-row, .feature-row{
+    display: flex;
+    align-items:center
+}
+.column{
+    width: 200px;
+    height: 100%;
+    margin: 10px;
+    margin-left: 20px;
+}
+.delete-specifications, .delete-feature{
+    width: 45px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.create-product{
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+footer {
+    text-align: center;
+    padding: 20px;
+    background-color: #050505;
+    color: #CE563C;
+}

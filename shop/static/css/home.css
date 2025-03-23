@@ -1,8 +1,10 @@
 body {
     background: #050505;
-    height: 100%;
     margin: 0;
     padding: 0;
+    display:flex;
+    justify-content: center;
+    flex-direction: column;
 }
 header {
     justify-content: space-between;
@@ -19,6 +21,9 @@ header {
 
 .site-name {
     font-weight: bold;
+    color: #CE563C ;
+    font-family:'verdana';
+    text-decoration: none;
     font-size: 30px;
 }
 
@@ -44,7 +49,13 @@ header {
 }
 
 main {
-    margin: 0 5%;
+  max-width: 1500px;
+  height: 100%;
+  margin: auto;
+  display:flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
 }
 
 .promotion-slideshow {
@@ -71,8 +82,6 @@ main {
 
 .prev-slide, .next-slide {
     position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
     background: none;
     border: none;
     cursor: pointer;
@@ -82,14 +91,17 @@ main {
 }
 
 .prev-slide {
+    top: 50%;
     left: 20px;
 }
 
 .next-slide {
+    top: 50%;
     right: 20px;
 }
 
 .products-category {
+    width: 100%;
     position: relative;
 }
 
@@ -105,15 +117,12 @@ main {
     z-index: 1;
     display: block;
 }
-
 .prev-arrow {
     left: -50px;
 }
-
 .next-arrow {
     right: -50px;
 }
-
 .prev-arrow.hidden, .next-arrow.hidden {
     opacity: 0;
 }
@@ -122,10 +131,11 @@ main {
     font-size: 50px;
     color: #CE563C;
 }
+
 .product-grid {
     display: grid;
     color: #CE563C;
-    gap: 20px;
+    gap: 62px;
     grid-auto-flow: column;
     overflow-x: auto;
     scroll-behavior: smooth;
@@ -138,7 +148,6 @@ main {
     height: 400px;
     width: 250px ;
 }
-
 
 .product-img {
     width: 90%;
@@ -171,7 +180,6 @@ main {
     overflow: hidden;
     text-overflow: ellipsis;
     word-wrap: break-word;
-
     width: 250px;
 }
 
@@ -182,7 +190,6 @@ main {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color:
 }
 
 .product-price {

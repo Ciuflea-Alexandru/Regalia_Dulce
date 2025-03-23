@@ -1,9 +1,51 @@
 Body {
+    background: #050505;
+    margin: 0;
+    padding: 0;
+    display:flex;
+    flex-direction: column;
+}
+
+header {
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
     background-color: #050505;
-    background-image: url("/static/images/");
-    background-attachment: fixed;
-    background-size: cover;
-    overflow: hidden;
+    color: #CE563C;
+}
+
+.header-container {
+    display: flex;
+    align-items: center;
+}
+
+.site-name {
+    font-weight: bold;
+    color: #CE563C ;
+    font-family:'verdana';
+    text-decoration: none;
+    font-size: 30px;
+}
+
+.search-bar {
+    flex: 1;
+    margin-left: 20px;
+    padding: 5px;
+    border: 1px solid #CE563C;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+}
+
+.favorites-link, .cart-link, .account-link {
+    font-size: 20px;
+    color: #CE563C ;
+    font-family:'verdana';
+    text-decoration: none;
+    display: block;
+    margin-left: 10px;
 }
 
 .Message {
@@ -12,6 +54,7 @@ Body {
 }
 
 .Main-Container {
+    height: 700px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -19,14 +62,12 @@ Body {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    height: auto;
 }
 
 .Switch-Container {
-    border: 1px solid #CE563C;
-    height: auto;
-    min-height: 600px;
+    height: 700px;
     width: 200px;
+    border: 1px solid #CE563C;
     background-color: #050505;
     display: flex;
     flex-direction: column;
@@ -117,12 +158,12 @@ Body {
 }
 
 .Information-Container {
+    height: 700px;
+    width: 600px;
+    overflow: auto;
     position: relative;
-    display: none;
     font-family: 'verdana';
     color: #CE563C;
-    width: 600px;
-    height: 600px;
     background-color: #050505;
     border: 1px solid #CE563C;
 }
@@ -184,7 +225,6 @@ Body {
     text-align: center;
 }
 
-
 .Button-Container-2 {
     display: flex;
     justify-content: center;
@@ -202,6 +242,42 @@ Body {
     border: none;
     cursor: pointer;
     font-size: 20px;
+}
+
+li {
+    list-style-type: disc;
+    font-size: 20px;
+}
+ul {
+    list-style-type: disc;
+    font-size: 20px;
+}
+
+.product-family-item h4, .subfamily-item h5 {
+    margin: 0;
+}
+
+.product-item {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    grid-template-columns: auto;
+    column-gap: 10px;
+}
+
+.product-item p {
+    border-right: 1px solid #CE563C;
+    padding-right: 10px;
+    font-size: 20px;
+}
+
+
+
+.Product-Image{
+    width: 50px;
+    height: 50px;
+    border-right: 1px solid #CE563C;
+    padding-right: 10px;
 }
 
 .Info-Button:hover {

@@ -9,7 +9,7 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.crypto import get_random_string
 from django.utils.encoding import force_str
 from django.views.decorators.csrf import csrf_protect
@@ -19,6 +19,7 @@ from django.contrib.auth.hashers import make_password
 
 from .forms import SignUpForm, ProfilePictureForm, UserUpdateForm, ProfileUpdateForm
 from .models import DatabaseConfiguration, EmailConfiguration, AWSConfiguration, VerificationCode, Person
+from shop.models import ProductFamily, Product
 
 
 @csrf_protect
@@ -44,7 +45,7 @@ def signup(request):
     if 'signup_form_errors' in request.session:
         form.errors.update(request.session.pop('signup_form_errors'))
 
-    return render(request, 'Sign_Up.html', {'form': form})
+    return render(request, 'sign_up.html', {'form': form})
 
 
 @csrf_protect
@@ -67,7 +68,7 @@ def verify_code(request):
                                      extra_tags='verify_code')
                     return redirect('verify_code')
 
-            return render(request, 'Verify_Code.html')
+            return render(request, 'verify_code.html')
 
         else:
             entered_code = request.POST.get('code')
@@ -97,7 +98,7 @@ def verify_code(request):
             messages.success(request, 'Your account has been verified successfully.')
             return redirect('signin')
 
-    return render(request, 'Verify_Code.html')
+    return render(request, 'verify_code.html')
 
 
 def send_code(user):
@@ -126,7 +127,7 @@ def signin(request):
             messages.error(request, 'Invalid username or password', extra_tags='sign_in')
             return redirect('signin')
 
-    return render(request, 'Sign_In.html')
+    return render(request, 'sign_in.html')
 
 
 @csrf_protect
@@ -161,7 +162,7 @@ def forgot_password_link(request):
                            extra_tags='forgot_password_link')
             return redirect('forgot_password_link')
 
-    return render(request, 'Forgot_Password_Link.html')
+    return render(request, 'forgot_password_Link.html')
 
 
 def forgot_password_reset(request, uidb64, token):
@@ -190,7 +191,7 @@ def forgot_password_reset(request, uidb64, token):
         messages.error(request, 'The reset link is invalid.',
                        extra_tags='forgot_password_reset')
 
-    return render(request, 'Forgot_Password_Reset.html', {'uidb64': uidb64, 'token': token})
+    return render(request, 'forgot_password_reset.html', {'uidb64': uidb64, 'token': token})
 
 
 @login_required
@@ -244,6 +245,52 @@ def account_page(request):
                 request.session['password_form_errors'] = password_form.errors
                 return redirect('account_page')
 
+        elif 'edit_product' in request.POST:
+            product_id = request.POST.get('edit_product')
+            product = get_object_or_404(Product, id=product_id)
+            context = {
+                'product': product,
+            }
+            # Ensure the logged-in user is the product owner
+            if request.user == product.owner:
+                # Redirect to add_product with product details as query parameters
+                return redirect('add_product', product_id=product.id)
+
+        # Handling Product Deletion
+        elif 'delete_product' in request.POST:
+            product_id = request.POST.get('delete_product')
+            product = get_object_or_404(Product, id=product_id)
+            if request.user == product.owner:
+                product.delete()
+                messages.success(request, 'Product deleted successfully.')
+            return redirect('account_page')
+
+        # Handling Product Family Deletion
+        elif 'delete_family' in request.POST:
+            family_id = request.POST.get('delete_family')
+            family = get_object_or_404(ProductFamily, id=family_id)
+
+            if request.user == family.owner:
+                # Recursive Deletion of Family Hierarchy
+                def delete_family_and_children(family):
+                    # Delete associated products
+                    products = Product.objects.filter(family=family)
+                    products.delete()
+
+                    # Recursively delete child families
+                    child_families = family.child_families.all()
+                    for child in child_families:
+                        delete_family_and_children(child)
+
+                    # Now delete the family itself
+                    family.delete()
+
+                # Start the recursive deletion
+                delete_family_and_children(family)
+                messages.success(request, 'Product Family deleted successfully.')
+            return redirect('account_page')
+
+    # Error handling for form submission
     if 'user_form_errors' in request.session:
         user_form.errors.update(request.session.pop('user_form_errors'))
     if 'profile_form_errors' in request.session:
@@ -257,10 +304,11 @@ def account_page(request):
         'user_form': user_form,
         'profile_form': profile_form,
         'picture_form': picture_form,
-        'password_form': password_form
+        'password_form': password_form,
+        'products': Product,
+        'product_families': ProductFamily,
     }
-
-    return render(request, 'Account_Page.html', context)
+    return render(request, 'account_page.html', context)
 
 
 @receiver(post_save, sender=DatabaseConfiguration)

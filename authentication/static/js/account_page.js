@@ -41,14 +41,22 @@ function handleGenderSelection() {
 document.addEventListener("DOMContentLoaded", function() {
     const changePasswordVisible = localStorage.getItem('changePasswordVisible');
     const initialContainer = localStorage.getItem('initialContainer');
+
+    // Add conditions to load new containers
     if (changePasswordVisible === 'true') {
         showContainer('change-password-container');
     } else if (initialContainer === 'personal-container') {
         showContainer('personal-container');
+    } else if (initialContainer === 'product-information-container') {
+        showContainer('product-information-container');
+    } else if (initialContainer === 'sell-product-container') {
+        showContainer('sell-product-container');
     } else {
         showContainer('account-container');
     }
+
     handleGenderSelection();
+
     const buttons = document.querySelectorAll('.Main-Button');
     buttons.forEach(button => {
         button.addEventListener('click', function() {
@@ -59,5 +67,10 @@ document.addEventListener("DOMContentLoaded", function() {
             const containerId = this.dataset.container;
             localStorage.setItem('initialContainer', containerId);
         });
+    });
+
+    const resetButton = document.getElementById('reset-button');
+    resetButton.addEventListener('click', () => {
+        localStorage.removeItem('sellerData'); // Clear only specific data
     });
 });
