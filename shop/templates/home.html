@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <title>Home Page</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+    <script src="{% static 'js/home.js' %}"></script>
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <a class="site-name" href="http://127.0.0.1:8000/home/">Merchants Guild</a>
+            <div class="search-bar">Search</div>
+            <a class="cart-link">Cart</a>
+            <a class="favorites-link">Favorites</a>
+            <a class="account-link" href="http://127.0.0.1:8000/account/">Account</a>
+        </div>
+    </header>
+
+    <main>
+        <section class="promotion-slideshow">
+            <button class="prev-slide">&#10094;</button>
+            <button class="next-slide">&#10095;</button>
+            <div class="slides">
+                <img src="{% static 'images/promotion1.gif' %}">
+                <img src="{% static 'images/promotion2.gif' %}">
+                <img src="{% static 'images/promotion3.gif' %}">
+            </div>
+        </section>
+
+
+        <section class="products-category">
+            <div class="category-text">Category 1</div>
+            <div class="product-grid">
+                <button class="next-arrow">&#10097;</button>
+                <button class="prev-arrow">&#10096;</button>
+                <div class="product-card">
+                    <img class="product-img" src="{% static 'images/product1.png' %}">
+                    <span class="star">★★★★★</span>
+                    <span>4.51 (08 reviews)</span>
+                    <div class="product-text">Product1aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa</div>
+                    <div class="bottom-bar">
+                        <div class="product-price">$199.99</div>
+                        <button class="add-to-cart">Add to Cart</button>
+                    </div>
+                </div>
+        </section>
+
+                <section class="products-category">
+            <div class="category-text">Category 2</div>
+            <div class="product-grid">
+                <div class="product-card">
+                    <img class="product-img" src="{% static 'images/product1.gif' %}">
+                    <span class="star">★★★★★</span>
+                    <span>4.51 (08 reviews)</span>
+                    <div class="product-text">Product 6</div>
+                    <div class="bottom-bar">
+                        <div class="product-price">$199.99</div>
+                        <button class="add-to-cart">Add to Cart</button>
+                    </div>
+                </div>
+                </div>
+        </section>
+    </main>
+
+    <footer>
+        &copy; 2024 E-commerce Site
+    </footer>
+</body>
+</html>
