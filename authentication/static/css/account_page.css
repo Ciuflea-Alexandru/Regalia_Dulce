@@ -1,81 +1,100 @@
-Body {
-    background: #050505;
+body {
+    min-width:100vw;
+    min-height: 100vh;
+    background: #0d0d0d;
     margin: 0;
     padding: 0;
-    display:flex;
+    display: flex;
     flex-direction: column;
 }
 
 header {
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px;
-    background-color: #050505;
-    color: #CE563C;
-}
-
-.header-container {
+    width: 15vw;
+    height: 100vh;
+    position: fixed;
+    background: #0d0d0d;
+    color: peru;
     display: flex;
     align-items: center;
+    flex-direction: column;
+    overflow-y: auto;
+    scrollbar-width: none;
+    border: 1px solid peru;
 }
 
-.site-name {
+.site-logo {
+    width: 200px;
+    height: 200px;
     font-weight: bold;
-    color: #CE563C ;
-    font-family:'verdana';
+    color: peru;
     text-decoration: none;
-    font-size: 30px;
+    position: relative;
+    animation: slideFromTop 2s ease-out forwards;
 }
 
-.search-bar {
-    flex: 1;
-    margin-left: 20px;
-    padding: 5px;
-    border: 1px solid #CE563C;
+@keyframes slideFromTop {
+    0% {
+        top: -200px;
+        opacity: 0;
+    }
+    100% {
+        top: 0;
+        opacity: 1;
+    }
 }
 
-.header-right {
+.first-header-container {
+    width: 230px;
     display: flex;
+    flex-direction: row;
     align-items: center;
+    justify-content: center;
+    border-bottom: 1px solid peru;
+    gap: 20px;
 }
 
-.favorites-link, .cart-link, .account-link {
-    font-size: 20px;
-    color: #CE563C ;
-    font-family:'verdana';
-    text-decoration: none;
-    display: block;
-    margin-left: 10px;
+.second-header-container{
+    width: 230px;
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 10px;
 }
 
-.Message {
-    color: #CE563C;
-    font-size: 20px;
+.main-header-link, .header-link {
+    color: peru;
+    text-decoration: unset;
+}
+
+.main-header-link{
+    font-size: 35px;
+}
+.header-link{
+    font-size: 30px;
+    font-weight: bold;
 }
 
 .Main-Container {
-    height: 700px;
+    height: 600px;
+    margin-top: 5vh;
+    margin-left: 35%;
     display: flex;
-    justify-content: center;
     align-items: center;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
 }
 
 .Switch-Container {
-    height: 700px;
+    height: 600px;
     width: 200px;
-    border: 1px solid #CE563C;
-    background-color: #050505;
+    border: 1px solid peru;
+    background-color: #0d0d0d;
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 
 .Profile-Picture-Container {
-    background-color: #CE563C;
+    background: peru;
     position: relative;
     width: 100%;
     height: 150px;
@@ -111,7 +130,7 @@ header {
     height: 80px;
     width: 100%;
     margin: -1px;
-    background-color: #CE563C;
+    background: peru;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -121,36 +140,43 @@ header {
 
 .Welcome-Text {
     text-align: center;
-    color: #050505;
+    color: #0d0d0d;
     margin: 10px 0;
     overflow-wrap: break-word;
     word-wrap: break-word;
     white-space: normal;
 }
 
-.Main-Button {
+.Main-Button, .Main-Button-link {
     position: relative;
     margin-top: 10%;
     padding: 10px 20px;
-    background-color: #CE563C;
+    background: peru;
     height: 60px;
     width: 100%;
-    color: #050505;
     border: none;
     cursor: pointer;
     font-size: 20px;
     transition: 0.5s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #0d0d0d;
+    text-decoration: unset;
 }
-
-.Main-Button:hover {
-    background-color: #050505;
-    color: #CE563C;
+.Main-Button-link{
+    width:80%;
+    height: 40px;
+}
+.Main-Button:hover , .Main-Button-link:hover{
+    border: 1px solid peru;
+    background-color: #0d0d0d;
+    color: peru;
     transition: 0.5s;
 }
-
-.Main-Button.active {
-    background-color: #050505;
-    color: #CE563C;
+.Main-Button.active, .Main-Button-link.active {
+    background-color: #0d0d0d;
+    color: peru;
 }
 
 .Logout-Form {
@@ -158,14 +184,13 @@ header {
 }
 
 .Information-Container {
-    height: 700px;
+    height: 600px;
     width: 600px;
     overflow: auto;
     position: relative;
-    font-family: 'verdana';
-    color: #CE563C;
-    background-color: #050505;
-    border: 1px solid #CE563C;
+    color: peru;
+    background-color: #0d0d0d;
+    border: 1px solid peru;
 }
 
 .Information-Container.show {
@@ -209,15 +234,14 @@ header {
     display: block;
     width: 80%;
     padding: 10px;
-    border: 1px solid #050505;
-    outline-style: outset;
-    outline-color: #CE563C;
-    background-color: #CE563C;
+    border: 1px solid peru;
+    background-color: #0d0d0d;
     font-family: 'verdana';
+    color: peru;
 }
 
 .Button-Container-1 {
-    color: #CE563C;
+    color: peru;
     font-size: 14px;
     position: absolute;
     Bottom:10%;
@@ -237,11 +261,12 @@ header {
 .Info-Button {
     margin: 0 10px;
     padding: 10px 20px;
-    background-color: #CE563C;
-    color: #050505;
-    border: none;
+    background-color: #0d0d0d;
+    color: peru;
+    border: 1px solid peru;
     cursor: pointer;
     font-size: 20px;
+    text-decoration: none;
 }
 
 li {
@@ -266,7 +291,7 @@ ul {
 }
 
 .product-item p {
-    border-right: 1px solid #CE563C;
+    border-right: 1px solid peru;
     padding-right: 10px;
     font-size: 20px;
 }
@@ -276,12 +301,61 @@ ul {
 .Product-Image{
     width: 50px;
     height: 50px;
-    border-right: 1px solid #CE563C;
+    border-right: 1px solid peru;
     padding-right: 10px;
 }
 
 .Info-Button:hover {
-    background-color: #050505;
-    color: #CE563C;
+    background-color: #0d0d0d;
+    color: peru;
     transition: 0.5s;
+}
+
+.Message {
+    color: peru;
+    font-size: 20px;
+}
+
+input:-webkit-autofill {
+    -webkit-box-shadow:0 0 0 50px #0d0d0d inset;
+    -webkit-text-fill-color: peru;
+}
+
+::-webkit-scrollbar {
+    background-color: #0d0d0d;
+}
+::-webkit-scrollbar-thumb {
+    background: #0d0d0d;
+    border: 3px solid peru;
+}
+
+.footer-container{
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 50px;
+}
+
+.contact-footer{
+    display:flex;
+    flex-direction: column;
+}
+.contact-footer p{
+    padding: 0px;
+    margin: 5px;
+    font-weight: bold;
+    font-size: 20px;
+}
+footer {
+    width:82.5vw;
+    bottom: 0px;
+    margin-left: 15.1vw;
+    position: fixed;
+    padding: 20px;
+    margin-bottom: 1px;
+    text-align: center;
+    border: 1px solid peru;
+    background-color: #0d0d0d;
+    color: peru;
 }

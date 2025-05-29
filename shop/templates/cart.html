@@ -1,10 +1,201 @@
 <!DOCTYPE html>
+{% load static %}
 <html lang="en">
 <head>
+    <title>Home Page</title>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="https://regalia-dulce.s3.us-east-1.amazonaws.com/shop/icon/logo.png" type="image/png">
+    <link rel="stylesheet" href="{% static 'css/cart.css' %}">
+    <script src="{% static 'js/cart.js' %}" defer></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
+
+<header>
+    <a class="site-logo" href="http://127.0.0.1:8000/home/">
+        <img class="site-logo" src="https://regalia-dulce.s3.us-east-1.amazonaws.com/shop/icon/logo.png">
+    </a>
+    <div class="first-header-container">
+        <a class="main-header-link" href="http://127.0.0.1:8000/search/">
+            <i class="fa-solid fa-magnifying-glass"></i></a>
+        <a class="main-header-link" href="http://127.0.0.1:8000/cart/">
+            <i class="fa-solid fa-cart-shopping"></i></a>
+        <a class="main-header-link" href="http://127.0.0.1:8000/favorites/">
+            <i class="fa-solid fa-star"></i></a>
+        <a class="main-header-link" href="http://127.0.0.1:8000/account/">
+            <i class="fa-solid fa-user"></i></a>
+    </div>
+    <div class="second-header-container">
+        <a class="header-link" href="http://127.0.0.1:8000/category/Chocolate_Bars/">Chocolate Bars</a>
+        <a class="header-link" href="http://127.0.0.1:8000/category/Chocolate_Boxes/">Chocolate Boxes</a>
+        <a class="header-link" href="http://127.0.0.1:8000/category/Soft_Drinks/">Soft Drinks</a>
+        <a class="header-link" href="http://127.0.0.1:8000/category/Seasonal_Specials/">Seasonal Specials</a>
+        <a class="header-link" href="http://127.0.0.1:8000/story/">Our Story</a>
+        <a class="header-link" href="http://127.0.0.1:8000/mission/">Our Mission</a>
+    </div>
+</header>
+
+
+<main>
+    <form method="post">
+        {% csrf_token %}
+        <section class="cart">
+            {% if products_in_cart %}
+            <h1 class="title">Cart</h1>
+            <div class="cart-title-grid">
+                <div class="cart-item" data-product-id="{{ item.product.id }}">
+                    <div class="cart-title-name-image">
+                        <h1 class="cart-text">Product</h1>
+                    </div>
+                    <div class="cart-title-price">
+                        <h1 class="cart-text">Price</h1>
+                    </div>
+                    <div class="cart-title-quantity">
+                        <h1 class="cart-text">Quantity</h1>
+                    </div>
+                    <div class="cart-title-subtotal">
+                        <h1 class="cart-text">Sub-total</h1>
+                    </div>
+                    <div class="cart-title-favorite-delete">
+                    </div>
+                </div>
+            </div>
+
+            <div class="cart-grid">
+                {% for item in products_in_cart %}
+                <div class="cart-item" data-product-id="{{ item.product.id }}">
+                    <div class="cart-image">
+                        <img src="{{ item.product.images.first.image.url }}" alt="{{ item.product.name }}">
+                    </div>
+
+                    <div class="cart-name">
+                        <h2 class="name">{{ item.product.name }}</h2>
+                    </div>
+
+                    <div class="cart-price">
+                        <div class="price">
+                            {% if item.product.offer_price and item.product.offer_price != item.product.price %}
+                            <div class="product-price-cut">${{ item.product.price }}</div>
+                            <div class="product-price-offer">${{ item.product.offer_price }}</div>
+                            {% else %}
+                            <div class="product-price">${{ item.product.price }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="cart-quantity">
+                        {% if item.available_quantity != 0 %}
+                        <div class="quantity-box">
+                            <button type="button" class="decrease" data-action="decrease"
+                                    data-product-id="{{ item.product.id }}">-
+                            </button>
+                            <h1 class="quantity">{{ item.quantity }}</h1>
+                            <button type="button" class="increase" data-action="increase"
+                                    data-product-id="{{ item.product.id }}">+
+                            </button>
+                        </div>
+                        {% else %}
+                        <p>This product is no more available</p>
+                        {% endif %}
+                    </div>
+
+
+                    <div class="cart-subtotal">
+                        {% if item.available_quantity != 0 %}
+                        <h2>{{ item.sub_total_product }}$</h2>
+                        {% else %}
+                        <p></p>
+                        {% endif %}
+                    </div>
+
+                    <div class="cart-favorite-delete">
+                        <button type="button" class="delete" data-action="delete"
+                                data-product-id="{{ item.product.id }}">X
+                        </button>
+                        {% if item.product.id in user_favorite_product_ids %}
+                        <button type="button" class="favorite" data-action="favorite"
+                                data-product-id="{{ item.product.id }}"><i class="fa-solid fa-star"></i>
+                        </button>
+                        {% else %}
+                        <button type="button" class="favorite" data-action="favorite"
+                                data-product-id="{{ item.product.id }}"><i class="fa-regular fa-star"></i>
+                        </button>
+                        {% endif %}
+                    </div>
+
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="title">Your cart is empty</p>
+            {% endif %}
+        </section>
+
+        <ul class="messages">
+                {% for message in messages %}
+                {% if 'cart' in message.tags %}
+                <div class="Message">
+                    {{ message }}
+                </div>
+                {% endif %}
+                {% endfor %}
+        </ul>
+
+        <section class="total-cart">
+            <div class="total-grid">
+                <h1 class="total-start"></h1>
+                <div class="total-start">Total Cart</div>
+                <div class="total-start"></div>
+
+                <div class="total-collumn-1">Sub-total</div>
+                <div class="total-collumn-1">Cost Transport</div>
+                <div class="total-collumn-1">Total</div>
+
+                <div class="total-collumn-2">{{ sub_total }}$</div>
+                <div class="total-collumn-2">{{ transport_fee }}$</div>
+                <div class="total-collumn-2">{{ total }}$</div>
+                <div class="total-end">
+                    <input class="coupon-code" id="coupon-code" name="coupon_code" autocomplete="off">
+
+                    <button type="button" class="coupon" data-action="coupon">Coupon</button>
+                </div>
+                <div class="total-end"></div>
+                <div class="total-end">
+                    {% if has_available_items %}
+                    <a style="text-decoration: none;" href="{% url 'create_checkout_session' %}">
+                        <button type="button" data-action="coupon" class="checkout">Checkout</button>
+                    </a>
+                    {% else %}
+                    <p>No available products</p>
+                    {% endif %}
+                </div>
+
+            </div>
+        </section>
+
+    </form>
+
+        <footer>
+            <div class="footer-container">
+                <a class="header-link" href="http://127.0.0.1:8000/category/Chocolate_Bars/">Chocolate Bars</a>
+                <a class="header-link" href="http://127.0.0.1:8000/category/Chocolate_Boxes/">Chocolate Boxes</a>
+                <a class="header-link" href="http://127.0.0.1:8000/category/Soft_Drinks/">Soft Drinks</a>
+                <a class="header-link" href="http://127.0.0.1:8000/category/Seasonal_Specials/">Seasonal Specials</a>
+                <a class="header-link" href="http://127.0.0.1:8000/story/">Our Story</a>
+                <a class="header-link" href="http://127.0.0.1:8000/mission/">Our Mission</a>
+                <div class="contact-footer">
+                    <p>Contact Us</p>
+                    <p>Regalia Dulce</p>
+                    <p>office@regaliadulce.com</p>
+                    <p>+1 248-434-5508</p>
+                </div>
+            </div>
+
+            Copyright © 2025 Regalia Dulce. All rights reserved
+        </footer>
+</main>
+
 
 </body>
 </html>

@@ -4,8 +4,16 @@ from django import forms
 from .models import Person, DatabaseConfiguration, EmailConfiguration, AWSConfiguration
 
 
+from django.contrib import admin
+from django.contrib.auth.models import Group
+from .models import Person, VerificationCode
+
+
 class PersonAdmin(admin.ModelAdmin):
-    fields = ('username', 'first_name', 'last_name', 'email', 'date_joined', 'last_login', 'groups')
+    list_display = ('username', 'email', 'authenticated', 'active', 'last_login', 'date_joined')
+    list_filter = ('authenticated', 'active', 'gender', 'date_joined')
+    search_fields = ('username', 'email', 'first_name', 'last_name')
+    fields = ('username', 'first_name', 'last_name', 'email', 'gender', 'country', 'authenticated', 'active', 'profile_picture', 'date_joined', 'last_login', 'groups')
     readonly_fields = ('email', 'last_login', 'date_joined')
 
     def formfield_for_manytomany(self, db_field, request, **kwargs):
@@ -17,14 +25,24 @@ class PersonAdmin(admin.ModelAdmin):
         return request.user.is_superuser
 
     def save_model(self, request, obj, form, change):
-        """
-        Override save_model to ensure the user exists before logging.
-        """
         obj.save()
         super().save_model(request, obj, form, change)
 
 
+class VerificationCodeAdmin(admin.ModelAdmin):
+    list_display = ('user', 'code', 'created_at', 'end_date', 'expired')
+    list_filter = ('created_at', 'end_date')
+    search_fields = ('user__username', 'code')
+    readonly_fields = ('created_at', 'end_date')
+
+    def expired(self, obj):
+        return obj.expired()
+    expired.boolean = True
+    expired.short_description = 'Expired'
+
+
 admin.site.register(Person, PersonAdmin)
+admin.site.register(VerificationCode, VerificationCodeAdmin)
 
 
 @admin.register(DatabaseConfiguration)

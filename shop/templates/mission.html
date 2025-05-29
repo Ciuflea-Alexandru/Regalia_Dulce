@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 {% load static %}
 <html lang="en">
-
 <head>
-    <title>Sign In</title>
+    <title>Home Page</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="https://regalia-dulce.s3.us-east-1.amazonaws.com/shop/icon/logo.png" type="image/png">
-    <link rel="stylesheet" href="{% static 'css/sign_in.css' %}">
+    <link rel="stylesheet" href="{% static 'css/mission.css' %}">
+    <script src="{% static 'js/mission.js' %}"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
@@ -37,34 +37,52 @@
 </header>
 
 <main>
-    <div class="main-container">
-        <div class="Sign-In-Container">
-            <h2 class="Sign-In-Text">Sign In</h2>
 
-            <form method="post" action="{% url 'signin' %}" autocomplete="on" novalidate>
-                {% csrf_token %}
+    <h1 class="title">Our Mission</h1>
 
-                <input name="username" type="text" placeholder="Username"
-                       class="Username-Box" autocomplete="username">
-
-                <input name="password" type="password" placeholder="Password"
-                       class="Password-Box" autocomplete="current-password">
-                {% for message in messages %}
-                {% if 'sign_in' in message.tags %}
-                <div class="Message">
-                    <p>{{ message }}</p>
-                </div>
-                {% endif %}
-                {% endfor %}
-                <br>
-
-                <a class="Sign-Up-Link" href="http://127.0.0.1:8000/signup/">Don't have an account?</a>
-                <a class="Sign-Up-Link" href="http://127.0.0.1:8000/forgot_password/link/">Forgot Password?</a>
-
-                <button type="submit" class="Sign-In-Button">Log In</button>
-            </form>
+    <div class="div-1">
+        <div class="div-1-1">
+            <div class="presentation-writing">
+                <h1 class="presentation-title">Honoring the Legacy</h1>
+                <h2 class="presentation-text">To preserve and celebrate the rich heritage of Jacques and Elodie Dubois
+                    by meticulously crafting chocolates using their time-honored recipes and techniques.</h2>
+            </div>
+        </div>
+        <div class="div-1-2">
+            <img src="https://regalia-dulce.s3.us-east-1.amazonaws.com/shop/banner/legacy.jpeg">
         </div>
     </div>
+
+    <div class="div-2">
+        <div class="div-2-1">
+            <img src="https://regalia-dulce.s3.us-east-1.amazonaws.com/shop/banner/crafting.jpeg">
+        </div>
+
+        <div class="div-2-2">
+            <div class="presentation-writing">
+                <h1 class="presentation-title">Crafting Excellence</h1>
+                <h2 class="presentation-text">To create artisanal chocolates of superior quality, reflecting our
+                    unwavering commitment to the art of chocolate making and delivering a truly exceptional taste
+                    experience.</h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="div-3">
+        <div class="div-3-1">
+            <div class="presentation-writing">
+                <h1 class="presentation-title">Delighting Generations</h1>
+                <h2 class="presentation-text">To share the sweetness of our tradition with both our cherished local
+                    community and new generations of customers, ensuring a warm and inviting atmosphere that embodies
+                    the enduring spirit of Regalia Dulce.</h2>
+            </div>
+        </div>
+
+        <div class="div-3-2">
+            <img src="https://regalia-dulce.s3.us-east-1.amazonaws.com/shop/banner/generation.jpeg">
+        </div>
+    </div>
+
         <footer>
             <div class="footer-container">
                 <a class="header-link" href="http://127.0.0.1:8000/category/Chocolate_Bars/">Chocolate Bars</a>
@@ -84,7 +102,6 @@
             Copyright © 2025 Regalia Dulce. All rights reserved
         </footer>
 </main>
-
 
 </body>
 </html>

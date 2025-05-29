@@ -1,495 +1,679 @@
-import json
-import base64
-from django.shortcuts import render, redirect, get_object_or_404
-from django.db import transaction
-from django.contrib import messages
+import stripe
+import posthog
+
+from django.conf import settings
+from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.shortcuts import redirect
+from django.urls import reverse
 from django.views.decorators.csrf import csrf_protect
-from .models import Category, SubCategory, ProductFamily, Product, ProductImage, Specification, Feature
-from django.core.files.base import ContentFile
+from django.core.paginator import Paginator
+from django.utils import timezone
 from django.http import JsonResponse
+from django.contrib import messages
+from .models import (Category, Product, ProductCategory, NutritionalValue,
+                     ProductImage, Rating, LikeDislike, Cart, Favorite, Offer, Coupon)
+
+
+stripe.api_key = settings.STRIPE_SECRET_KEY
+posthog.project_api_key = settings.POSTHOG_API_KEY
+posthog.host = settings.POSTHOG_HOST
+
+
+@csrf_protect
+def home(request):
+    user = request.user if request.user.is_authenticated else None
+    products = Product.objects.all()
+    categories = Category.objects.prefetch_related('subcategories', 'product_categories__product').all()
+    top_products = sorted(products, key=lambda product: Rating.average_score(product), reverse=True)[:5]
+    user_favorite_product_ids = Favorite.objects.filter(user=user).values_list('product_id', flat=True) if user else []
+    cart_product_ids = Cart.objects.filter(user=user).values_list('product_id', flat=True) if user else []
+
+    if request.method == "POST":
+        action = request.POST.get("action")
+        if action:
+            try:
+                action_type, product_id = action.split('_', 1)
+                product = Product.objects.get(id=product_id)
+                if not user:
+                    return redirect('sign_in')
+
+                if action_type == "cart":
+                    existing_cart_item = Cart.objects.filter(user=user, product_id=product.id).first()
+                    if existing_cart_item:
+                        existing_cart_item.quantity += 1
+                        existing_cart_item.save()
+                    else:
+                        Cart.objects.create(user=user, product_id=product.id, product_name=product.name, quantity=1)
+                elif action_type == "favorite":
+                    if product.id in user_favorite_product_ids:
+                        Favorite.objects.filter(user=user, product_id=product.id).delete()
+                    else:
+                        Favorite.objects.get_or_create(user=user, product_id=product.id, product_name=product.name)
+
+                return JsonResponse({"status": "success", "message": "Action completed successfully."})
+            except Product.DoesNotExist:
+                return JsonResponse({"status": "error", "message": "Product not found"}, status=404)
+        return JsonResponse({"status": "error", "message": "Invalid action"}, status=400)
+
+    context = {
+        'categories': categories,
+        'top_products': top_products,
+        'user_favorite_product_ids': user_favorite_product_ids,
+        'cart_product_ids': cart_product_ids,
+        'ratings': Rating.objects.filter(score__in=[4, 5]).select_related('user'),
+
+    }
+    return render(request, 'home.html', context)
+
+
+@csrf_protect
+def search(request):
+    products = Product.objects.all()
+    categories = Category.objects.prefetch_related('subcategories', 'product_categories__product').all()
+
+    if request.method == "POST":
+        action = request.POST.get("action")
+
+        if action:
+            try:
+                action_type = action.split('_', 1)[0]
+                if action_type == "search":
+                    search_query = request.POST.get("search_query", "")
+                    products = products.filter(name__icontains=search_query)
+
+                    # PostHog capture here
+                    if request.user.is_authenticated:
+                        user_id = request.user.email
+                    else:
+                        user_id = request.session.session_key or 'anonymous'
+
+                    posthog.capture(
+                        distinct_id=user_id,
+                        event='product_search',
+                        properties={
+                            'search_query': search_query,
+                            'result_count': products.count()
+                        }
+                    )
+
+                    product_data = [
+                        {
+                            "id": product.id,
+                            "name": product.name,
+                            "description": product.description,
+                            "image_url": product.images.first().image.url if product.images.first() else None
+                        }
+                        for product in products
+                    ]
+                    return JsonResponse({
+                        "status": "success",
+                        "message": "Search completed successfully.",
+                        "products": product_data
+                    })
+
+                return JsonResponse({"status": "error", "message": "Invalid action"}, status=400)
+            except Product.DoesNotExist:
+                return JsonResponse({"status": "error", "message": "Product not found"}, status=404)
+        return JsonResponse({"status": "error", "message": "Invalid action"}, status=400)
+
+    context = {
+        'categories': categories,
+        'products': products,
+    }
+
+    return render(request, 'search.html', context)
 
 
 @csrf_protect
 def product(request, product_id):
+    user = request.user if request.user.is_authenticated else None
     product_instance = get_object_or_404(Product, pk=product_id)
-    family_branch = product_instance.family_branch
+    cart_product_ids = Cart.objects.filter(user=user).values_list('product_id', flat=True)
+    user_rating = Rating.objects.filter(product=product_instance, user=user).first()
+    favorite_product_ids = Favorite.objects.filter(user=user).values_list('product_id', flat=True)
+    average_score = Rating.average_score(product_instance)
+    rating_distribution = {
+        str(score): Rating.objects.filter(product=product_instance, score=score).count()
+        for score in range(5, 0, -1)
+    }
+    total_reviews = sum(rating_distribution.values())
+    rating_percentages = {
+        key: (count / total_reviews) * 100 if total_reviews else 0 for key, count in rating_distribution.items()
+    }
+    all_ratings = Rating.objects.filter(product=product_instance).select_related('user')
+    paginator = Paginator(all_ratings, 3)
+    page_number = request.POST.get('page') or request.GET.get('page') or request.session.get('review_page') or 1
+    request.session['review_page'] = page_number
+    try:
+        page_number = int(page_number)
+    except (TypeError, ValueError):
+        page_number = 1
+    ratings_page = paginator.get_page(page_number)
+    for review in ratings_page:
+        review.like_count = LikeDislike.objects.filter(rating=review, choice=LikeDislike.LIKE).count()
+        review.dislike_count = LikeDislike.objects.filter(rating=review, choice=LikeDislike.DISLIKE).count()
+        review.user_like = LikeDislike.objects.filter(rating=review, user=user, choice=LikeDislike.LIKE).exists()
+        review.user_dislike = LikeDislike.objects.filter(rating=review, user=user, choice=LikeDislike.DISLIKE).exists()
 
-    def get_all_subfamilies(family):
-        subfamilies = family.child_families.all()
-        all_subfamilies = [family]
-        for subfamily in subfamilies:
-            all_subfamilies.extend(get_all_subfamilies(subfamily))
-        return all_subfamilies
+    if request.user.is_authenticated:
+        user_id = request.user.email
+    else:
+        user_id = request.session.session_key or 'anonymous'
 
-    subfamilies = get_all_subfamilies(family_branch)
+    posthog.capture(
+        distinct_id=user_id,
+        event='product_viewed',
+        properties={
+            'product_id': product_instance.id,
+            'product_name': product_instance.name,
+        }
+    )
 
-    def get_differing_spec(other_product):
-        selected_specs = {spec.column1: spec.column2 for spec in product_instance.specifications.all()}
-        other_specs = {spec.column1: spec.column2 for spec in other_product.specifications.all()}
-        differing_specs = {}
-        for key in selected_specs:
-            if selected_specs.get(key) != other_specs.get(key):
-                differing_specs[key] = (selected_specs[key], other_specs.get(key))
-        return differing_specs
+    if request.method == "POST":
+        action = request.POST.get("action")
+        quantity = int(request.POST.get('quantity', 1))
+        if action:
+            try:
+                if action == "cart":
+                    existing_cart_item = Cart.objects.filter(user=user, product_id=product_instance.id).first()
+                    if existing_cart_item:
+                        existing_cart_item.quantity += quantity
+                        existing_cart_item.save()
+                    else:
+                        Cart.objects.create(
+                            user=user,
+                            product_id=product_instance.id,
+                            product_name=product_instance.name,
+                            quantity=quantity
+                        )
+                    return JsonResponse(
+                        {"status": "success", "message": f"Product added to cart! Quantity: {quantity}"})
+                elif action == "favorite":
+                    existing_favorite = Favorite.objects.filter(user=user, product_id=product_instance.id).first()
+                    if existing_favorite:
+                        existing_favorite.delete()
+                        return JsonResponse({"status": "success", "message": "Product removed from favorites!"})
+                    else:
+                        Favorite.objects.create(
+                            user=user,
+                            product_id=product_instance.id,
+                            product_name=product_instance.name
+                        )
+                        return JsonResponse({"status": "success", "message": "Product added to favorites!"})
+                elif action == "submit_review":
+                    title = request.POST.get('title')
+                    review = request.POST.get('review')
+                    score = request.POST.get('score')
+                    Rating.objects.create(
+                        product=product_instance,
+                        user=user,
+                        title=title,
+                        review=review,
+                        score=score
+                    )
+                    return JsonResponse({"status": "success", "message": "Review submitted successfully!"})
+                elif action == "delete_review":
+                    Rating.objects.filter(product=product_instance, user=user).delete()
+                    return JsonResponse({"status": "success", "message": "Review deleted successfully!"})
+                elif action in ["like", "dislike"]:
+                    review_id = request.POST.get("review_id")
+                    rating = Rating.objects.filter(id=review_id, product=product_instance).first()
+                    if rating:
+                        like_dislike_instance = LikeDislike.objects.filter(rating=rating, user=user).first()
+                        if action == "like":
+                            if like_dislike_instance:
+                                if like_dislike_instance.choice == LikeDislike.LIKE:
+                                    like_dislike_instance.delete()
+                                else:
+                                    like_dislike_instance.choice = LikeDislike.LIKE
+                                    like_dislike_instance.save()
+                            else:
+                                LikeDislike.objects.create(rating=rating, user=user, choice=LikeDislike.LIKE)
+                        elif action == "dislike":
+                            if like_dislike_instance:
+                                if like_dislike_instance.choice == LikeDislike.DISLIKE:
+                                    like_dislike_instance.delete()
+                                else:
+                                    like_dislike_instance.choice = LikeDislike.DISLIKE
+                                    like_dislike_instance.save()
+                            else:
+                                LikeDislike.objects.create(rating=rating, user=user, choice=LikeDislike.DISLIKE)
+                        return JsonResponse({"status": "success"})
+                    else:
+                        return JsonResponse({"status": "error", "message": "Review not found."}, status=404)
+                else:
+                    return JsonResponse({"status": "error", "message": "Invalid action"}, status=400)
+            except Product.DoesNotExist:
+                return JsonResponse({"status": "error", "message": "Product not found"}, status=404)
 
-    def product_specifications(products):
-        filtered = []
-        for product in products:
-            differing_specs = get_differing_spec(product)
-            if len(differing_specs) == 1:
-                filtered.append((product, differing_specs))
-        return filtered
-
-    # Add differing keys to the context
-    subfamily_products = {}
-    for subfamily in subfamilies:
-        products_with_specs = product_specifications(subfamily.products.all())
-        if products_with_specs:
-            first_product, differing_specs = products_with_specs[0]
-            differing_key = list(differing_specs.keys())[0] if differing_specs else subfamily.name
-            subfamily_products[subfamily] = {
-                'products': products_with_specs,
-                'differing_key': differing_key
-            }
-
-    for subfamily, data in subfamily_products.items():
-        products = data['products']
-        product_list = [p[0] for p in products]  # Extract product objects
-
-        if product_instance not in product_list:
-            _, first_differing_spec = products[0]  # Get a reference differing spec
-            products.append(
-                (product_instance, {key: (value[0], value[0]) for key, value in first_differing_spec.items()}))
-
-        # Sort products naturally based on hierarchy/order (keeping them in order)
-        data['products'] = sorted(products, key=lambda p: (p[0].family.position, p[0].position))
-
-    subfamily_products = dict(sorted(subfamily_products.items(), key=lambda item: item[1]['differing_key']))
-
-    def get_different_family_branch_products():
-        filtered_products = {}
-        for product in Product.objects.exclude(family_branch=family_branch):
-            differing_specs = get_differing_spec(product)
-            if len(differing_specs) == 1:
-                differing_key = list(differing_specs.keys())[0]
-                if differing_key not in filtered_products:
-                    filtered_products[differing_key] = []
-                filtered_products[differing_key].append((product, differing_specs))
-        return filtered_products
-
-    different_subfamily_products = get_different_family_branch_products()
-
-    for differing_key, products in different_subfamily_products.items():
-        product_list = [p[0] for p in products]  # Extract product objects
-
-        if product_instance not in product_list:
-            first_product, first_differing_spec = products[0]  # Get first product's differing spec
-            products.append(
-                (product_instance, {key: (value[0], value[0]) for key, value in first_differing_spec.items()})
-            )
-
-        # Sort products naturally without prioritizing the selected product
-        different_subfamily_products[differing_key] = sorted(products,
-                                                             key=lambda p: (p[0].family.position, p[0].position))
+    review_data = {
+        'average_score': average_score,
+        'user_rating': user_rating,
+        'ratings': ratings_page,
+        'rating_distribution': rating_distribution,
+        'rating_percentages': rating_percentages,
+        'average_star_rating': get_star_rating(average_score),
+        'user_star_rating': get_star_rating(user_rating.score) if user_rating else None,
+    }
 
     context = {
         'product': product_instance,
-        'subfamily_products': subfamily_products,
-        'different_subfamily_products': different_subfamily_products,
+        'cart_product_ids': cart_product_ids,
+        'favorite_product_ids': favorite_product_ids,
+        'review_data': review_data,
+        'add_quantity': 1
     }
 
     return render(request, 'product.html', context)
 
 
+def category(request, category_name):
+    user = request.user if request.user.is_authenticated else None
+    category = get_object_or_404(Category, name=category_name)
+    all_categories = [category] + category.get_all_descendants()
+    product_categories = ProductCategory.objects.filter(category__in=all_categories).select_related('product')
+    products = [pc.product for pc in product_categories]
+    user_favorite_product_ids = Favorite.objects.filter(user=user).values_list('product_id', flat=True) if user else []
+    cart_product_ids = Cart.objects.filter(user=user).values_list('product_id', flat=True) if user else []
+
+    if request.method == "POST":
+        action = request.POST.get("action")
+        if action:
+            try:
+                action_type, product_id = action.split('_', 1)
+                product = Product.objects.get(id=product_id)
+                if not user:
+                    return redirect('sign_in')
+
+                if action_type == "cart":
+                    existing_cart_item = Cart.objects.filter(user=user, product_id=product.id).first()
+                    if existing_cart_item:
+                        existing_cart_item.quantity += 1
+                        existing_cart_item.save()
+                    else:
+                        Cart.objects.create(user=user, product_id=product.id, product_name=product.name, quantity=1)
+                elif action_type == "favorite":
+                    if product.id in user_favorite_product_ids:
+                        Favorite.objects.filter(user=user, product_id=product.id).delete()
+                    else:
+                        Favorite.objects.get_or_create(user=user, product_id=product.id, product_name=product.name)
+
+                return JsonResponse({"status": "success", "message": "Action completed successfully."})
+            except Product.DoesNotExist:
+                return JsonResponse({"status": "error", "message": "Product not found"}, status=404)
+        return JsonResponse({"status": "error", "message": "Invalid action"}, status=400)
+
+    context = {
+        'category': category,
+        'category_name': category.name.replace('_', ' '),
+        'products': products,
+        'user_favorite_product_ids': user_favorite_product_ids,
+        'cart_product_ids': cart_product_ids,
+    }
+
+    return render(request, 'category.html', context)
+
+
 @csrf_protect
 @login_required
-@transaction.atomic
-def add_product_family(request):
-    if request.method == 'POST':
-        try:
-            # Extract the product family data from the request
-            product_family_data = request.POST.get('product_family_data')
-            if not product_family_data:
-                messages.error(request, 'Product family data is required.')
-                return redirect('add_product_family')
+def cart(request):
+    user = request.user
+    user_favorite_product_ids = Favorite.objects.filter(user=user).values_list('product_id', flat=True)
+    cart_items = Cart.objects.filter(user=user)
+    sub_total = 0
+    products_in_cart = []
+    has_available_items = False
 
-            entities = json.loads(product_family_data)
-            print("Entities Received:", entities)
+    if request.method == "POST":
+        action = request.POST.get("action")
+        coupon_code = request.POST.get("coupon_code")
 
-            # Sort the entities by their hierarchical IDs
-            sorted_entities = sorted(entities.items(), key=lambda x: list(map(float, x[0].split('.'))))
-            subfamily_count = 0  # Track the number of subfamilies
-            product_count = 0  # Track the number of products
-            validation_errors = []
-            existing_names = set()
+        if action:
+            try:
+                action_type, product_id = action.split('_', 1)
+                product = Product.objects.get(id=product_id)
 
-            # First pass: Validate entities and check counts
-            for entity_id, entity_data in sorted_entities:
-                entity_type = entity_data.get("type", "")
-                name = entity_data.get("name", "")
-                category = entity_data.get("category_subcategory", "")
-                base64_images = entity_data.get("images", [])
-
-                # Validation: Ensure all required fields are present and not empty
-                if not entity_type or not name or not category:
-                    validation_errors.append(
-                        f"All fields (type, name, and category) are required for {name}.")
-
-                # Ensure at least 5 product images for products
-                if entity_type == "product" and len(base64_images) < 5:
-                    validation_errors.append(f"At least 5 images are required for product {name}.")
-
-                # Check for duplicate names
-                if name in existing_names:
-                    validation_errors.append(f"Duplicate name found: {name}.")
-                existing_names.add(name)
-
-                # Count subfamilies and products
-                if entity_type == "family":
-                    subfamily_count += 1
-                elif entity_type == "product":
-                    product_count += 1
-
-            # After validating all entities, check for global errors
-            if subfamily_count < 1:
-                validation_errors.append('You must create at least one subfamily.')
-
-            if product_count < 2:
-                validation_errors.append('You must create at least two products.')
-
-            # If there are validation errors, display them and redirect
-            if validation_errors:
-                for error in validation_errors:
-                    messages.error(request, error)
-                return redirect('add_product_family')
-
-            # Proceed with the creation only if validation passes
-            for entity_id, entity_data in sorted_entities:
-                entity_type = entity_data.get("type", "")
-                name = entity_data.get("name", "")
-                ship = entity_data.get("ship", "")
-                category = entity_data.get("category_subcategory", "")
-                specifications = entity_data.get("specifications", [])
-                base64_images = entity_data.get("images", [])
-
-                # Extract position from the hierarchical ID
-                position = int(entity_id.split('.')[-1])
-
-                # Process the root family
-                if entity_type == "root":
-                    # Handle category and subcategories for the root family
-                    category_name, *subcategory_names = category.split('/')
-                    try:
-                        category = Category.objects.get(name=category_name)
-                    except Category.DoesNotExist:
-                        messages.error(request, f'Category not found: {category_name}.')
-                        return redirect('add_product_family')
-                    subcategories = SubCategory.objects.filter(name__in=subcategory_names)
-
-                    # Create or update the root family using defaults
-                    root_family, created = ProductFamily.objects.update_or_create(
-                        owner=request.user,
-                        parent_family=None,
-                        name=name,
-                        defaults={
-                            "category": category,
-                            "position": position,
-                            "root_family": None,
-                            "family_branch": None  # Root family has no parent, so no family branch
-                        }
-                    )
-                    # Add subcategories to the root family
-                    root_family.subcategories.set(subcategories)
-                    root_family.root_family = root_family  # Set root_family as itself
-                    root_family.save()
-                    print(f"Root Family Created: {name}")
-
-                # Process subfamilies
-                elif entity_type == "family":
-                    parent_family_id = ".".join(entity_id.split(".")[:-1])  # Extract parent family ID
-                    parent_family_data = entities.get(parent_family_id, {})
-                    parent_family_name = parent_family_data.get("name", "")
-
-                    # Validate parent family existence
-                    parent_family = ProductFamily.objects.filter(owner=request.user, name=parent_family_name).first()
-                    if not parent_family:
-                        messages.error(request, f'Parent family not found: {parent_family_name}.')
-                        return redirect('add_product_family')
-
-                    # Handle category and subcategories for the subfamily
-                    category_name, *subcategory_names = category.split('/')
-                    try:
-                        category = Category.objects.get(name=category_name)
-                    except Category.DoesNotExist:
-                        messages.error(request, f'Category not found: {category_name}.')
-                        return redirect('add_product_family')
-
-                    subcategories = SubCategory.objects.filter(name__in=subcategory_names)
-
-                    # Create or update the subfamily using defaults
-                    subfamily, created = ProductFamily.objects.update_or_create(
-                        owner=request.user,
-                        parent_family=parent_family,
-                        name=name,
-                        defaults={
-                            "category": category,
-                            "position": position,
-                            "root_family": parent_family.root_family or parent_family,
-                        }
-                    )
-                    # Add subcategories to the subfamily
-                    subfamily.subcategories.set(subcategories)
-                    subfamily.save()
-                    print(f"Subfamily Created: {name}")
-
-                # Process products
-                elif entity_type == "product":
-                    parent_family_id = ".".join(entity_id.split(".")[:-1])  # Extract parent family ID
-                    parent_family_data = entities.get(parent_family_id, {})
-                    parent_family_name = parent_family_data.get("name", "")
-
-                    # Validate parent family existence
-                    parent_family = ProductFamily.objects.filter(owner=request.user, name=parent_family_name).first()
-                    if not parent_family:
-                        messages.error(request, f'Parent family not found: {parent_family_name}.')
-                        return redirect('add_product_family')
-
-                    # Handle category and subcategories for the product
-                    category_name, *subcategory_names = category.split('/')
-                    try:
-                        category = Category.objects.get(name=category_name)
-                    except Category.DoesNotExist:
-                        messages.error(request, f'Category not found: {category_name}.')
-                        return redirect('add_product_family')
-
-                    subcategories = SubCategory.objects.filter(name__in=subcategory_names)
-
-                    # Find the family branch (the family that has the root_family as parent)
-                    # Find the family branch (direct parent that has root_family as its parent)
-                    if parent_family.parent_family == parent_family.root_family:
-                        family_branch = parent_family
+                if action_type == "increase":
+                    cart_item, created = Cart.objects.get_or_create(user=user, product_id=product.id)
+                    if cart_item.quantity < product.stock:
+                        cart_item.quantity += 1
+                        cart_item.save()
                     else:
-                        # Fallback: Use the closest family with the root_family as its parent
-                        family_branch = ProductFamily.objects.filter(
-                            owner=request.user,
-                            parent_family=parent_family.root_family
-                        ).first()
+                        messages.success(request, 'Cannot add more than available stock', extra_tags='cart')
+                        return JsonResponse({"status": "error", "message": "Cannot add more than available stock."})
 
-                    # If no family branch is found, use the root family as the default family branch
-                    if not family_branch:
-                        family_branch = parent_family  # Default to the parent_family itself if no branch is found
+                elif action_type == "decrease":
+                    cart_item = Cart.objects.get(user=user, product_id=product.id)
+                    cart_item.quantity = max(1, cart_item.quantity - 1)
+                    cart_item.save()
 
-                    # Create or update the product using defaults
-                    product, created = Product.objects.update_or_create(
-                        owner=request.user,
-                        family=parent_family,
-                        name=name,
-                        defaults={
-                            "category": category,
-                            "ship": ship,
-                            "description": entity_data.get("description", ""),
-                            "price": entity_data.get("price", 0),
-                            "stock": entity_data.get("stock", 0),
-                            "position": position,
-                            "root_family": parent_family.root_family or parent_family,
-                            "family_branch": family_branch  # Set the family branch as the one found above
-                        }
-                    )
+                elif action_type == "delete":
+                    Cart.objects.filter(user=user, product_id=product.id).delete()
 
-                    # Add subcategories to the product
-                    product.subcategories.set(subcategories)
-                    product.save()
-                    print(f"Product Created: {name}")
+                elif action_type == "favorite":
+                    if product.id in user_favorite_product_ids:
+                        Favorite.objects.filter(user=user, product_id=product.id).delete()
+                    else:
+                        Favorite.objects.get_or_create(user=user, product_id=product.id, product_name=product.name)
 
-                    # Update or create specifications for the product
-                    for spec in specifications:
-                        # Check if the specification already exists
-                        existing_spec = Specification.objects.filter(
-                            product=product,
-                            column1=spec.get("key", ""),
-                            column2=spec.get("value", "")
-                        ).first()
+                return JsonResponse({"status": "success", "message": "Action completed successfully."})
 
-                        if existing_spec:
-                            # Update existing specification
-                            existing_spec.column1 = spec.get("key", "")
-                            existing_spec.column2 = spec.get("value", "")
-                            existing_spec.save()
-                        else:
-                            # Create new specification
-                            Specification.objects.create(
-                                product=product,
-                                product_family=parent_family,  # Include product family ID
-                                column1=spec.get("key", ""),
-                                column2=spec.get("value", ""),
-                                position=product.specifications.count() + 1
-                            )
+            except Product.DoesNotExist:
+                return JsonResponse({"status": "error", "message": "Product not found"}, status=404)
 
-                    # Handle images for the product
-                    for index, base64_image in enumerate(base64_images, start=1):
-                        # Split the base64 string to remove the header (data:image/png;base64,)
-                        image_data = base64_image.split(',')[1]
-                        image_name = f"{product.id}_image_{index}.png"  # Create a name for the image
+        if coupon_code:
+            try:
+                coupon = Coupon.objects.get(code=coupon_code, start_date__lte=timezone.now())
 
-                        # Check if the image already exists for this product (based on the image data)
-                        existing_images = ProductImage.objects.filter(product=product, product_family=parent_family)
-                        image_exists = False
+                if coupon.end_date and coupon.end_date < timezone.now():
+                    messages.success(request, 'Coupon has expired', extra_tags='cart')
+                request.session['coupon_code'] = coupon_code
+                messages.success(request, 'Coupon  applied!', extra_tags='cart')
 
-                        for existing_image in existing_images:
-                            # Compare the base64 image data (you may use a hash to speed up comparison)
-                            if base64.b64encode(existing_image.image.read()).decode('utf-8') == image_data:
-                                image_exists = True
-                                break
+            except Coupon.DoesNotExist:
+                messages.success(request, 'Coupon not found', extra_tags='cart')
 
-                        # If the image doesn't exist, create the new image
-                        if not image_exists:
-                            # Decode the image
-                            image_data = base64.b64decode(image_data)
-                            image_file = ContentFile(image_data, name=image_name)
+        return JsonResponse({"status": "error", "message": "Invalid action"}, status=400)
 
-                            # Create the image object and associate it with the product and product family
-                            ProductImage.objects.create(
-                                product=product,
-                                product_family=parent_family,  # Include product family ID
-                                image=image_file,
-                                position=index
-                            )
+    if 'coupon_code' in request.session:
+        coupon_code = request.session['coupon_code']
+        del request.session['coupon_code']
+    else:
+        coupon_code = None
 
-            messages.success(request, 'Product family created successfully!')
-            return redirect('add_product_family')
+    coupon = Coupon.objects.filter(code=coupon_code).first() if coupon_code else None
 
-        except Exception as e:
-            messages.error(request, f'An error occurred: {e}')
-            return redirect('add_product_family')
-    # Handle GET request: Provide categories and subcategories to the frontend
-    categories = Category.objects.all()
-    categories_data = []
-    for category in categories:
-        subcategories_data = [{"id": subcategory.id, "name": subcategory.name}
-                              for subcategory in category.subcategory_set.all()]
-        categories_data.append({
-            "id": category.id,
-            "name": category.name,
-            "subcategories": subcategories_data
+    for item in cart_items:
+        product = Product.objects.get(id=item.product_id)
+        if product.stock > 0:
+            if coupon:
+                if coupon.product == product:
+                    product_price = coupon.apply_discount(product.price, product)
+                elif coupon.category:
+                    product_categories = product.product_categories.all()
+                    if coupon.category in [pc.category for pc in product_categories]:
+                        product_price = coupon.apply_discount(product.price, product)
+                    else:
+                        product_price = product.offer_price if product.offer_price != product.price else product.price
+                else:
+                    product_price = product.offer_price if product.offer_price != product.price else product.price
+            else:
+                product_price = product.offer_price if product.offer_price != product.price else product.price
+
+            sub_total_product = item.quantity * product_price
+            sub_total += sub_total_product
+            has_available_items = True
+        else:
+            sub_total_product = 0
+
+        products_in_cart.append({
+            'product': product,
+            'quantity': item.quantity,
+            'sub_total_product': round(sub_total_product, 2),
+            'available_quantity': product.stock,
+            'product_price': product_price
         })
-    return render(request, 'add_product_family.html', {'categories': categories_data})
+
+    transport_fee = 5 if sub_total > 0 else 0
+    total = sub_total + transport_fee
+    request.session['coupon'] = coupon_code
+
+    context = {
+        'products_in_cart': products_in_cart,
+        'user_favorite_product_ids': user_favorite_product_ids,
+        'sub_total': round(sub_total, 2),
+        'transport_fee': transport_fee,
+        'total': round(total, 2),
+        'has_available_items': has_available_items,
+    }
+    return render(request, 'cart.html', context)
+
+
+@login_required
+def create_checkout_session(request):
+    user = request.user
+    cart_items = Cart.objects.filter(user=user)
+    line_items = []
+    sub_total = 0
+    transport_fee = 5
+    coupon = None
+
+    coupon_code = request.session.get('coupon')
+    if coupon_code:
+        try:
+            coupon = Coupon.objects.get(code=coupon_code, start_date__lte=timezone.now())
+            if coupon.end_date and coupon.end_date < timezone.now():
+                coupon = None
+        except Coupon.DoesNotExist:
+            coupon = None
+
+    for item in cart_items:
+        try:
+            product = Product.objects.get(id=item.product_id)
+        except Product.DoesNotExist:
+            continue
+
+        if product.stock <= 0:
+            continue
+
+        offer = Offer.objects.filter(product=product, active=True).first()
+        product_price = offer.calculate_discounted_price(product.price) if offer else product.price
+
+        if coupon:
+            if coupon.product == product:
+                product_price = coupon.apply_discount(product_price, product)
+            elif coupon.category:
+                if any(pc.category == coupon.category for pc in product.product_categories.all()):
+                    product_price = coupon.apply_discount(product_price, product)
+
+        sub_total_product = item.quantity * product_price
+        sub_total += sub_total_product
+
+        line_items.append({
+            'price_data': {
+                'currency': 'usd',
+                'unit_amount': int(product_price * 100),
+                'product_data': {
+                    'name': product.name,
+                },
+            },
+            'quantity': item.quantity,
+        })
+
+    # Add transport fee
+    line_items.append({
+        'price_data': {
+            'currency': 'usd',
+            'unit_amount': transport_fee * 100,
+            'product_data': {
+                'name': 'Transport Fee',
+            },
+        },
+        'quantity': 1,
+    })
+
+    session = stripe.checkout.Session.create(
+        locale='en',
+        shipping_address_collection={"allowed_countries": ["US"]},
+        payment_method_types=['card'],
+        line_items=line_items,
+        mode='payment',
+        success_url=request.build_absolute_uri(reverse('payment_success')),
+        cancel_url=request.build_absolute_uri(reverse('cart'))
+    )
+
+    return redirect(session.url, code=303)
+
+
+@login_required
+def payment_success(request):
+    user = request.user
+    cart_items = Cart.objects.filter(user=user)
+
+    coupon_code = request.session.pop('coupon', None)
+    if coupon_code:
+        try:
+            coupon = Coupon.objects.get(code=coupon_code, start_date__lte=timezone.now())
+            if coupon.end_date is None or coupon.end_date >= timezone.now():
+                coupon.usage_limit = max(0, coupon.usage_limit - 1)
+                coupon.save()
+        except Coupon.DoesNotExist:
+            pass
+
+    for item in cart_items:
+        try:
+            product = Product.objects.get(id=item.product_id)
+            product.stock = max(0, product.stock - item.quantity)
+            product.save()
+        except Product.DoesNotExist:
+            pass
+
+    cart_items.delete()
+
+    return render(request, 'payment_success.html')
+
+
+@csrf_protect
+@login_required
+def favorites(request):
+    user = request.user
+    cart_product_ids = Cart.objects.filter(user=user).values_list('product_id', flat=True)
+
+    if request.method == "POST":
+        action = request.POST.get("action")
+        if action:
+            try:
+                action_type, product_id = action.split('_', 1)
+                product = Product.objects.get(id=product_id)
+                if action_type == "delete":
+                    Favorite.objects.filter(user=user, product_id=product.id).delete()
+                elif action_type == "cart":
+                    existing_cart_item = Cart.objects.filter(user=user, product_id=product.id).first()
+                    if existing_cart_item:
+                        existing_cart_item.quantity += 1
+                        existing_cart_item.save()
+                    else:
+                        Cart.objects.create(user=user, product_id=product.id, product_name=product.name, quantity=1)
+
+                return JsonResponse({"status": "success", "message": "Action completed successfully."})
+            except Product.DoesNotExist:
+                return JsonResponse({"status": "error", "message": "Product not found"}, status=404)
+        return JsonResponse({"status": "error", "message": "Invalid action"}, status=400)
+
+    favorite_items = Favorite.objects.filter(user=user)
+    favorite_products = []
+
+    for item in favorite_items:
+        product = Product.objects.get(id=item.product_id)
+        average_score = Rating.average_score(product)
+
+        favorite_products.append({
+            'product': product,
+            'average_score': average_score,
+            'star_rating': get_star_rating(average_score),
+        })
+
+    context = {
+        'favorite_products': favorite_products,
+        'cart_product_ids': cart_product_ids,
+    }
+
+    return render(request, 'favorites.html', context)
+
+
+def get_star_rating(score):
+    full_stars = int(score)
+    half_star = 1 if (score - full_stars) >= 0.5 else 0
+    empty_stars = 5 - full_stars - half_star
+
+    stars_html = '<i class="fa-solid fa-star"></i>' * full_stars
+    if half_star:
+        stars_html += '<i class="fa-solid fa-star-half-stroke"></i>'
+    stars_html += '<i class="fa-regular fa-star"></i>' * empty_stars
+
+    return stars_html
 
 
 @csrf_protect
 @login_required
 def add_product(request, product_id=None):
-    categories = Category.objects.all()
-    for category in categories:
-        category.subcategories = category.subcategory_set.all().order_by('parent_subcategory')
+    product_categories = Category.objects.filter(subcategories__isnull=True)
     product = None
-    product_subcategories = []
 
     if request.method == 'POST':
-        # Process form data and print specific details
         name = request.POST.get('name', '')
-        category = request.POST.get('category_subcategory', '')
+        category = request.POST.getlist('category')
         price = request.POST.get('price', '')
         stock = request.POST.get('stock', '')
         ship = request.POST.get('ship', '')
         description = request.POST.get('description', '')
-        specifications = []
+        ingredients = request.POST.get('ingredients', '')
+
+        nutritional_values = []
         for key in request.POST:
-            if key.startswith('specification_column1'):
+            if key.startswith('nutritional_value_column1'):
                 index = key.split('[')[1].split(']')[0]
-                spec_key = request.POST.get(f'specification_column1[{index}]', '')
-                spec_value = request.POST.get(f'specification_column2[{index}]', '')
-                specifications.append((spec_key, spec_value))
-        features = []
-        for key in request.POST:
-            if key.startswith('feature_column1'):
-                index = key.split('[')[1].split(']')[0]
-                feature_key = request.POST.get(f'feature_column1[{index}]', '')
-                feature_value = request.POST.get(f'feature_column2[{index}]', '')
-                features.append((feature_key, feature_value))
+                nutritional_key = request.POST.get(f'nutritional_value_column1[{index}]', '')
+                nutritional_value = request.POST.get(f'nutritional_value_column2[{index}]', '')
+                nutritional_values.append((nutritional_key, nutritional_value))
+
         images = []
         for key in request.FILES:
             if key.startswith('images'):
                 images.append(request.FILES.get(key))
 
-        # Check if a product with the same name already exists
-        if Product.objects.filter(owner=request.user, name=name).exists():
-            return redirect('add_product')
+        try:
+            categories = Category.objects.filter(id__in=category)
+            if categories.exists():
+                if Product.objects.filter(name=name).exists():
+                    return JsonResponse({'success': False, 'message': 'Product with this name already exists.'})
 
-        if category:
-            try:
-                category_name, *subcategories_names = category.split('/')
-                category = Category.objects.get(name=category_name)
-                subcategories = SubCategory.objects.filter(name__in=subcategories_names)
+                product = Product.objects.create(
+                    position=Product.objects.count() + 1,
+                    name=name,
+                    ship=ship,
+                    price=price,
+                    stock=stock,
+                    description=description,
+                    ingredients=ingredients,
+                )
 
-                if subcategories:
-                    user_product_count = Product.objects.filter(owner=request.user).count()
-                    product_position = user_product_count + 1
-                    product = Product.objects.create(
-                        owner=request.user,
-                        category=category,
-                        position=product_position,
-                        name=name,
-                        ship=ship,
-                        price=price,
-                        stock=stock,
-                        description=description,
+                for category in categories:
+                    ProductCategory.objects.create(product=product, category=category, category_name=category.name)
+
+                for nutritional_key, nutritional_value in nutritional_values:
+                    NutritionalValue.objects.create(
+                        product=product,
+                        key=nutritional_key,
+                        value=nutritional_value,
+                        position=product.nutritional_values.count() + 1
                     )
-                    product.subcategories.set(subcategories)
 
-                    # Get the parent family (if applicable)
-                    parent_family = product.family  # or retrieve it if it's from elsewhere
+                for i, image_file in enumerate(images):
+                    ProductImage.objects.create(
+                        product=product,
+                        image=image_file,
+                        position=i + 1
+                    )
 
-                    # Save specifications
-                    for spec_key, spec_value in specifications:
-                        Specification.objects.create(
-                            product=product,
-                            product_family=parent_family,
-                            key=spec_key,  # Use 'key' instead of 'column1'
-                            value=spec_value,  # Use 'value' instead of 'column2'
-                            position=product.specifications.count() + 1
-                        )
+                return JsonResponse({'success': True, 'message': 'Product added successfully!'})
 
-                    # Save features
-                    for feature_key, feature_value in features:
-                        Feature.objects.create(
-                            product=product,
-                            product_family=parent_family,
-                            key=feature_key,  # Use 'key' instead of 'column1'
-                            value=feature_value,  # Use 'value' instead of 'column2'
-                            position=product.features.count() + 1
-                        )
-
-                    # Save the images with the associated product and product_family
-                    for i, image_file in enumerate(images):
-                        ProductImage.objects.create(
-                            product=product,
-                            product_family=parent_family,
-                            image=image_file,
-                            position=i + 1
-                        )
-
-                    # After processing, redirect to avoid resubmission
-                    return JsonResponse({'success': True, 'message': 'Product details received successfully'})
-            except Category.DoesNotExist:
-                return JsonResponse({'success': False, 'message': 'Category not found'})
-            except SubCategory.DoesNotExist:
-                return JsonResponse({'success': False, 'message': 'One or more subcategories not found'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': f'An error occurred: {e}'})
 
     context = {
-        'categories': categories,
+        'product_categories': product_categories,
         'product': product,
-        'product_subcategories': product_subcategories,
     }
     return render(request, 'add_product.html', context)
 
 
+@csrf_protect
+def story(request):
+    return render(request, 'story.html')
+
 
 @csrf_protect
-def home(request):
-    return render(request, 'home.html')
-
-
-@csrf_protect
-def cart(request):
-    return render(request, 'cart.html')
+def mission(request):
+    return render(request, 'mission.html')

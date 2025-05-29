@@ -1,67 +1,80 @@
 body {
-    background: #050505;
+    background: #0d0d0d;
     margin: 0;
     padding: 0;
-    display:flex;
-    flex-direction: column;
-}
-
-.Message {
-    margin-left: 10px;
-    color: #CE563C;
-    font-size: 20px;
+    display: flex;
 }
 
 header {
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px;
-    background-color: #050505;
-    color: #CE563C;
-}
-
-.header-container {
+    width: 15vw;
+    height: 100vh;
+    position: fixed;
+    background: #0d0d0d;
+    color: peru;
     display: flex;
-    align-items: center;
-}
-
-.site-name {
-    font-weight: bold;
-    color: #CE563C ;
-    font-family:'verdana';
-    text-decoration: none;
-    font-size: 30px;
-}
-
-.search-bar {
-    flex: 1;
-    margin-left: 20px;
-    padding: 5px;
-    border: 1px solid #CE563C;
-}
-
-.header-right {
-    display: flex;
-    align-items: center;
-}
-
-.favorites-link, .cart-link, .account-link {
-    font-size: 20px;
-    color: #CE563C ;
-    font-family:'verdana';
-    text-decoration: none;
-    display: block;
-    margin-left: 10px;
-}
-
-main {
-    max-width: 1500px;
-    height: 100%;
-    margin: auto;
-    display:flex;
-    justify-content: center;
     align-items: center;
     flex-direction: column;
+    overflow-y: auto;
+    scrollbar-width: none;
+    border: 1px solid peru;
+}
+
+.site-logo {
+    width: 200px;
+    height: 200px;
+    font-weight: bold;
+    color: peru;
+    text-decoration: none;
+    position: relative;
+    animation: slideFromTop 2s ease-out forwards;
+}
+
+@keyframes slideFromTop {
+    0% {
+        top: -200px;
+        opacity: 0;
+    }
+    100% {
+        top: 0;
+        opacity: 1;
+    }
+}
+
+.first-header-container {
+    width: 230px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    border-bottom: 1px solid peru;
+    gap: 20px;
+}
+
+.second-header-container{
+    width: 230px;
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 10px;
+}
+
+.main-header-link, .header-link {
+    color: peru;
+    text-decoration: unset;
+}
+
+.main-header-link{
+    font-size: 35px;
+}
+.header-link{
+    font-size: 30px;
+    font-weight: bold;
+}
+main {
+    width: 100%;
+    min-height: 100vh;
+    margin-left: 15vw;
 }
 
 form{
@@ -71,25 +84,25 @@ form{
     flex-direction: column;
 }
 
-.text, .category-text, .name-text, .ship-text, .price-stock-text, .description-text, .specifications-text, .features-text, .image-text{
-    color: #CE563C ;
-    font-family:'verdana';
+.text, .category-text, .name-text, .ship-text, .price-stock-text, .description-text, .ingredients-text, .nutritional-values-text, .image-text {
+    color: peru;
+    font-family: 'verdana';
     text-decoration: none;
     font-size: 30px;
-    border: 1px solid #CE563C ;
+    border: 1px solid peru;
     padding: 10px;
     margin: 0px;
 }
 
-.Info-Box, .category-box, .name-box, .ship-box, .price-stock-box, .specifications, .features, .add-specifications, .add-features, .delete-specifications, .delete-feature, .create-product, .column,  .add-image, .image-preview{
+.Info-Box, .category-box, .name-box, .ship-box, .price-stock-box, .nutritional-values, .add-nutritional-values, .delete-nutritional-values, .create-product, .column, .add-image, .image-preview {
     font-size: 25px;
     display: block;
     padding: 10px;
-    border: 1px solid #CE563C ;
-    outline-color: #CE563C;
-    background-color: #050505;
+    border: 1px solid peru;
+    outline-color: peru;
+    background-color: #0d0d0d;
     font-family: 'verdana';
-    color: #CE563C;
+    color: peru;
 }
 
 .category{
@@ -167,7 +180,7 @@ form{
     margin-top: 10px;
     text-align: center;
 }
-.image, .specifications, .features{
+.image, .nutritional-values {
     display: grid;
     width: 575px;
     height: 350px;
@@ -178,13 +191,15 @@ form{
     margin-top: 10px;
     padding: 0px;
 }
-.image-text, .specifications-text, .features-text, .description-text{
+
+.image-text, .nutritional-values-text, .description-text {
     width: 382px;
     height: 49px;
     display: flex;
     justify-content: center;
-    align-items:center;
+    align-items: center;
 }
+
 input[type="file"] {
     display: none;
 }
@@ -208,8 +223,8 @@ input[type="file"] {
     position: absolute;
     top: 0;
     right: 0;
-    background-color: rgba(206, 86, 60, 1); /* Red with transparency */
-    color: white;
+    background-color: peru; /* Red with transparency */
+    color: #0d0d0d;
     border: none;
     cursor: pointer;
     border-radius: 50%;
@@ -239,7 +254,8 @@ input[type="file"] {
     justify-content: center;
     align-items:center;
 }
-.description{
+.description, .ingredients{
+    width: 575px;
     display:flex;
     flex-direction: column;
 }
@@ -247,48 +263,40 @@ input[type="file"] {
     height: 50px;
     display: flex;
     justify-content: center !important ;
-    border: 1px solid rgba(206, 86, 60, 1) !important;
+    border: 1px solid peru !important;
 }
-
-.ql-picker-options, .ql-picker-item, .ql-font, .ql-picker, .ql-expanded{
-    color: rgba(206, 86, 60, 1) !important;
-}
-.ql-toolbar .ql-stroke {
-    stroke: rgba(206, 86, 60, 1) !important;
-}
-.ql-toolbar .ql-color-label {
-    stroke: inherit !important;
-}
-
 
 .ql-container {
-    width: 710px;
+    width: 575px;
     height: 200px !important;
     font-family: Arial, sans-serif;
-    border: 1px solid rgba(206, 86, 60, 1) !important;
-    color: rgba(206, 86, 60, 1);
+    border: 1px solid peru !important;
+    color: peru;
     padding: 5px;
 }
 
-.add-specifications, .add-features{
+.add-nutritional-values {
     width: 172px;
     height: 70px;
     cursor: pointer;
     display: flex;
     justify-content: center;
-    align-items:center;
+    align-items: center;
 }
-.specification-row, .feature-row{
+
+.nutritional-value-row {
     display: flex;
-    align-items:center
+    align-items: center;
 }
-.column{
+
+.column {
     width: 200px;
     height: 100%;
     margin: 10px;
     margin-left: 20px;
 }
-.delete-specifications, .delete-feature{
+
+.delete-nutritional-values {
     width: 45px;
     height: 100%;
     display: flex;
@@ -296,14 +304,52 @@ input[type="file"] {
     cursor: pointer;
 }
 
+
 .create-product{
+    width: 300px;
+    height: 75px;
     cursor: pointer;
-    margin-top: 10px;
+    margin-top: 5vh;
+    margin-bottom: 5vh;
+}
+
+input:-webkit-autofill {
+    -webkit-box-shadow:0 0 0 50px #0d0d0d inset;
+    -webkit-text-fill-color: peru;
+}
+
+::-webkit-scrollbar {
+    background-color: #0d0d0d;
+}
+::-webkit-scrollbar-thumb {
+    background: #0d0d0d;
+    border: 3px solid peru;
+}
+
+.footer-container{
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 50px;
+}
+
+.contact-footer{
+    display:flex;
+    flex-direction: column;
+}
+.contact-footer p{
+    padding: 0px;
+    margin: 5px;
+    font-weight: bold;
+    font-size: 20px;
 }
 
 footer {
+    margin: 0px;
+    margin-top: auto;
     text-align: center;
-    padding: 20px;
-    background-color: #050505;
-    color: #CE563C;
+    border: 1px solid peru;
+    background-color: #0d0d0d;
+    color: peru;
 }

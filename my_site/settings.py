@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_q',
     'authentication',
     'shop',
 ]
@@ -152,6 +153,9 @@ AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
 MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'authentication', 'static', 'images', 'profile_pictures')
 
+STRIPE_PUBLIC_KEY = os.environ.get('STRIPE_PUBLIC_KEY')
+STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY')
+
 # Static files (CSS, JavaScript)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
@@ -161,3 +165,19 @@ STATICFILES_DIRS = [
     BASE_DIR / "authentication" / "static",
     BASE_DIR / "shop" / "static",
 ]
+
+Q_CLUSTER = {
+    'name': 'Regalia_Dulce',
+    'workers': 4,
+    'recycle': 500,
+    'timeout': 60,
+    'retry': 120,
+    'queue_limit': 50,
+    'bulk': 10,
+    'orm': 'default',
+    'save_limit': 250,
+    'is_async': True,
+}
+
+POSTHOG_API_KEY = os.environ.get('POSTHOG_API_KEY')
+POSTHOG_HOST = os.environ.get('POSTHOG_HOST')

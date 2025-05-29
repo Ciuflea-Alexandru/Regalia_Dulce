@@ -6,8 +6,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="https://regalia-dulce.s3.us-east-1.amazonaws.com/shop/icon/logo.png" type="image/png">
-    <link rel="stylesheet" href="{% static 'css/home.css' %}">
-    <script src="{% static 'js/home.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'css/category.css' %}">
+    <script src="{% static 'js/category.js' %}"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
@@ -39,73 +39,13 @@
 <main>
     <form method="post">
         {% csrf_token %}
-        <section class="promotion-slideshow">
-            <div class="slides">
-                <a class="image-link" href="http://127.0.0.1:8000/category/Chocolate_Bars/">
-                    <img src="https://regalia-dulce.s3.us-east-1.amazonaws.com/shop/banner/chocolate_bar_banner.jpeg">
-                </a>
-                <a class="image-link" href="http://127.0.0.1:8000/category/Soft_Drinks/">
-                    <img src="https://regalia-dulce.s3.us-east-1.amazonaws.com/shop/banner/drinks_banner.jpeg">
-                </a>
-                <a class="image-link" href="http://127.0.0.1:8000/category/Valentine_Specials/">
-                    <img src="https://regalia-dulce.s3.us-east-1.amazonaws.com/shop/banner/valentine_banner.jpeg">
-                </a>
-            </div>
-            <div class="promotional-slideshow-buttons">
-                <div class="slide-indicators"></div>
-                <button type="button" class="down-arrow">&#10095;</button>
-            </div>
-        </section>
+        <section class="category-section">
 
-        <section class="site-description-section">
+            <h1 class="category-name">Our {{ category_name }}</h1>
 
-            <div class="site-description-container-1">
-                <h1 class="site-description-1">
-                    <span class="title-description">Welcome to Regalia Dulce your Destination for Exquisite Chocolates.</span>
-                    Discover a world of handcrafted
-                    delights, made with passion and the finest ingredients. From classic favorites to unique creations,
-                    our chocolates are perfect for indulging yourself or sharing a touch of sweetness with someone
-                    special. Explore our collection and experience the royal taste of Regalia Dulce.
-                </h1>
-                <img class="site-image-1"
-                     src="https://regalia-dulce.s3.us-east-1.amazonaws.com/shop/description/description1.jpeg">
-            </div>
-
-            <div class="site-description-container">
-                <h1 class="site-description-2">
-                    <span class="title-description">Experience the Art of Fine Chocolate</span>
-                    We are dedicated to the meticulous craft of
-                    chocolate making, using only the highest quality ingredients sourced with care. Our artisans pour
-                    their heart into every creation, resulting in chocolates that are as beautiful to behold as they are
-                    to savor. Discover the rich flavors and delicate textures that define Regalia Dulce – where every
-                    piece is a small masterpiece.
-                </h1>
-                <img class="site-image-2"
-                     src="https://regalia-dulce.s3.us-east-1.amazonaws.com/shop/description/description2.jpeg">
-            </div>
-
-            <div class="site-description-container">
-                <img class="site-image-3"
-                     src="https://regalia-dulce.s3.us-east-1.amazonaws.com/shop/description/description3.jpeg">
-                <h1 class="site-description-3">
-                    <span class="title-description">Savor the Sweetness of Royalty</span>
-                    Step into a world where chocolate is treated with
-                    the reverence it deserves. Our handcrafted creations are made with the finest ingredients and an
-                    unwavering commitment to quality, offering a truly regal indulgence. Explore our collection and
-                    discover chocolates fit for kings and queens – and for you.
-                </h1>
-            </div>
-
-        </section>
-
-        <section class="products-section">
-            <h1 class="best-title">Our best rated products just for you</h1>
-            <h2 class="best-text">Indulge in our top selection, featuring the most beloved and flavorful creations from
-                our chocolate shop. Whether you're looking for a special gift or a personal treat, these delights are
-                the perfect choice for any occasion.
-            </h2>
-            <div class="product-grid">
-                {% for product in top_products %}
+            <div class="product-container">
+                {% if products %}
+                {% for product in products %}
                 <div class="product-card">
                     <div class="product-image-container">
                         <a class="product-link" href="{% url 'product' product.id %}">
@@ -129,7 +69,6 @@
                             </button>
                             {% endif %}
                         </a>
-
                     </div>
                     <h1 class="product-title">{{ product.name }}</h1>
                     <h2 class="product-description">{{ product.description|safe }}</h2>
@@ -161,28 +100,9 @@
                     </div>
                 </div>
                 {% endfor %}
-            </div>
-        </section>
-
-        <section class="review-section">
-            <h1 class="best-title">Don't just take our word for it!</h1>
-            <div class="review-grid">
-                {% for review in ratings|slice:":6" %}
-                <div class="review-details">
-                    <div class="review-user">
-                        <div class="profile-picture-container">
-                            <img class="profile-picture" src="{{ review.user.profile_picture.url }}"
-                                 onerror="this.src='{% static 'images/profile_pictures/' %}{{ review.user.id }}/profile_picture.jpg'">
-                        </div>
-                        <h1>{{ review.user.username }}</h1>
-                        <h1>{{ review.created_at|date:"j F Y" }}</h1>
-                    </div>
-                    <div class="review">
-                        <h1>{{ review.title }}</h1>
-                        <h2>{{ review.review }}</h2>
-                    </div>
-                </div>
-                {% endfor %}
+                {% else %}
+                <h1 class="category-name">No products in this category.</h1>
+                {% endif %}
             </div>
         </section>
 

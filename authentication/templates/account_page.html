@@ -5,18 +5,34 @@
     <title>Account Page</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="https://regalia-dulce.s3.us-east-1.amazonaws.com/shop/icon/logo.png" type="image/png">
     <link rel="stylesheet" href="{% static 'css/account_page.css' %}">
     <script src="{% static 'js/account_page.js' %}"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
 
 <header>
-    <div class="header-container">
-        <a class="site-name" href="http://127.0.0.1:8000/home/">Merchants Guild</a>
-        <div class="search-bar">Search</div>
-        <a class="cart-link">Cart</a>
-        <a class="favorites-link">Favorites</a>
-        <a class="account-link" href="http://127.0.0.1:8000/account/">Account</a>
+    <a class="site-logo" href="http://127.0.0.1:8000/home/">
+        <img class="site-logo" src="https://regalia-dulce.s3.us-east-1.amazonaws.com/shop/icon/logo.png">
+    </a>
+    <div class="first-header-container">
+        <a class="main-header-link" href="http://127.0.0.1:8000/search/">
+            <i class="fa-solid fa-magnifying-glass"></i></a>
+        <a class="main-header-link" href="http://127.0.0.1:8000/cart/">
+            <i class="fa-solid fa-cart-shopping"></i></a>
+        <a class="main-header-link" href="http://127.0.0.1:8000/favorites/">
+            <i class="fa-solid fa-star"></i></a>
+        <a class="main-header-link" href="http://127.0.0.1:8000/account/">
+            <i class="fa-solid fa-user"></i></a>
+    </div>
+    <div class="second-header-container">
+        <a class="header-link" href="http://127.0.0.1:8000/category/Chocolate_Bars/">Chocolate Bars</a>
+        <a class="header-link" href="http://127.0.0.1:8000/category/Chocolate_Boxes/">Chocolate Boxes</a>
+        <a class="header-link" href="http://127.0.0.1:8000/category/Soft_Drinks/">Soft Drinks</a>
+        <a class="header-link" href="http://127.0.0.1:8000/category/Seasonal_Specials/">Seasonal Specials</a>
+        <a class="header-link" href="http://127.0.0.1:8000/story/">Our Story</a>
+        <a class="header-link" href="http://127.0.0.1:8000/mission/">Our Mission</a>
     </div>
 </header>
 
@@ -45,14 +61,10 @@
         <button class="Main-Button" onclick="showContainer('personal-container')" data-container="personal-container">
             Personal Information
         </button>
-        <button class="Main-Button" onclick="showContainer('sell-product-container')"
-                data-container="sell-product-container">
-            Sell Product
-        </button>
-        <button class="Main-Button" onclick="showContainer('product-information-container')"
-                data-container="product-information-container">
-            Product Information
-        </button>
+
+        {% if user.is_staff %}
+        <a class="Main-Button-link" href="/add_product">Add Product</a>
+        {% endif %}
 
         <form method="POST" class="Logout-Form" action="{% url 'account_page' %}">
             {% csrf_token %}
@@ -73,8 +85,6 @@
                 </div>
                 {% endfor %}
                 <br>
-
-                <p><strong>Date Joined:</strong> {{ user.date_joined }}</p>
             </div>
             <div class="Right-Box-Container">
                 <p><strong>Email:</strong></p>
@@ -218,86 +228,24 @@
         </form>
     </div>
 
-    <div class="Information-Container" id="sell-product-container">
-        <h2 class="User-Text">List a product for selling</h2>
-        <h2 class="User-Text">Does your product have multiple models?</h2>
-        <div class="Left-Box-Container">
-            <button class="single-product-button"><a href="/add_product">Single Product</a></button>
-        </div>
-        <div class="Right-Box-Container">
-            <button class="multiple-products-button" id="reset-button">
-                <a href="/add_product_family">Multiple Products</a>
-            </button>
-        </div>
-    </div>
-
-    <div class="Information-Container" id="product-information-container">
-        <h2 class="User-Text">Product Information</h2>
-
-        {% if user.owned_products.all %}
-        <h2>Your Products</h2>
-        <ul class="product-list">
-            {% for product in user.owned_products.all %}
-            {% if not product.family %}
-            <li class="product-item">
-                <img class="Product-Image" src="{{ product.images.first.image.url }}">
-                <p>{{ product.name }}</p>
-                <p>{{ product.stock }}</p>
-                <p>{{ product.price }}</p>
-            </li>
-            <form method="POST" action="{% url 'account_page' %}">
-                {% csrf_token %}
-                <button class="edit-product" type="submit" name="edit_product" value="{{ product.id }}" >Edit</button>
-                <button class="delete-product" type="submit" name="delete_product" value="{{ product.id }}">Delete Product</button>
-            </form>
-            {% endif %}
-            {% endfor %}
-        </ul>
-        {% endif %}
-
-        {% if user.owned_families.all %}
-        <h3>Your Product Families</h3>
-        <ul class="product-family-list">
-            {% for family in user.owned_families.all|dictsort:"position" %}
-            {% if family.parent_family is None %}
-            <!-- This is a root family, no parent family -->
-            <li class="product-family-item">
-                <h4>{{ family.name }}</h4>
-                <form method="POST" action="{% url 'account_page' %}">
-                    {% csrf_token %}
-                    <button class="edit-product" type="button" name="edit_family" value="{{ family.id }}">Edit</button>
-                    <button type="submit" name="delete_family" value="{{ family.id }}">Delete Family</button>
-                </form>
-                <!-- Show Subfamilies under this family -->
-                {% if family.child_families.all %}
-                <ul class="subfamily-list">
-                    {% for subfamily in family.child_families.all|dictsort:"position" %}
-                    <li class="subfamily-item">
-                        <h5>{{ subfamily.name }}</h5>
-                        <!-- Show Products under this Subfamily -->
-                        {% if subfamily.products.all %}
-                        <ul class="product-list">
-                            {% for product in subfamily.products.all|dictsort:"position" %}
-                            <li class="product-item">
-                                <img class="Product-Image" src="{{ product.images.first.image.url }}"
-                                     alt="{{ product.name }}">
-                                <p><strong>Name:</strong> {{ product.name }}</p>
-                                <p><strong>Stock:</strong> {{ product.stock }}</p>
-                                <p><strong>Price:</strong> {{ product.price }}</p>
-                            </li>
-                            {% endfor %}
-                        </ul>
-                        {% endif %}
-                    </li>
-                    {% endfor %}
-                </ul>
-                {% endif %}
-            </li>
-            {% endif %}
-            {% endfor %}
-        </ul>
-        {% endif %}
-    </div>
 </div>
+        <footer>
+            <div class="footer-container">
+                <a class="header-link" href="http://127.0.0.1:8000/category/Chocolate_Bars/">Chocolate Bars</a>
+                <a class="header-link" href="http://127.0.0.1:8000/category/Chocolate_Boxes/">Chocolate Boxes</a>
+                <a class="header-link" href="http://127.0.0.1:8000/category/Soft_Drinks/">Soft Drinks</a>
+                <a class="header-link" href="http://127.0.0.1:8000/category/Seasonal_Specials/">Seasonal Specials</a>
+                <a class="header-link" href="http://127.0.0.1:8000/story/">Our Story</a>
+                <a class="header-link" href="http://127.0.0.1:8000/mission/">Our Mission</a>
+                <div class="contact-footer">
+                    <p>Contact Us</p>
+                    <p>Regalia Dulce</p>
+                    <p>office@regaliadulce.com</p>
+                    <p>+1 248-434-5508</p>
+                </div>
+            </div>
+
+            Copyright © 2025 Regalia Dulce. All rights reserved
+        </footer>
 </body>
 </html>

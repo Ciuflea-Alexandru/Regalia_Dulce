@@ -1,13 +1,12 @@
 <!DOCTYPE html>
 {% load static %}
 <html lang="en">
-
 <head>
-    <title>Sign In</title>
+    <title>Home Page</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="https://regalia-dulce.s3.us-east-1.amazonaws.com/shop/icon/logo.png" type="image/png">
-    <link rel="stylesheet" href="{% static 'css/sign_in.css' %}">
+    <link rel="stylesheet" href="{% static 'css/payment_success.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
@@ -36,35 +35,17 @@
     </div>
 </header>
 
+
 <main>
-    <div class="main-container">
-        <div class="Sign-In-Container">
-            <h2 class="Sign-In-Text">Sign In</h2>
-
-            <form method="post" action="{% url 'signin' %}" autocomplete="on" novalidate>
-                {% csrf_token %}
-
-                <input name="username" type="text" placeholder="Username"
-                       class="Username-Box" autocomplete="username">
-
-                <input name="password" type="password" placeholder="Password"
-                       class="Password-Box" autocomplete="current-password">
-                {% for message in messages %}
-                {% if 'sign_in' in message.tags %}
-                <div class="Message">
-                    <p>{{ message }}</p>
-                </div>
-                {% endif %}
-                {% endfor %}
-                <br>
-
-                <a class="Sign-Up-Link" href="http://127.0.0.1:8000/signup/">Don't have an account?</a>
-                <a class="Sign-Up-Link" href="http://127.0.0.1:8000/forgot_password/link/">Forgot Password?</a>
-
-                <button type="submit" class="Sign-In-Button">Log In</button>
-            </form>
+    <form method="post">
+        <div class="main">
+            <section class="success-section">
+                <h1 class="success-title">Payment Successful</h1>
+                <a class="success-text" href="http://127.0.0.1:8000/home/">Finish</a>
+            </section>
         </div>
-    </div>
+    </form>
+
         <footer>
             <div class="footer-container">
                 <a class="header-link" href="http://127.0.0.1:8000/category/Chocolate_Bars/">Chocolate Bars</a>

@@ -7,11 +7,10 @@ document.addEventListener('DOMContentLoaded', function () {
     const shippersInput = document.querySelector('input[name="ship"]');
     const imageInput = document.querySelector('input[name="images"]');
     const imagePreviewContainer = document.querySelector('.image-preview');
-    const descriptionInput = document.querySelector('.quill-editor');
-    const specificationDiv = document.querySelector('.specification');
-    const featureDiv = document.querySelector('.feature');
-    const createSpecificationRowButton = document.querySelector('.add-specifications');
-    const createFutureRowButton = document.querySelector('.add-features');
+    const descriptionInput = document.querySelector('.description-editor');
+    const ingredientsInput = document.querySelector('.ingredients-editor');
+    const nutritionalValueDiv = document.querySelector('.nutritional-value');
+    const createNutritionalValueRowButton = document.querySelector('.add-nutritional-values');
 
     let db;
 
@@ -19,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const request = indexedDB.open("Product", 1);
         request.onupgradeneeded = function (event) {
             db = event.target.result;
-            const store = db.createObjectStore("ProductDetails", { keyPath: "id", autoIncrement: false });
+            db.createObjectStore("ProductDetails", { keyPath: "id", autoIncrement: false });
         };
         request.onsuccess = function (event) {
             db = event.target.result;
@@ -43,8 +42,7 @@ document.addEventListener('DOMContentLoaded', function () {
         stockInput.value = '';
         shippersInput.value = '';
         imagePreviewContainer.innerHTML = '';
-        specificationDiv.innerHTML = '';
-        featureDiv.innerHTML = '';
+        nutritionalValueDiv.innerHTML = '';
         quill.setContents([]);
         const transaction = db.transaction(["ProductDetails"], "readwrite");
         const store = transaction.objectStore("ProductDetails");
@@ -64,8 +62,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 stock: '',
                 ship: '',
                 images: [],
-                specifications: [],
-                features: [],
+                nutritionalValues: [],
                 description: ''
             };
             if (field === 'name') productData.name = productNameInput.value;
@@ -78,6 +75,7 @@ document.addEventListener('DOMContentLoaded', function () {
             updateStore.put(productData);
         };
     }
+
     productNameInput.addEventListener('input', () => saveDetails('name'));
     categoryInput.addEventListener('input', () => saveDetails('category'));
     priceInput.addEventListener('input', () => saveDetails('price'));
@@ -89,6 +87,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const transaction = db.transaction(["ProductDetails"], "readonly");
         const store = transaction.objectStore("ProductDetails");
         const request = store.get(1);
+
         request.onsuccess = function (event) {
             const productData = event.target.result;
             if (productData) {
@@ -97,19 +96,18 @@ document.addEventListener('DOMContentLoaded', function () {
                 priceInput.value = productData.price || '';
                 stockInput.value = productData.stock || '';
                 shippersInput.value = productData.ship || '';
-                if (productData.specifications) {
-                    productData.specifications.forEach(spec => {
-                        addSpecificationRow(spec.key, spec.value);
-                    });
-                }
-                if (productData.features) {
-                    productData.features.forEach(feature => {
-                        addFutureRow(feature.key, feature.value);
-                    });
-                }
                 if (productData.description) {
-                    const description = JSON.parse(productData.description);
-                    quill.setContents(description);
+                    const description = JSON.parse(productData.description); // Parse the saved JSON data
+                    descriptionEditor.setContents(description); // Set Quill content from JSON
+                }
+                if (productData.ingredients) {
+                    const ingredients = JSON.parse(productData.ingredients); // Parse the saved JSON data
+                    ingredientsEditor.setContents(ingredients); // Set Quill content from JSON
+                }
+                if (productData.nutritionalValues) {
+                    productData.nutritionalValues.forEach(nutritionalValue => {
+                        addNutritionalValueRow(nutritionalValue.key, nutritionalValue.value);
+                    });
                 }
                 loadImages();
             }
@@ -216,34 +214,30 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // Save description to IndexedDB when it's updated
-    var quill = new Quill('.quill-editor', {
+    var descriptionEditor = new Quill('.description-editor', {
         theme: 'snow',
-        placeholder: 'Product description...',
+        placeholder: 'Enter your product description here...',
         modules: {
             toolbar: [
-                [{ header: '1' }, { header: '2' }, { font: [] }],
-                [{ list: 'ordered' }, { list: 'bullet' }],
-                [{ indent: '-1' }, { indent: '+1' }],
+                [{ 'header': '1' }, { 'header': '2' }, { 'font': [] }],
+                [{ 'list': 'ordered' }, { 'list': 'bullet' }],
                 ['bold', 'italic', 'underline'],
-                [{ align: [] }],
+                [{ 'align': [] }],
                 ['link'],
-                [{ 'color': [] }, { 'background': [] }],
-                ['image', 'video'],
-                ['clean']
+                ['image']
             ]
         }
     });
-    // Save description when it's changed
-    quill.on('text-change', function () {
-        const descriptionData = JSON.stringify(quill.getContents());
+
+    descriptionEditor.on('text-change', function () {
+        const descriptionData = JSON.stringify(descriptionEditor.getContents());
 
         const transaction = db.transaction(["ProductDetails"], "readwrite");
         const store = transaction.objectStore("ProductDetails");
         const request = store.get(1);
 
         request.onsuccess = function (event) {
-            let productData = event.target.result || { id: 1, description: '' };
+            let productData = event.target.result || { id: 1, description: '', ingredients: '' };
             productData.description = descriptionData;
 
             const updateTransaction = db.transaction(["ProductDetails"], "readwrite");
@@ -252,135 +246,100 @@ document.addEventListener('DOMContentLoaded', function () {
         };
     });
 
-    function addSpecificationRow(key = '', value = '') {
+    var ingredientsEditor = new Quill('.ingredients-editor', {
+        theme: 'snow',
+        placeholder: 'Enter your product ingredients here...',
+        modules: {
+            toolbar: [
+                [{ 'header': '1' }, { 'header': '2' }, { 'font': [] }],
+                [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                ['bold', 'italic', 'underline'],
+                [{ 'align': [] }],
+                ['link'],
+                ['image']
+            ]
+        }
+    });
+
+    ingredientsEditor.on('text-change', function () {
+        const ingredientsData = JSON.stringify(ingredientsEditor.getContents());
+
+        const transaction = db.transaction(["ProductDetails"], "readwrite");
+        const store = transaction.objectStore("ProductDetails");
+        const request = store.get(1);
+
+        request.onsuccess = function (event) {
+            let productData = event.target.result || { id: 1, description: '', ingredients: '' };
+            productData.ingredients = ingredientsData;
+
+            const updateTransaction = db.transaction(["ProductDetails"], "readwrite");
+            const updateStore = updateTransaction.objectStore("ProductDetails");
+            updateStore.put(productData);
+        };
+    });
+
+    function addNutritionalValueRow(key = '', value = '') {
         const rowDiv = document.createElement('div');
-        rowDiv.classList.add('specification-row');
+        rowDiv.classList.add('nutritional-value-row');
         const column1Input = document.createElement('input');
         column1Input.type = 'text';
-        column1Input.name = 'specification_column1[]';
-        column1Input.placeholder = 'Specification Key';
+        column1Input.name = 'nutritional_value_column1[]';
+        column1Input.placeholder = 'Nutritional Value Key';
         column1Input.classList.add('column');
         column1Input.value = key;
         const column2Input = document.createElement('input');
         column2Input.type = 'text';
-        column2Input.name = 'specification_column2[]';
-        column2Input.placeholder = 'Specification Value';
+        column2Input.name = 'nutritional_value_column2[]';
+        column2Input.placeholder = 'Nutritional Value';
         column2Input.classList.add('column');
         column2Input.value = value;
         const deleteButton = document.createElement('button');
         deleteButton.textContent = 'X';
-        deleteButton.classList.add('delete-specifications');
+        deleteButton.classList.add('delete-nutritional-values');
         deleteButton.addEventListener('click', () => {
             rowDiv.remove();
-            saveSpecifications();  // Save after deletion
+            saveNutritionalValues();  // Save after deletion
         });
         rowDiv.appendChild(column1Input);
         rowDiv.appendChild(column2Input);
         rowDiv.appendChild(deleteButton);
-        specificationDiv.appendChild(rowDiv);
+        nutritionalValueDiv.appendChild(rowDiv);
     }
-    createSpecificationRowButton.addEventListener('click', () => addSpecificationRow());
-    specificationDiv.addEventListener('input', saveSpecifications);
 
-    function saveSpecifications() {
-        const specificationRows = specificationDiv.querySelectorAll('.specification-row');
-        const specifications = [];
-        specificationRows.forEach(row => {
-            const key = row.querySelector('input[name="specification_column1[]"]').value;
-            const value = row.querySelector('input[name="specification_column2[]"]').value;
+    createNutritionalValueRowButton.addEventListener('click', () => addNutritionalValueRow());
+    nutritionalValueDiv.addEventListener('input', saveNutritionalValues);
+
+    function saveNutritionalValues() {
+        const nutritionalValueRows = nutritionalValueDiv.querySelectorAll('.nutritional-value-row');
+        const nutritionalValues = [];
+        nutritionalValueRows.forEach(row => {
+            const key = row.querySelector('input[name="nutritional_value_column1[]"]').value;
+            const value = row.querySelector('input[name="nutritional_value_column2[]"]').value;
             if (key && value) {
-                specifications.push({ key, value });
+                nutritionalValues.push({ key, value });
             }
         });
         const transaction = db.transaction(["ProductDetails"], "readwrite");
         const store = transaction.objectStore("ProductDetails");
         const request = store.get(1);
         request.onsuccess = function (event) {
-            let productData = event.target.result || { id: 1, specifications: [] };
-            productData.specifications = specifications;
+            let productData = event.target.result || { id: 1, nutritionalValues: [] };
+            productData.nutritionalValues = nutritionalValues;
             const updateTransaction = db.transaction(["ProductDetails"], "readwrite");
             const updateStore = updateTransaction.objectStore("ProductDetails");
             updateStore.put(productData);
         };
     }
 
-    function loadSpecifications() {
+    function loadNutritionalValues() {
         const transaction = db.transaction(["ProductDetails"], "readonly");
         const store = transaction.objectStore("ProductDetails");
         const request = store.get(1);
         request.onsuccess = function (event) {
             const productData = event.target.result;
-            if (productData && productData.specifications) {
-                productData.specifications.forEach(spec => {
-                    addSpecificationRow(spec.key, spec.value);
-                });
-            }
-        };
-    }
-
-    function addFutureRow(key = '', value = '') {
-        const rowDiv = document.createElement('div');
-        rowDiv.classList.add('feature-row');
-        const column1Input = document.createElement('input');
-        column1Input.type = 'text';
-        column1Input.name = 'feature_column1[]';
-        column1Input.placeholder = 'Future Key';
-        column1Input.classList.add('column');
-        column1Input.value = key;
-        const column2Input = document.createElement('input');
-        column2Input.type = 'text';
-        column2Input.name = 'feature_column2[]';
-        column2Input.placeholder = 'Future Value';
-        column2Input.classList.add('column');
-        column2Input.value = value;
-        const deleteButton = document.createElement('button');
-        deleteButton.textContent = 'X';
-        deleteButton.classList.add('delete-feature');
-        deleteButton.addEventListener('click', () => {
-            rowDiv.remove();
-            saveFutures();
-        });
-        rowDiv.appendChild(column1Input);
-        rowDiv.appendChild(column2Input);
-        rowDiv.appendChild(deleteButton);
-        featureDiv.appendChild(rowDiv);
-    }
-    createFutureRowButton.addEventListener('click', () => addFutureRow());
-    featureDiv.addEventListener('input', saveFutures);
-
-    function saveFutures() {
-        const featureRows = featureDiv.querySelectorAll('.feature-row');
-        const features = [];
-        featureRows.forEach(row => {
-            const key = row.querySelector('input[name="feature_column1[]"]').value;
-            const value = row.querySelector('input[name="feature_column2[]"]').value;
-            if (key && value) {
-                features.push({ key, value });
-            }
-        });
-        const transaction = db.transaction(["ProductDetails"], "readwrite");
-        const store = transaction.objectStore("ProductDetails");
-        const request = store.get(1);
-        request.onsuccess = function (event) {
-            let productData = event.target.result || { id: 1, features: [] };
-            productData.features = features;
-
-            const updateTransaction = db.transaction(["ProductDetails"], "readwrite");
-            const updateStore = updateTransaction.objectStore("ProductDetails");
-            updateStore.put(productData);
-        };
-    }
-
-    function loadFutures() {
-        const transaction = db.transaction(["ProductDetails"], "readonly");
-        const store = transaction.objectStore("ProductDetails");
-        const request = store.get(1);
-
-        request.onsuccess = function (event) {
-            const productData = event.target.result;
-            if (productData && productData.features) {
-                productData.features.forEach(feature => {
-                    addFutureRow(feature.key, feature.value);
+            if (productData && productData.nutritionalValues) {
+                productData.nutritionalValues.forEach(nutritionalValue => {
+                    addNutritionalValueRow(nutritionalValue.key, nutritionalValue.value);
                 });
             }
         };
@@ -398,6 +357,9 @@ document.addEventListener('DOMContentLoaded', function () {
             const transaction = db.transaction(["ProductDetails"], "readonly");
             const store = transaction.objectStore("ProductDetails");
             const request = store.get(1);
+            const formData = new FormData();
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            const messagesContainer = document.querySelector('.Message');
 
             request.onsuccess = function (event) {
                 const productData = event.target.result;
@@ -406,55 +368,50 @@ document.addEventListener('DOMContentLoaded', function () {
                 const price = productData ? productData.price : "";
                 const stock = productData ? productData.stock : "";
                 const description = productData ? productData.description : "";
-                const specifications = productData && productData.specifications ? productData.specifications.length : 0;
-                const features = productData && productData.features ? productData.features.length : 0;
+                const ingredients = productData && productData.ingredients ? productData.ingredients.length : 0;
+                const nutritionalValues = productData && productData.nutritionalValues ? productData.nutritionalValues.length : 0;
                 const images = productData && productData.images ? productData.images.length : 0;
 
                 if (!category) errors.push("Product category is required.");
                 if (!name) errors.push("Product name is required.");
                 if (!price) errors.push("Product price is required.");
                 if (!stock) errors.push("Product stock is required.");
-                if (images < 5) {
-                    errors.push("You must upload at least 5 images.");
+                if (images < 3) {
+                    errors.push("You must upload at least 3 images.");
                 }
                 if (!description || description === "<p><br></p>") errors.push("Product description is required.");
-                if (specifications === 0) errors.push("At least one specification is required.");
-                if (features === 0) errors.push("At least one feature is required.");
+                if (ingredients === 0) errors.push("At least one ingredient is required.");
+                if (nutritionalValues === 0) errors.push("At least one nutritional value is required.");
 
                 if (errors.length > 0) {
                     messageContainer.innerHTML = errors.map(err => `<p>${err}</p>`).join("");
                     messageContainer.style.color = "red";
                 } else {
-                    // Proceed to submit the form data
-                    const formData = new FormData();
-                    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
                     formData.append('name', productData.name || '');
-                    formData.append('category_subcategory', productData.category || '');
+                    formData.append('category', productData.category || '');
                     formData.append('price', productData.price || '');
                     formData.append('stock', productData.stock || '');
                     formData.append('ship', productData.ship || '');
-                    const descriptionHtml = quill.root.innerHTML;  // Quill instance's HTML content
+
+                    const descriptionHtml = descriptionEditor.root.innerHTML;
                     formData.append('description', descriptionHtml || '');
 
-                    if (productData.specifications) {
-                        productData.specifications.forEach((spec, index) => {
-                            formData.append(`specification_column1[${index}]`, spec.key);
-                            formData.append(`specification_column2[${index}]`, spec.value);
+                    const ingredientsHtml = ingredientsEditor.root.innerHTML;
+                    formData.append('ingredients', ingredientsHtml || '');
+
+                    if (productData.nutritionalValues) {
+                        productData.nutritionalValues.forEach((nutritionalValue, index) => {
+                            formData.append(`nutritional_value_column1[${index}]`, nutritionalValue.key);
+                            formData.append(`nutritional_value_column2[${index}]`, nutritionalValue.value);
                         });
                     }
-                    if (productData.features) {
-                        productData.features.forEach((feature, index) => {
-                            formData.append(`feature_column1[${index}]`, feature.key);
-                            formData.append(`feature_column2[${index}]`, feature.value);
-                        });
-                    }
+
                     if (productData.images) {
                         productData.images.forEach((imageBlob, index) => {
                             formData.append(`images[${index}]`, imageBlob, `image${index}.jpg`);
                         });
                     }
 
-                    // Submit the data to the server
                     fetch('/add_product/', {
                         method: 'POST',
                         body: formData,
@@ -464,15 +421,11 @@ document.addEventListener('DOMContentLoaded', function () {
                     })
                         .then(response => response.json())
                         .then(data => {
-                        if (data.success) {
-                            alert('Product added successfully!');
-                        } else {
-                            alert('Failed to add product.');
-                        }
-                    })
-                        .catch(error => {
-                        console.error('Error:', error);
-                        alert('An error occurred while adding the product.');
+                        messagesContainer.innerHTML = '';
+                        const messageDiv = document.createElement('div');
+                        messageDiv.classList.add('Message');
+                        messageDiv.innerHTML = `<p>${data.message}</p>`;
+                        messagesContainer.appendChild(messageDiv);
                     });
                 }
             };

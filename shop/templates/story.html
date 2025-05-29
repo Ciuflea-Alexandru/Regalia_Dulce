@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 {% load static %}
 <html lang="en">
-
 <head>
-    <title>Sign In</title>
+    <title>Home Page</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="https://regalia-dulce.s3.us-east-1.amazonaws.com/shop/icon/logo.png" type="image/png">
-    <link rel="stylesheet" href="{% static 'css/sign_in.css' %}">
+    <link rel="stylesheet" href="{% static 'css/story.css' %}">
+    <script src="{% static 'js/story.js' %}"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
@@ -37,34 +37,58 @@
 </header>
 
 <main>
-    <div class="main-container">
-        <div class="Sign-In-Container">
-            <h2 class="Sign-In-Text">Sign In</h2>
 
-            <form method="post" action="{% url 'signin' %}" autocomplete="on" novalidate>
-                {% csrf_token %}
+    <h1 class="title">Our Story</h1>
 
-                <input name="username" type="text" placeholder="Username"
-                       class="Username-Box" autocomplete="username">
-
-                <input name="password" type="password" placeholder="Password"
-                       class="Password-Box" autocomplete="current-password">
-                {% for message in messages %}
-                {% if 'sign_in' in message.tags %}
-                <div class="Message">
-                    <p>{{ message }}</p>
-                </div>
-                {% endif %}
-                {% endfor %}
-                <br>
-
-                <a class="Sign-Up-Link" href="http://127.0.0.1:8000/signup/">Don't have an account?</a>
-                <a class="Sign-Up-Link" href="http://127.0.0.1:8000/forgot_password/link/">Forgot Password?</a>
-
-                <button type="submit" class="Sign-In-Button">Log In</button>
-            </form>
+    <div class="div-1">
+        <div class="div-1-1">
+            <div class="presentation-writing">
+                <h1 class="presentation-title">Humble Beginnings</h1>
+                <h2 class="presentation-text">In a small chocolate atelier on Ocean Avenue, Jacques and Elodie poured
+                    their hearts into crafting exquisite chocolates. They weren't just making sweets; they were sharing
+                    a piece of their heritage, meticulously passing down secret traditional recipes and techniques from
+                    generation to generation. Each truffle, each bar, was a testament to their unwavering dedication to
+                    the art of chocolate.</h2>
+            </div>
+        </div>
+        <div class="div-1-2">
+            <img src="https://regalia-dulce.s3.us-east-1.amazonaws.com/shop/banner/dubois.jpeg">
         </div>
     </div>
+
+    <div class="div-2">
+        <div class="div-2-1">
+            <img src="https://regalia-dulce.s3.us-east-1.amazonaws.com/shop/banner/first_chocolate.jpeg">
+        </div>
+
+        <div class="div-2-2">
+            <div class="presentation-writing">
+                <h1 class="presentation-title">Jacques Dubois</h1>
+                <h2 class="presentation-text">A passionate French chocolatier who, along with his wife Elodie,
+                    founded Regalia Dulce in Carmel-by-the-Sea, California. He brought his culinary dreams across the
+                    Atlantic, establishing a legacy of traditional chocolate-making techniques passed down through
+                    generations.</h2>
+            </div>
+            <img src="https://regalia-dulce.s3.us-east-1.amazonaws.com/shop/banner/jacques.jpeg">
+        </div>
+    </div>
+
+    <div class="div-3">
+        <div class="div-3-1">
+            <img src="https://regalia-dulce.s3.us-east-1.amazonaws.com/shop/banner/elodie.jpeg">
+            <div class="presentation-writing">
+                <h1 class="presentation-title">Elodie Dubois</h1>
+                <h2 class="presentation-text">Co-founder of Regalia Dulce, Elodie shared Jacques's passion for
+                    chocolate and played a vital role in establishing the brand's welcoming atmosphere. Together,
+                    they built a beloved institution known for its superior quality artisanal chocolate.</h2>
+            </div>
+        </div>
+
+        <div class="div-3-2">
+            <img src="https://regalia-dulce.s3.us-east-1.amazonaws.com/shop/banner/first_box.jpeg">
+        </div>
+    </div>
+
         <footer>
             <div class="footer-container">
                 <a class="header-link" href="http://127.0.0.1:8000/category/Chocolate_Bars/">Chocolate Bars</a>
@@ -84,7 +108,6 @@
             Copyright © 2025 Regalia Dulce. All rights reserved
         </footer>
 </main>
-
 
 </body>
 </html>

@@ -47,10 +47,6 @@ document.addEventListener("DOMContentLoaded", function() {
         showContainer('change-password-container');
     } else if (initialContainer === 'personal-container') {
         showContainer('personal-container');
-    } else if (initialContainer === 'product-information-container') {
-        showContainer('product-information-container');
-    } else if (initialContainer === 'sell-product-container') {
-        showContainer('sell-product-container');
     } else {
         showContainer('account-container');
     }

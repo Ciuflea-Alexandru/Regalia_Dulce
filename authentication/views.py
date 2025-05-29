@@ -1,4 +1,5 @@
 import os
+import posthog
 
 from django.conf import settings
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
@@ -19,7 +20,7 @@ from django.contrib.auth.hashers import make_password
 
 from .forms import SignUpForm, ProfilePictureForm, UserUpdateForm, ProfileUpdateForm
 from .models import DatabaseConfiguration, EmailConfiguration, AWSConfiguration, VerificationCode, Person
-from shop.models import ProductFamily, Product
+from shop.models import Product
 
 
 @csrf_protect
@@ -28,13 +29,21 @@ def signup(request):
         form = SignUpForm(request.POST)
         if form.is_valid():
             user = form.save(commit=False)
-            user.is_active = False
+            user.active = False
             user.save()
 
+            posthog.capture(
+                distinct_id=user.email,
+                event='inactive_user_created',
+                properties={
+                    'email': user.email,
+                    'created_at': str(user.date_joined),
+                    'is_active': user.active
+                }
+            )
+
             request.session['user_email'] = user.email
-
             send_code(user)
-
             return redirect('verify_code')
         else:
             request.session['signup_form_errors'] = form.errors
@@ -90,8 +99,18 @@ def verify_code(request):
 
             user = verification_code.user
             verification_code.delete()
-            user.is_active = True
+            user.active = True
             user.save()
+
+            posthog.capture(
+                distinct_id=user.email,
+                event='user_account_verified',
+                properties={
+                    'email': user.email,
+                    'verified_at': str(user.date_joined),
+                    'is_active': user.active
+                }
+            )
 
             request.session.pop('user_email', None)
 
@@ -245,52 +264,6 @@ def account_page(request):
                 request.session['password_form_errors'] = password_form.errors
                 return redirect('account_page')
 
-        elif 'edit_product' in request.POST:
-            product_id = request.POST.get('edit_product')
-            product = get_object_or_404(Product, id=product_id)
-            context = {
-                'product': product,
-            }
-            # Ensure the logged-in user is the product owner
-            if request.user == product.owner:
-                # Redirect to add_product with product details as query parameters
-                return redirect('add_product', product_id=product.id)
-
-        # Handling Product Deletion
-        elif 'delete_product' in request.POST:
-            product_id = request.POST.get('delete_product')
-            product = get_object_or_404(Product, id=product_id)
-            if request.user == product.owner:
-                product.delete()
-                messages.success(request, 'Product deleted successfully.')
-            return redirect('account_page')
-
-        # Handling Product Family Deletion
-        elif 'delete_family' in request.POST:
-            family_id = request.POST.get('delete_family')
-            family = get_object_or_404(ProductFamily, id=family_id)
-
-            if request.user == family.owner:
-                # Recursive Deletion of Family Hierarchy
-                def delete_family_and_children(family):
-                    # Delete associated products
-                    products = Product.objects.filter(family=family)
-                    products.delete()
-
-                    # Recursively delete child families
-                    child_families = family.child_families.all()
-                    for child in child_families:
-                        delete_family_and_children(child)
-
-                    # Now delete the family itself
-                    family.delete()
-
-                # Start the recursive deletion
-                delete_family_and_children(family)
-                messages.success(request, 'Product Family deleted successfully.')
-            return redirect('account_page')
-
-    # Error handling for form submission
     if 'user_form_errors' in request.session:
         user_form.errors.update(request.session.pop('user_form_errors'))
     if 'profile_form_errors' in request.session:
@@ -306,7 +279,6 @@ def account_page(request):
         'picture_form': picture_form,
         'password_form': password_form,
         'products': Product,
-        'product_families': ProductFamily,
     }
     return render(request, 'account_page.html', context)
 

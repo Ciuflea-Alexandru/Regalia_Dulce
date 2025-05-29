@@ -1,4 +1,7 @@
+.env
 /my_site/.env
 /my_site/cron.log
 /my_site/compose.yaml
 /my_site/README/Docker.md
+/my_site/authentication/static/images
+/my_site/shop/static/images

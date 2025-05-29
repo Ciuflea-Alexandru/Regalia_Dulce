@@ -71,102 +71,120 @@ header {
     font-size: 30px;
     font-weight: bold;
 }
+
 main {
-    width: 100%;
-    min-height: 100vh;
+    width: 100vw;
+    min-height: 300vh;
     margin-left: 15vw;
-}
-
-.main-container{
-    width: 100%;
-    height: 93.2%;
     display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.Sign-Up-Container {
-    width: 30vw;
-    height: 75vh;
-    padding: 20px;
-    display: flex;
-    text-align: center;
     flex-direction: column;
-    align-items: center;
-    border: 1px solid peru;
-    background-color: #0d0d0d;
+    overflow-x: hidden;
+    border-bottom: 1px solid peru;
+}
+
+
+.title{
+    position: fixed;
+    margin-left: 34vw;
+    font-size: 80px;
+    color: peru;
+    z-index: 4;
+}
+
+.div-1, .div-2, .div-3{
+    position: fixed;
+    width: 84.9vw;
+    height: 78vh;
+    display: flex;
+    color: peru;
+    margin-left: 0.1vw;
+    visibility: hidden;
     overflow: hidden;
 }
 
-form{
-    width: 100%;
+.div-1{
+    visibility: visible;
+    z-index: 3;
+}
+.div-2{
+    z-index: 2;
+}
+.div-3{
+    z-index: 1;
+}
+
+.div-1-1, .div-1-2, .div-2-1, .div-2-2, .div-3-1, .div-3-2 {
+    width: 50%;
+    height: 100%;
+    transition: transform 1s ease-in-out, opacity 1s ease-in-out;
+    opacity: 0;
+}
+
+.div-1-1, .div-2-1, .div-3-1 {
+    transform: translateX(-100%);
+}
+.div-1-2, .div-2-2, .div-3-2 {
+    transform: translateX(100%);
+}
+
+.div-1.visible .div-1-1,
+.div-2.visible .div-2-1,
+.div-3.visible .div-3-1 {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+.div-1.visible .div-1-2,
+.div-2.visible .div-2-2,
+.div-3.visible .div-3-2 {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+.div-1-1{
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
+    text-align: center;
 }
 
-.Sign-Up-Text {
+.div-1-2 img{
     width: 100%;
-    height: 40px;
-    text-align:center;
-    font-size:60px;
-    color: peru ;
+    height: 100%;
 }
 
-::Placeholder{
-    color: peru ;
-    opacity: 10
-}
-
-.Name-Box, .Password-Box, .Verify-Password-Box, .Email-Box {
-    width: 95%;
-    margin-top: 20px;
-    padding: 10px;
-    font-size:25px;
-    color: peru;
-    border: 1px solid peru;
-    background: #0d0d0d;
-    font-family:'verdana'
-}
-input:-webkit-autofill {
-    -webkit-box-shadow:0 0 0 50px #0d0d0d inset;
-    -webkit-text-fill-color: peru;
-}
-
-.Sign-In-Link {
-    font-size: 20px;
-    color: peru ;
-    font-family:'verdana';
-    text-decoration: none;
-    margin-top: 30px;
-}
-
-.Sign-In-Link:hover {
-    color:#ffcc00;
-    transition: 0.5s;
-}
-
-.Sign-Up-Button {
-    background: #0d0d0d;
-    font-size:30px;
-    color: peru;
-    padding: 20px 80px;
-    border: 1px solid peru;
-    cursor: pointer;
-    margin-top: 40px;
-}
-.Sign-Up-Button:hover {
-    background: peru;
-    color: #0d0d0d;
-    transition: 0.5s;
-}
-
-.Message {
+.div-2-1 img{
     width: 100%;
-    height: 20px;
-    color: peru;
-    font-size: 20px;
+    height: 100%;
+}
+
+.div-2-2{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.div-2-2 img{
+    width: 400px;
+    height: 400px;
+}
+
+.div-3-1{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.div-3-1 img{
+    width: 400px;
+    height: 400px;
+}
+
+.div-3-2 img{
+    width: 100%;
+    height: 100%;
 }
 input:-webkit-autofill {
     -webkit-box-shadow:0 0 0 50px #0d0d0d inset;
@@ -199,9 +217,12 @@ input:-webkit-autofill {
     font-weight: bold;
     font-size: 20px;
 }
-
 footer {
-    margin: 0px;
+    width:81.7vw;
+    bottom: 0px;
+    margin-left: 0.1vw;
+    position: fixed;
+    padding: 20px;
     margin-top: auto;
     text-align: center;
     border: 1px solid peru;

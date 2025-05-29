@@ -6,492 +6,378 @@
     <title>Home Page</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="https://regalia-dulce.s3.us-east-1.amazonaws.com/shop/icon/logo.png" type="image/png">
     <link rel="stylesheet" href="{% static 'css/product.css' %}">
     <script src="{% static 'js/product.js' %}"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
 <header>
-    <div class="header-container">
-        <a class="site-name" href="http://127.0.0.1:8000/home/">Merchants Guild</a>
-        <div class="search-bar">Search</div>
-        <a class="cart-link">Cart</a>
-        <a class="favorites-link">Favorites</a>
-        <a class="account-link" href="http://127.0.0.1:8000/account/">Account</a>
+    <a class="site-logo" href="http://127.0.0.1:8000/home/">
+        <img class="site-logo" src="https://regalia-dulce.s3.us-east-1.amazonaws.com/shop/icon/logo.png">
+    </a>
+    <div class="first-header-container">
+        <a class="main-header-link" href="http://127.0.0.1:8000/search/">
+            <i class="fa-solid fa-magnifying-glass"></i></a>
+        <a class="main-header-link" href="http://127.0.0.1:8000/cart/">
+            <i class="fa-solid fa-cart-shopping"></i></a>
+        <a class="main-header-link" href="http://127.0.0.1:8000/favorites/">
+            <i class="fa-solid fa-star"></i></a>
+        <a class="main-header-link" href="http://127.0.0.1:8000/account/">
+            <i class="fa-solid fa-user"></i></a>
+    </div>
+    <div class="second-header-container">
+        <a class="header-link" href="http://127.0.0.1:8000/category/Chocolate_Bars/">Chocolate Bars</a>
+        <a class="header-link" href="http://127.0.0.1:8000/category/Chocolate_Boxes/">Chocolate Boxes</a>
+        <a class="header-link" href="http://127.0.0.1:8000/category/Soft_Drinks/">Soft Drinks</a>
+        <a class="header-link" href="http://127.0.0.1:8000/category/Seasonal_Specials/">Seasonal Specials</a>
+        <a class="header-link" href="http://127.0.0.1:8000/story/">Our Story</a>
+        <a class="header-link" href="http://127.0.0.1:8000/mission/">Our Mission</a>
     </div>
 </header>
 
+
 <main>
-
-    <section class="product-main">
-        <div class="main-image-container">
-            <div class="main-image-grid-container">
-                <button class="prev-arrow">&#10096;</button>
-                <div class="main-images-grid">
-                    {% for image in product.images.all|dictsort:"position" %}
-                    <div>
-                        <button class="main-product-images-button"></button>
-                        <img class="main-product-images" src="{{ image.image.url }}" alt="{{ product.name }}">
-                    </div>
-                    {% endfor %}
-                </div>
-                <button class="next-arrow">&#10097;</button>
-            </div>
-
+    <form method="post">
+        {% csrf_token %}
+        <section class="product-main">
             {% for image in product.images.all|dictsort:"position" %}
             {% if forloop.first %}
-            <img class="main-image" src="{{ image.image.url }}" alt="{{ product.name }}">
+            <img class="main-image" src="{{ image.image.url }}">
             {% endif %}
             {% endfor %}
 
+            <div class="product-information">
+                <div class="name-price">
+                    <h1 class="product-name">{{ product.name }}</h1>
+                    <div class="main-price-favorites">
+                        <div class="price-favorite">
 
-            <div class="variation-container">
-                {% for subfamily, data in subfamily_products.items %}
-                {% if data.products %}
-                <h4>{{ data.differing_key }}</h4> <!-- Showing differing spec key here -->
-                <div class="main-variation-grid-container">
-                    <div class="main-variation-grid">
-                        {% for subfamily_product, differing_specs in data.products %}
-                        <div class="{% if subfamily_product == product %}selected-product{% endif %}">
-                            {% if subfamily_product == product %}
-                            <div class="main-product-variation-link">
-                                <div class="variation-specifications">
-                                    {% for spec_key, spec_values in differing_specs.items %}
-                                    <p>{{ spec_values.0 }}</p>
-                                    {% endfor %}
-                                </div>
+                            <div class="price">
+                                {% if product.offer_price != product.price %}
+                                <div class="product-price-cut">${{ product.price }}</div>
+                                <div class="product-price-offer">${{ product.offer_price }}</div>
+                                {% else %}
+                                <div class="product-price">${{ product.price }}</div>
+                                {% endif %}
                             </div>
+
+                            {% if user.is_authenticated %}
+                            {% if product.id in favorite_product_ids %}
+                            <button type="button" class="favorite" data-action="favorite"
+                                    data-product-id="{{ product.id }}">
+                                <i class="fa-solid fa-star"></i>
+                            </button>
                             {% else %}
-                            <a href="{% url 'product' subfamily_product.id %}" class="main-product-variation-link">
-                                <div class="variation-specifications">
-                                    {% for spec_key, spec_values in differing_specs.items %}
-                                    <p>{{ spec_values.1 }}</p>
-                                    {% endfor %}
-                                </div>
-                            </a>
+                            <button type="button" class="favorite" data-action="favorite"
+                                    data-product-id="{{ product.id }}">
+                                <i class="fa-regular fa-star"></i>
+                            </button>
                             {% endif %}
+                            {% else %}
+                            <button type="button" class="favorite-link"
+                                    onclick="window.location.href='{% url 'signin' %}'">
+                                <i class="fa-regular fa-star"></i>
+                            </button>
+                            {% endif %}
+
+                        </div>
+                        <span class="star">{{ review_data.average_star_rating|safe }}</span>
+                        <span>{{ review_data.average_score|floatformat:2 }}
+                            ({{ review_data.ratings.paginator.count }} reviews)</span>
+                        <p>{{ review_data.rating_percentages.5|floatformat:0 }}% customers recommend this product</p>
+                    </div>
+                </div>
+
+                <div class="description-text">
+                    {{ product.description|safe }}
+                </div>
+
+                <div class="cart-quantity-image">
+                    <div class="cart-quantity">
+                        <div class="quantity-box">
+                            <button type="button" class="decrease" data-action="decrease"
+                                    data-product-id="{{ product.id }}">-
+                            </button>
+                            <h1 class="quantity" id="quantity_{{ product.id }}">{{ add_quantity }}</h1>
+                            <button type="button" class="increase" data-action="increase"
+                                    data-product-id="{{ product.id }}">+
+                            </button>
+                        </div>
+
+                        {% if user.is_authenticated %}
+                        {% if product.id in cart_product_ids %}
+                        <button type="button" class="cart" data-action="cart" data-product-id="{{ product.id }}">
+                            Add to cart
+                            <i class="fa-solid fa-cart-shopping"></i>
+                        </button>
+                        {% else %}
+                        <button type="button" class="cart" data-action="cart" data-product-id="{{ product.id }}">
+                            Add to cart
+                            <i class="fa-solid fa-cart-plus"></i>
+                        </button>
+                        {% endif %}
+                        {% else %}
+                        <button type="button" class="cart-link" onclick="window.location.href='{% url 'signin' %}'">
+                            Add to cart
+                            <i class="fa-solid fa-cart-plus"></i>
+                        </button>
+                        {% endif %}
+
+                    </div>
+
+                    <div class="image-grid-container">
+                        {% for image in product.images.all|dictsort:"position" %}
+                        <div class="image-item">
+                            <button type="button" class="image-button"></button>
+                            <img class="product-image" src="{{ image.image.url }}" alt="{{ product.name }}">
                         </div>
                         {% endfor %}
                     </div>
-                </div>
-                {% endif %}
-                {% endfor %}
+                    <div class="page-indicators"></div>
 
-                {% for differing_key, products in different_subfamily_products.items %}
-                {% if products %}
-                <h4>{{ differing_key }}</h4> <!-- Display differing spec key here -->
-                <div class="main-variation-grid-container">
-                    <div class="main-variation-grid">
-                        {% for diff_product, differing_specs in products %}
-                        <div class="{% if diff_product == product %}selected-product{% endif %}">
-                            {% if diff_product == product %}
-                            <div class="main-product-variation-link">
-                                <div class="variation-specifications">
-                                    {% for spec_key, spec_values in differing_specs.items %}
-                                    <p>{{ spec_values.0 }}</p>
-                                    {% endfor %}
-                                </div>
+                </div>
+
+                {% for message in messages %}
+                <div class="Message">
+                    <p>{{ message }}</p>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <section class="ingredients-nutritional-values">
+            <div class="ingredients">
+                <div class="ingredients-title">Ingrediente
+                    <button type="button" class="show-ingredients-button">&#10095;</button>
+                </div>
+                <div class="ingredients-text">
+                    {{ product.ingredients|safe}}
+                </div>
+            </div>
+            <div class="nutritional-values">
+                <div class="nutritional-values-title">Valori nutriționali
+                    <button type="button" class="show-nutritional-values-button">&#10095;</button>
+                </div>
+                <div class="nutritional-values-grid">
+                    <table>
+                        <tbody>
+                        {% for nutritional_value in product.nutritional_values.all|dictsort:"position" %}
+                        <tr>
+                            <td>{{ nutritional_value.key }}</td>
+                            <td>{{ nutritional_value.value }}</td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section class="reviews">
+            <div class="reviews-rating">
+                <div class="add-review">
+                    <h1>Reviews [{{ review_data.ratings.paginator.count }}]</h1>
+                    <h2>Score Given</h2>
+                    <p class="given-star">{{ review_data.user_star_rating|safe }}</p>
+                    {% if user.is_authenticated %}
+                    {% if review_data.user_rating %}
+                    <button type="button" class="delete-review-button" data-action="delete_review"
+                            data-product-id="{{ product.id }}">
+                        Delete your review
+                    </button>
+                    {% else %}
+                    <button type="button" class="add-review-button">
+                        Add a review
+                    </button>
+                    {% endif %}
+                    {% else %}
+                    <button type="button" class="add-review-link" onclick="window.location.href='{% url 'signin' %}'">
+                        Add a review
+                    </button>
+                    {% endif %}
+
+                </div>
+                <h1 class="score-text">Average score</h1>
+                <div class="rating"><p>{{ review_data.average_star_rating|safe }}</p></div>
+                <div class="rating-graph">
+                    <p>5 stars</p>
+                    <div class="graph-bar-background">
+                        <div class="graph-bar-foreground"
+                             data-percentage="{{ review_data.rating_percentages.5 }}"></div>
+                    </div>
+                    [{{ review_data.rating_distribution.5 }}]
+                </div>
+                <div class="rating-graph">
+                    <p>4 stars</p>
+                    <div class="graph-bar-background">
+                        <div class="graph-bar-foreground"
+                             data-percentage="{{ review_data.rating_percentages.4 }}"></div>
+                    </div>
+                    [{{ review_data.rating_distribution.4 }}]
+                </div>
+                <div class="rating-graph">
+                    <p>3 stars</p>
+                    <div class="graph-bar-background">
+                        <div class="graph-bar-foreground"
+                             data-percentage="{{ review_data.rating_percentages.3 }}"></div>
+                    </div>
+                    [{{ review_data.rating_distribution.3 }}]
+                </div>
+                <div class="rating-graph">
+                    <p>2 stars</p>
+                    <div class="graph-bar-background">
+                        <div class="graph-bar-foreground"
+                             data-percentage="{{ review_data.rating_percentages.2 }}"></div>
+                    </div>
+                    [{{ review_data.rating_distribution.2 }}]
+                </div>
+                <div class="rating-graph">
+                    <p>1 star</p>
+                    <div class="graph-bar-background">
+                        <div class="graph-bar-foreground"
+                             data-percentage="{{ review_data.rating_percentages.1 }}"></div>
+                    </div>
+                    [{{ review_data.rating_distribution.1 }}]
+                </div>
+            </div>
+            <div class="review-container">
+                <div class="review-grid">
+                    {% for review in review_data.ratings %}
+                    <div class="review-details">
+                        <div class="review-user">
+                            <div class="profile-picture-container">
+                                <img class="profile-picture" src="{{ review.user.profile_picture.url }}"
+                                     onerror="this.src='{% static 'images/profile_pictures/' %}{{ review.user.id }}/profile_picture.jpg'">
+                            </div>
+                            <h1>{{ review.user.username }}</h1>
+                            <h1>{{ review.created_at|date:"j F Y" }}</h1>
+                        </div>
+                        <div class="review">
+                            <h1>{{ review.title }}</h1>
+                            <h2>{{ review.review }}</h2>
+                            {% if user.is_authenticated %}
+                            <div class="like-dislike">
+                                <button type="button" class="like" data-action="like" data-review-id="{{ review.id }}">
+                                    {% if review.user_like %}
+                                    <i class="fa fa-thumbs-up"></i> [{{ review.like_count }}]
+                                    {% else %}
+                                    <i class="fa-regular fa-thumbs-up"></i> [{{ review.like_count }}]
+                                    {% endif %}
+                                </button>
+                                <button type="button" class="dislike" data-action="dislike"
+                                        data-review-id="{{ review.id }}">
+                                    {% if review.user_dislike %}
+                                    <i class="fa fa-thumbs-down"></i> [{{ review.dislike_count }}]
+                                    {% else %}
+                                    <i class="fa-regular fa-thumbs-down"></i> [{{ review.dislike_count }}]
+                                    {% endif %}
+                                </button>
                             </div>
                             {% else %}
-                            <a href="{% url 'product' diff_product.id %}" class="main-product-variation-link">
-                                <div class="variation-specifications">
-                                    {% for spec_key, spec_values in differing_specs.items %}
-                                    <p>{{ spec_values.1 }}</p>
-                                    {% endfor %}
-                                </div>
-                            </a>
+                            <div class="like-dislike">
+                                <button type="button" class="like-link"
+                                        onclick="window.location.href='{% url 'signin' %}'">
+                                    {% if review.user_like %}
+                                    <i class="fa fa-thumbs-up"></i> [{{ review.like_count }}]
+                                    {% else %}
+                                    <i class="fa-regular fa-thumbs-up"></i> [{{ review.like_count }}]
+                                    {% endif %}
+                                </button>
+                                <button type="button" class="dislike-link"
+                                        onclick="window.location.href='{% url 'signin' %}'">
+                                    {% if review.user_dislike %}
+                                    <i class="fa fa-thumbs-down"></i> [{{ review.dislike_count }}]
+                                    {% else %}
+                                    <i class="fa-regular fa-thumbs-down"></i> [{{ review.dislike_count }}]
+                                    {% endif %}
+                                </button>
+                            </div>
                             {% endif %}
                         </div>
+                    </div>
+                    {% empty %}
+                    <h1 class="review-empty">Be the first to leave a review!</h1>
+                    {% endfor %}
+                </div>
+
+                <div class="review-pages">
+                    {% if review_data.ratings.has_previous %}
+                    <button type="button" class="previous-page"
+                            data-page="{{ review_data.ratings.previous_page_number }}">‹
+                    </button>
+                    {% else %}
+                    <button type="button" class="previous-page" disabled>‹</button>
+                    {% endif %}
+
+                    {% for num in review_data.ratings.paginator.page_range %}
+                    {% if num == 1 or num == review_data.ratings.paginator.num_pages %}
+                    <button type="button" class="review-page" data-page="{{ num }}">{{ num }}</button>
+                    {% elif num >= review_data.ratings.number|add:"-1" and num <= review_data.ratings.number|add:"1" %}
+                    <button type="button" class="review-page" data-page="{{ num }}">{{ num }}</button>
+                    {% elif num == review_data.ratings.number|add:"-2" or num == review_data.ratings.number|add:"2" %}
+                    <span>...</span>
+                    {% endif %}
+                    {% endfor %}
+
+
+                    {% if review_data.ratings.has_next %}
+                    <button type="button" class="next-page" data-page="{{ review_data.ratings.next_page_number }}">›
+                    </button>
+                    {% else %}
+                    <button type="button" class="next-page" disabled>›</button>
+                    {% endif %}
+                </div>
+
+                <div class="product-review-container">
+                    <div class="reviewed-product">
+                        {% for image in product.images.all|dictsort:"position" %}
+                        {% if forloop.first %}
+                        <img class="reviewed-product-image" src="{{ image.image.url }}">
+                        {% endif %}
                         {% endfor %}
+                        <div class="reviewed-name-score">
+                            <p class="reviewed-product-name">{{ product.name }}</p>
+                            <div class="review-scores">
+                                <button type="button" class="review-score-1">☆</button>
+                                <button type="button" class="review-score-2">☆</button>
+                                <button type="button" class="review-score-3">☆</button>
+                                <button type="button" class="review-score-4">☆</button>
+                                <button type="button" class="review-score-5">☆</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="product-review">
+                        <p class="review-text">Title review</p>
+                        <input class="review-title">
+                        <p class="review-text">Review</p>
+                        <textarea class="review-textarea"></textarea>
+                        <button type="button" class="submit-review" data-product-id="{{ product.id }}">Add review
+                        </button>
                     </div>
                 </div>
-                {% endif %}
-                {% endfor %}
+            </div>
+        </section>
+
+        <footer>
+            <div class="footer-container">
+                <a class="header-link" href="http://127.0.0.1:8000/category/Chocolate_Bars/">Chocolate Bars</a>
+                <a class="header-link" href="http://127.0.0.1:8000/category/Chocolate_Boxes/">Chocolate Boxes</a>
+                <a class="header-link" href="http://127.0.0.1:8000/category/Soft_Drinks/">Soft Drinks</a>
+                <a class="header-link" href="http://127.0.0.1:8000/category/Seasonal_Specials/">Seasonal Specials</a>
+                <a class="header-link" href="http://127.0.0.1:8000/story/">Our Story</a>
+                <a class="header-link" href="http://127.0.0.1:8000/mission/">Our Mission</a>
+                <div class="contact-footer">
+                    <p>Contact Us</p>
+                    <p>Regalia Dulce</p>
+                    <p>office@regaliadulce.com</p>
+                    <p>+1 248-434-5508</p>
+                </div>
             </div>
 
-
-        </div>
-
-
-        <div class="product-description">
-            <h1>{{ product.name }}</h1>
-            <span class="star">★★★★★</span>
-            <span>4.50 (86 reviews)</span>
-            <p>87% customers recommend this product</p>
-            <p>Vandut de: {{ product.owner}} </p>
-            <p>Livrat de: {{ product.owner}}</p>
-            <div class="price">
-                <p> {{ product.price }} </p>
-                <span> {{ product.discount}} </span>
-            </div>
-            <button class="add-to-cart">Add to Cart</button>
-        </div>
-    </section>
-
-
-    <section class="navigation-bar">
-        <button class="top-button">Top</button>
-        <button class="information-button">Description</button>
-        <button class="specification-button">Specifications</button>
-        <button class="review-button">Reviews</button>
-
-    </section>
-
-    <section class="product-information">
-        <h1>Descriere</h1>
-        <div class="information-text">
-            <h1>Casti gaming HyperX Cloud Alpha, drivere 50mm Dual Chamber, microfon detasabil cu noise cancelling,
-                certificat Discord/TeamSpeak, spuma cu memorie, multiplatforma, negru/rosu. </h1>
-            <img class="information-image" src="{% static 'images/HyperX_logo.jpg' %}">
-            <h1>Casti gaming HyperX Cloud Alpha Noile casti HyperX Cloud Alpha, va va oferi o mai mare claritate audio
-                prin reducerea zgomotului de fundal. Camerele duale separa basul de la medii si inalte, permitand o
-                reglare optima pentru un sunet mai curat si mai fin. Cloud Alpha se bazeaza si pe un confort datorita
-                tehnologiei cu spuma de memorie rosie premium, banda de sustinere expandata este mai moale si mai
-                flexibila. Rama din aluminiu este construita pentru durabilitate in timp pentru a nu va face griji in
-                caz de incidente ce pot distruge castile. Castile Cloud Alpha dispun de un cablu dur si detasabil.
-                Microfonul ofera functia de anulare a zgomotului, iar acesta este detasabil pentru un confort extins, de
-                asemenea microfonul este certificat Discord si TeamSpeak, asigurand o comunicare excelenta in echipa.
-                Castile sunt compatibile multi-platforma cu controale audio in linie pentru PC, PS4, Xbox One si alte
-                platforme cu un port de 3.5mm vor beneficia de sunetul indraznet al evolutiei Cloud Alpha.</h1>
-            <img class="information-image" src="{% static 'images/HyperX_logo1.jpg' %}">
-            <h1>Mai multe camere pentru mai putin zgomot</h1>
-            <h1>Cu camera separata pentru bas una pentru medii si una pentru inalte, HyperX Cloud Alpha ofera un sunet
-                de o calitate superioara si minimizeaza distorsiunile</h1>
-            <img class="information-image" src="{% static 'images/HyperX7.jpg' %}">
-        </div>
-        <button class="show-information-button">Show more</button>
-    </section>
-
-    <section class="specification">
-        <h1>Specificații tehnice</h1>
-        <div class="specification-grid">
-            <table>
-                <tbody>
-                <tr>
-                    <td>Tip</td>
-                    <td>Gaming</td>
-                </tr>
-                <tr>
-                    <td>Tehnologie</td>
-                    <td>Cu fir</td>
-                </tr>
-                <tr>
-                    <td>Frecvență de răspuns (Hz)</td>
-                    <td>13 - 27 000</td>
-                </tr>
-                <tr>
-                    <td>Conectare</td>
-                    <td>Jack 3,5 mm</td>
-                </tr>
-                <tr>
-                    <td>Diametru difuzor</td>
-                    <td>50 mm</td>
-                </tr>
-                <tr>
-                    <td>Utilizare</td>
-                    <td>Gaming</td>
-                </tr>
-                <tr>
-                    <td>Impedanță</td>
-                    <td>65 Ω</td>
-                </tr>
-                <tr>
-                    <td>Microfon</td>
-                    <td>Da</td>
-                </tr>
-                <tr>
-                    <td>Lungime cablu (m)</td>
-                    <td>1.3 m</td>
-                </tr>
-                <tr>
-                    <td>Greutate</td>
-                    <td>298 g</td>
-                </tr>
-                <tr>
-                    <td>Culoare</td>
-                    <td>Roșu, Negru</td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-        <button class="show-specification-button">Show more</button>
-    </section>
-
-    <section class="reviews">
-        <h1>Reviews</h1>
-        <h1>(Reviews count)</h1>
-        <div class="reviews-rating-grid">
-            <div class="add-review">
-                <h1>You own or used this product?</h1>
-                <h1>Review it!</h1>
-                <h1>Score Given</h1>
-                <h1 class="star">★★★★★</h1>
-                <button class="add-review-button">Add a review</button>
-            </div>
-            <div class="rating">
-                <h1> 4.50</h1>
-                <h1 class="star">★★★★★</h1>
-            </div>
-            <div class="rating-graph">
-                <a>5★</a>
-                <div class="graph-bar"></div>
-                (86)
-            </div>
-            <div class="rating-graph">
-                <a>4★</a>
-                <div class="graph-bar"></div>
-                (86)
-            </div>
-            <div class="rating-graph">
-                <a>3★</a>
-                <div class="graph-bar"></div>
-                (86)
-            </div>
-            <div class="rating-graph">
-                <a>2★</a>
-                <div class="graph-bar"></div>
-                (86)
-            </div>
-            <div class="rating-graph">
-                <a>1★</a>
-                <div class="graph-bar"></div>
-                (86)
-            </div>
-        </div>
-        <div class="review-grid">
-            <div class="review-container">
-                <div class="review-user">
-                    <div class="Profile-Picture-Container">
-                        <img class="Profile-Picture" src="{{ user.profile_picture.url }}"
-                             onerror="this.src='{% static 'images/profile_pictures/' %}{{ user.id }}/profile_picture.jpg'">
-                        <button class="Profile-Button" type="button" onclick="chooseFile()"></button>
-                    </div>
-                    <h1>(USER NAME)</h1>
-                    <h1>(DATE POSTED)</h1>
-                </div>
-                <div class="review">
-                    <h1>Title</h1>
-                    <a>VERY NICE</a>
-                    <h5>(LIKE) (COMMENT)</h5>
-                </div>
-            </div>
-            <div class="review-container">
-                <div class="review-user">
-                    <div class="Profile-Picture-Container">
-                        <img class="Profile-Picture" src="{{ user.profile_picture.url }}"
-                             onerror="this.src='{% static 'images/profile_pictures/' %}{{ user.id }}/profile_picture.jpg'">
-                        <button class="Profile-Button" type="button" onclick="chooseFile()"></button>
-                    </div>
-                    <h1>(USER NAME)</h1>
-                    <h1>(DATE POSTED)</h1>
-                </div>
-                <div class="review">
-                    <h1>Title</h1>
-                    <a>VERY NICE</a>
-                    <h5>(LIKE) (COMMENT)</h5>
-                </div>
-            </div>
-            <div class="review-container">
-                <div class="review-user">
-                    <div class="Profile-Picture-Container">
-                        <img class="Profile-Picture" src="{{ user.profile_picture.url }}"
-                             onerror="this.src='{% static 'images/profile_pictures/' %}{{ user.id }}/profile_picture.jpg'">
-                        <button class="Profile-Button" type="button" onclick="chooseFile()"></button>
-                    </div>
-                    <h1>(USER NAME)</h1>
-                    <h1>(DATE POSTED)</h1>
-                </div>
-                <div class="review">
-                    <h1>Title</h1>
-                    <a>VERY NICE</a>
-                    <h5>(LIKE) (COMMENT)</h5>
-                </div>
-            </div>
-            <div class="review-container">
-                <div class="review-user">
-                    <div class="Profile-Picture-Container">
-                        <img class="Profile-Picture" src="{{ user.profile_picture.url }}"
-                             onerror="this.src='{% static 'images/profile_pictures/' %}{{ user.id }}/profile_picture.jpg'">
-                        <button class="Profile-Button" type="button" onclick="chooseFile()"></button>
-                    </div>
-                    <h1>(USER NAME)</h1>
-                    <h1>(DATE POSTED)</h1>
-                </div>
-                <div class="review">
-                    <h1>Title</h1>
-                    <a>VERY NICE</a>
-                    <h5>(LIKE) (COMMENT)</h5>
-                </div>
-            </div>
-            <div class="review-container">
-                <div class="review-user">
-                    <div class="Profile-Picture-Container">
-                        <img class="Profile-Picture" src="{{ user.profile_picture.url }}"
-                             onerror="this.src='{% static 'images/profile_pictures/' %}{{ user.id }}/profile_picture.jpg'">
-                        <button class="Profile-Button" type="button" onclick="chooseFile()"></button>
-                    </div>
-                    <h1>(USER NAME)</h1>
-                    <h1>(DATE POSTED)</h1>
-                </div>
-                <div class="review">
-                    <h1>Title</h1>
-                    <a>VERY NICE</a>
-                    <h5>(LIKE) (COMMENT)</h5>
-                </div>
-            </div>
-            <div class="review-container">
-                <div class="review-user">
-                    <div class="Profile-Picture-Container">
-                        <img class="Profile-Picture" src="{{ user.profile_picture.url }}"
-                             onerror="this.src='{% static 'images/profile_pictures/' %}{{ user.id }}/profile_picture.jpg'">
-                        <button class="Profile-Button" type="button" onclick="chooseFile()"></button>
-                    </div>
-                    <h1>(USER NAME)</h1>
-                    <h1>(DATE POSTED)</h1>
-                </div>
-                <div class="review">
-                    <h1>Title</h1>
-                    <a>VERY NICE</a>
-                    <h5>(LIKE) (COMMENT)</h5>
-                </div>
-            </div>
-            <div class="review-container">
-                <div class="review-user">
-                    <div class="Profile-Picture-Container">
-                        <img class="Profile-Picture" src="{{ user.profile_picture.url }}"
-                             onerror="this.src='{% static 'images/profile_pictures/' %}{{ user.id }}/profile_picture.jpg'">
-                        <button class="Profile-Button" type="button" onclick="chooseFile()"></button>
-                    </div>
-                    <h1>(USER NAME)</h1>
-                    <h1>(DATE POSTED)</h1>
-                </div>
-                <div class="review">
-                    <h1>Title</h1>
-                    <a>VERY NICE</a>
-                    <h5>(LIKE) (COMMENT)</h5>
-                </div>
-            </div>
-            <div class="review-container">
-                <div class="review-user">
-                    <div class="Profile-Picture-Container">
-                        <img class="Profile-Picture" src="{{ user.profile_picture.url }}"
-                             onerror="this.src='{% static 'images/profile_pictures/' %}{{ user.id }}/profile_picture.jpg'">
-                        <button class="Profile-Button" type="button" onclick="chooseFile()"></button>
-                    </div>
-                    <h1>(USER NAME)</h1>
-                    <h1>(DATE POSTED)</h1>
-                </div>
-                <div class="review">
-                    <h1>Title</h1>
-                    <a>VERY NICE</a>
-                    <h5>(LIKE) (COMMENT)</h5>
-                </div>
-            </div>
-            <div class="review-container">
-                <div class="review-user">
-                    <div class="Profile-Picture-Container">
-                        <img class="Profile-Picture" src="{{ user.profile_picture.url }}"
-                             onerror="this.src='{% static 'images/profile_pictures/' %}{{ user.id }}/profile_picture.jpg'">
-                        <button class="Profile-Button" type="button" onclick="chooseFile()"></button>
-                    </div>
-                    <h1>(USER NAME)</h1>
-                    <h1>(DATE POSTED)</h1>
-                </div>
-                <div class="review">
-                    <h1>Title</h1>
-                    <a>VERY NICE</a>
-                    <h5>(LIKE) (COMMENT)</h5>
-                </div>
-            </div>
-            <div class="review-container">
-                <div class="review-user">
-                    <div class="Profile-Picture-Container">
-                        <img class="Profile-Picture" src="{{ user.profile_picture.url }}"
-                             onerror="this.src='{% static 'images/profile_pictures/' %}{{ user.id }}/profile_picture.jpg'">
-                        <button class="Profile-Button" type="button" onclick="chooseFile()"></button>
-                    </div>
-                    <h1>(USER NAME)</h1>
-                    <h1>(DATE POSTED)</h1>
-                </div>
-                <div class="review">
-                    <h1>Title</h1>
-                    <a>VERY NICE</a>
-                    <h5>(LIKE) (COMMENT)</h5>
-                </div>
-            </div>
-            <div class="review-container">
-                <div class="review-user">
-                    <div class="Profile-Picture-Container">
-                        <img class="Profile-Picture" src="{{ user.profile_picture.url }}"
-                             onerror="this.src='{% static 'images/profile_pictures/' %}{{ user.id }}/profile_picture.jpg'">
-                        <button class="Profile-Button" type="button" onclick="chooseFile()"></button>
-                    </div>
-                    <h1>(USER NAME)</h1>
-                    <h1>(DATE POSTED)</h1>
-                </div>
-                <div class="review">
-                    <h1>Title</h1>
-                    <a>VERY NICE</a>
-                    <h5>(LIKE) (COMMENT)</h5>
-                </div>
-            </div>
-            <div class="review-container">
-                <div class="review-user">
-                    <div class="Profile-Picture-Container">
-                        <img class="Profile-Picture" src="{{ user.profile_picture.url }}"
-                             onerror="this.src='{% static 'images/profile_pictures/' %}{{ user.id }}/profile_picture.jpg'">
-                        <button class="Profile-Button" type="button" onclick="chooseFile()"></button>
-                    </div>
-                    <h1>(USER NAME)</h1>
-                    <h1>(DATE POSTED)</h1>
-                </div>
-                <div class="review">
-                    <h1>Title</h1>
-                    <a>VERY NICE</a>
-                    <h5>(LIKE) (COMMENT)</h5>
-                </div>
-            </div>
-            <div class="review-container">
-                <div class="review-user">
-                    <div class="Profile-Picture-Container">
-                        <img class="Profile-Picture" src="{{ user.profile_picture.url }}"
-                             onerror="this.src='{% static 'images/profile_pictures/' %}{{ user.id }}/profile_picture.jpg'">
-                        <button class="Profile-Button" type="button" onclick="chooseFile()"></button>
-                    </div>
-                    <h1>(USER NAME)</h1>
-                    <h1>(DATE POSTED)</h1>
-                </div>
-                <div class="review">
-                    <h1>Title</h1>
-                    <a>VERY NICE</a>
-                    <h5>(LIKE) (COMMENT)</h5>
-                </div>
-            </div>
-            <div class="review-container">
-                <div class="review-user">
-                    <div class="Profile-Picture-Container">
-                        <img class="Profile-Picture" src="{{ user.profile_picture.url }}"
-                             onerror="this.src='{% static 'images/profile_pictures/' %}{{ user.id }}/profile_picture.jpg'">
-                        <button class="Profile-Button" type="button" onclick="chooseFile()"></button>
-                    </div>
-                    <h1>(USER NAME)</h1>
-                    <h1>(DATE POSTED)</h1>
-                </div>
-                <div class="review">
-                    <h1>Title</h1>
-                    <a>VERY NICE</a>
-                    <h5>(LIKE) (COMMENT)</h5>
-                </div>
-            </div>
-        </div>
-        <div class="review-pages">
-            <button class="previous-page"> <<</button>
-            <button class="next-page"> >></button>
-        </div>
-    </section>
-
-    <footer>
-        &copy; E-commerce Site
-    </footer>
+            Copyright © 2025 Regalia Dulce. All rights reserved
+        </footer>
+    </form>
 </main>
 
 </body>

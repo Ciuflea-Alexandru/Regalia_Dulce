@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+<a href="{% url 'admin:download_product_stats' %}" class="button"
+   style="position: absolute; margin-left: 32%; margin-top: -2.5%;">Download Excel</a>
+
+    <h2>Categories</h2>
+    <table class="adminlist">
+      <thead>
+        <tr>
+          <th>Category Name</th>
+          <th>Subcategories</th>
+          <th>Products</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for category in categories %}
+          <tr>
+            <td>{{ category.name }}</td>
+            <td>{{ category.num_subcategories }}</td>
+            <td>{{ category.num_products }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <table class="adminlist" style="margin-top: 50px; margin-bottom: 50px;">
+      <thead>
+        <tr>
+          <th>Average Price</th>
+          <th>Average Stock</th>
+          <th>Total Products</th>
+          <th>Total Ratings</th>
+          <th>Average Rating</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>{{ stats.average_price|floatformat:2 }}</td>
+          <td>{{ stats.average_stock|floatformat:2 }}</td>
+          <td>{{ stats.total_products }}</td>
+          <td>{{ stats.total_ratings }}</td>
+          <td>{{ stats.average_rating|floatformat:2 }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>Products</h2>
+    <table class="adminlist">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Price</th>
+          <th>Tag</th>
+          <th>Stock</th>
+          <th>Ratings</th>
+          <th>Average Score</th>
+          <th>Offers</th>
+          <th>Category</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for product in products %}
+          <tr>
+            <td>{{ product.name }}</td>
+            <td>{{ product.price }}</td>
+            <td>{{ product.price_tag }}</td>
+            <td>{{ product.stock }}</td>
+            <td>{{ product.rating_count }}</td>
+            <td>{{ product.average_score|default:"0.0" }}</td>
+            <td>{{ product.offer_count }}</td>
+            <td>
+              {% if product.product_categories.exists %}
+                {{ product.product_categories.first.category.name }}
+              {% else %}
+                No Category
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+
+{% endblock %}
+
+</body>
+</html>

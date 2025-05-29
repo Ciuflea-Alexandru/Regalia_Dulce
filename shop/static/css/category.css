@@ -71,102 +71,150 @@ header {
     font-size: 30px;
     font-weight: bold;
 }
+
 main {
+    width: 100vw;
+    min-height: 99.9vh;
+    margin-left: 15.1vw;
+    border-bottom: 1px solid peru;
+}
+form{
     width: 100%;
-    min-height: 100vh;
-    margin-left: 15vw;
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
 }
 
-.main-container{
+.category-section{
     width: 100%;
-    height: 93.2%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    height: 100%;
+    margin-left: 5vw;
+    margin-bottom: 5vh;
 }
 
-.Sign-Up-Container {
-    width: 30vw;
-    height: 75vh;
-    padding: 20px;
+.category-name{
+    color: peru;
+    font-size: 50px;
+}
+
+.product-container{
     display: flex;
-    text-align: center;
+    flex-wrap: wrap;
+    gap: 110px;
+}
+
+.product-card {
+    height: 600px;
+    display: flex;
+    flex: 0 0 calc(25%);
     flex-direction: column;
     align-items: center;
     border: 1px solid peru;
-    background-color: #0d0d0d;
+    color: peru;
+    background: #0d0d0d;
+}
+
+.product-image-container{
+    width: 90%;
+    height: 40%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 5%;
+    margin-bottom: 5%;
+}
+.product-link{
+    width: 100%;
+    height: 100%;
+}
+.product-image {
+    width: 100%;
+    height: 100%;
+}
+.favorite, .favorite-link{
+    position:absolute;
+    background: transparent;
+    margin-top: 10px;
+    margin-left: -50px;
+    color: peru;
+    border: none;
+    cursor: pointer;
+    overflow:hidden;
+    font-size: 30px;
+}
+
+.product-title{
+    width: 90%;
+    height: auto;
+    max-height: 20%;
+    margin: 0px;
+    border-bottom: 1px solid peru;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    text-overflow: ellipsis;
+    word-wrap: break-word;
+    font-size: 30px;
     overflow: hidden;
 }
 
-form{
+.product-description {
+    width: 90%;
+    height: 23%;
+    margin: 0px;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 5;
+    text-overflow: ellipsis;
+    word-wrap: break-word;
+}
+
+.product-description p{
+    margin: 0px;
+    font-size: 20px;
+    overflow: hidden;
+}
+
+.bottom-bar {
     width: 100%;
+    height: 10vh;
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-top: 1px solid peru;
+}
+
+.price{
+    width:40%;
+    height: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
 }
-
-.Sign-Up-Text {
-    width: 100%;
-    height: 40px;
-    text-align:center;
-    font-size:60px;
-    color: peru ;
+.product-price, .product-price-cut, .product-price-offer {
+    font-size: 40px;
+}
+.product-price-cut{
+    text-decoration: line-through;
 }
 
-::Placeholder{
-    color: peru ;
-    opacity: 10
-}
-
-.Name-Box, .Password-Box, .Verify-Password-Box, .Email-Box {
-    width: 95%;
-    margin-top: 20px;
-    padding: 10px;
-    font-size:25px;
-    color: peru;
-    border: 1px solid peru;
+.cart, .cart-link {
+    width: 60%;
+    height:80%;
     background: #0d0d0d;
-    font-family:'verdana'
-}
-input:-webkit-autofill {
-    -webkit-box-shadow:0 0 0 50px #0d0d0d inset;
-    -webkit-text-fill-color: peru;
-}
-
-.Sign-In-Link {
-    font-size: 20px;
-    color: peru ;
-    font-family:'verdana';
-    text-decoration: none;
-    margin-top: 30px;
-}
-
-.Sign-In-Link:hover {
-    color:#ffcc00;
-    transition: 0.5s;
-}
-
-.Sign-Up-Button {
-    background: #0d0d0d;
-    font-size:30px;
     color: peru;
-    padding: 20px 80px;
     border: 1px solid peru;
     cursor: pointer;
-    margin-top: 40px;
-}
-.Sign-Up-Button:hover {
-    background: peru;
-    color: #0d0d0d;
-    transition: 0.5s;
-}
-
-.Message {
-    width: 100%;
-    height: 20px;
-    color: peru;
-    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow:hidden;
+    font-size: 30px;
+    margin: 10px;
 }
 input:-webkit-autofill {
     -webkit-box-shadow:0 0 0 50px #0d0d0d inset;

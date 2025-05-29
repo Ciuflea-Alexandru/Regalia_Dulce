@@ -26,6 +26,7 @@ class Person(AbstractUser):
         upload_to=profile_picture_path, default='profile_pictures/avatar.jpg')
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES, null=True, blank=True)
     country = models.CharField(max_length=100, null=True, blank=True)
+    active = models.BooleanField(default=True)
 
     class Meta:
         db_table = 'authentication_person'
@@ -34,19 +35,22 @@ class Person(AbstractUser):
         return self.username
 
 
+def default_end_date():
+    return timezone.now() + timedelta(minutes=1)
+
+
 class VerificationCode(models.Model):
     objects = models.Manager()
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     code = models.CharField(max_length=6)
     created_at = models.DateTimeField(default=timezone.now)
+    end_date = models.DateTimeField(default=default_end_date)
 
     class Meta:
         db_table = 'authentication_verification_code'
 
     def expired(self):
-        expiration_period = timedelta(minutes=1)
-        expiration_time = self.created_at + expiration_period
-        return timezone.now() > expiration_time
+        return timezone.now() > self.end_date
 
 
 class DatabaseConfiguration(models.Model):

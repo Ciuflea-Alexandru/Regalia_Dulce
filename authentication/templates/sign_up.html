@@ -3,58 +3,100 @@
 <html lang="en">
 
 <head>
-  <title>Sign Up</title>
-  <link rel="stylesheet" href="{% static 'css/sign_up.css' %}">
-
+    <title>Sign Up</title>
+    <meta charset="UTF-8">
+    <link rel="icon" href="https://regalia-dulce.s3.us-east-1.amazonaws.com/shop/icon/logo.png" type="image/png">
+    <link rel="stylesheet" href="{% static 'css/sign_up.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 
 <body>
+<header>
+    <a class="site-logo" href="http://127.0.0.1:8000/home/">
+        <img class="site-logo" src="https://regalia-dulce.s3.us-east-1.amazonaws.com/shop/icon/logo.png">
+    </a>
+    <div class="first-header-container">
+        <a class="main-header-link" href="http://127.0.0.1:8000/search/">
+            <i class="fa-solid fa-magnifying-glass"></i></a>
+        <a class="main-header-link" href="http://127.0.0.1:8000/cart/">
+            <i class="fa-solid fa-cart-shopping"></i></a>
+        <a class="main-header-link" href="http://127.0.0.1:8000/favorites/">
+            <i class="fa-solid fa-star"></i></a>
+        <a class="main-header-link" href="http://127.0.0.1:8000/account/">
+            <i class="fa-solid fa-user"></i></a>
+    </div>
+    <div class="second-header-container">
+        <a class="header-link" href="http://127.0.0.1:8000/category/Chocolate_Bars/">Chocolate Bars</a>
+        <a class="header-link" href="http://127.0.0.1:8000/category/Chocolate_Boxes/">Chocolate Boxes</a>
+        <a class="header-link" href="http://127.0.0.1:8000/category/Soft_Drinks/">Soft Drinks</a>
+        <a class="header-link" href="http://127.0.0.1:8000/category/Seasonal_Specials/">Seasonal Specials</a>
+        <a class="header-link" href="http://127.0.0.1:8000/story/">Our Story</a>
+        <a class="header-link" href="http://127.0.0.1:8000/mission/">Our Mission</a>
+    </div>
+</header>
+<main>
+    <div class="main-container">
+        <div class="Sign-Up-Container">
+            <h2 class="Sign-Up-Text">Sign Up</h2>
+            <form method="post" action="{% url 'signup' %}" autocomplete="on" novalidate>
 
-    <div class="Sign-Up-Container">
+                {% csrf_token %}
 
-        <h2 class="Sign-Up-Text">Sign Up</h2>
-      <form method="post" action="{% url 'signup' %}" autocomplete="on" novalidate>
-
-        {% csrf_token %}
-
-        <input name="username" type="text" placeholder="Username"
-               class="Name-Box" autocomplete="username">
+                <input name="username" type="text" placeholder="Username"
+                       class="Name-Box" autocomplete="username">
                 {% for error in form.username.errors %}
-                    <div class="Message">
-                        <p>{{ error }}</p>
-                    </div>
+                <div class="Message">
+                    <p>{{ error }}</p>
+                </div>
                 {% endfor %}
-        <input name="email" type="email" placeholder="Email"
-               class="Email-Box" autocomplete="email">
+                <input name="email" type="email" placeholder="Email"
+                       class="Email-Box" autocomplete="email">
                 {% for error in form.email.errors %}
-                    <div class="Message">
-                        <p>{{ error }}</p>
-                    </div>
+                <div class="Message">
+                    <p>{{ error }}</p>
+                </div>
                 {% endfor %}
-        <input name="password1" type="password" placeholder="Password"
-               class="Password-Box" autocomplete="new-password">
+                <input name="password1" type="password" placeholder="Password"
+                       class="Password-Box" autocomplete="new-password">
                 {% for error in form.password1.errors %}
-                    <div class="Message">
-                        <p>{{ error }}</p>
-                    </div>
+                <div class="Message">
+                    <p>{{ error }}</p>
+                </div>
                 {% endfor %}
-        <input name="password2" type="password" placeholder="Verify Password"
-               class="Verify-Password-Box" autocomplete="new-password">
+                <input name="password2" type="password" placeholder="Verify Password"
+                       class="Verify-Password-Box" autocomplete="new-password">
                 {% for error in form.password2.errors %}
-                    <div class="Message">
-                        <p>{{ error }}</p>
-                    </div>
+                <div class="Message">
+                    <p>{{ error }}</p>
+                </div>
                 {% endfor %}
-        <a class="Sign-In-Link" href="http://127.0.0.1:8000/signin/">Already have an account?</a>
+                <a class="Sign-In-Link" href="http://127.0.0.1:8000/signin/">Already have an account?</a>
 
-        <button type="submit" class="Sign-Up-Button">Sign Up</button>
-      </form>
-
-    </div>
-
-    <div>
+                <button type="submit" class="Sign-Up-Button">Sign Up</button>
+            </form>
+        </div>
 
     </div>
+
+        <footer>
+            <div class="footer-container">
+                <a class="header-link" href="http://127.0.0.1:8000/category/Chocolate_Bars/">Chocolate Bars</a>
+                <a class="header-link" href="http://127.0.0.1:8000/category/Chocolate_Boxes/">Chocolate Boxes</a>
+                <a class="header-link" href="http://127.0.0.1:8000/category/Soft_Drinks/">Soft Drinks</a>
+                <a class="header-link" href="http://127.0.0.1:8000/category/Seasonal_Specials/">Seasonal Specials</a>
+                <a class="header-link" href="http://127.0.0.1:8000/story/">Our Story</a>
+                <a class="header-link" href="http://127.0.0.1:8000/mission/">Our Mission</a>
+                <div class="contact-footer">
+                    <p>Contact Us</p>
+                    <p>Regalia Dulce</p>
+                    <p>office@regaliadulce.com</p>
+                    <p>+1 248-434-5508</p>
+                </div>
+            </div>
+
+            Copyright © 2025 Regalia Dulce. All rights reserved
+        </footer>
+</main>
 
 </body>
 

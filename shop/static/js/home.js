@@ -1,13 +1,21 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const slides = document.querySelectorAll('.slides img'); // Select all slide images
-    const prevSlide = document.querySelector('.prev-slide');
-    const nextSlide = document.querySelector('.next-slide');
-    let currentIndex = 0;
+    const slides = document.querySelectorAll('.slides img');
+    const slideIndicatorsContainer = document.querySelector('.slide-indicators');
+    const downArrow = document.querySelector('.down-arrow');
+    const slideshow = document.querySelector('.promotion-slideshow');
 
-    // Function to update the slide visibility
+    let currentIndex = 0;
+    let autoSlideInterval;
+
     function showSlide(index) {
         const slideContainer = document.querySelector('.slides');
-        slideContainer.style.transform = `translateX(-${index * 100}%)`; // Shift slides based on the index
+        slideContainer.style.transform = `translateX(-${index * 99.5}%)`;
+
+        const indicators = document.querySelectorAll('.slide-indicator');
+        indicators.forEach(indicator => {
+            indicator.classList.remove('active');
+        });
+        indicators[index].classList.add('active');
     }
 
     // Function to change the slide automatically
@@ -16,22 +24,61 @@ document.addEventListener('DOMContentLoaded', () => {
         showSlide(currentIndex);
     }
 
-    // Event listeners for navigation buttons
-    prevSlide.addEventListener('click', () => {
-        currentIndex = (currentIndex === 0) ? slides.length - 1 : currentIndex - 1;
-        showSlide(currentIndex);
+    // Function to reset the auto-change timer
+    function resetAutoSlide() {
+        clearInterval(autoSlideInterval);
+        autoSlideInterval = setInterval(changeSlide, 10000);
+    }
+
+    downArrow.addEventListener('click', () => {
+        window.scrollTo({
+            top:  slideshow.offsetHeight + 70,
+            behavior: 'smooth'
+        });
     });
 
-    nextSlide.addEventListener('click', () => {
-        currentIndex = (currentIndex === slides.length - 1) ? 0 : currentIndex + 1;
-        showSlide(currentIndex);
+    slides.forEach((_, index) => {
+        const indicator = document.createElement('div');
+        indicator.classList.add('slide-indicator');
+        indicator.addEventListener('click', () => {
+            currentIndex = index;
+            showSlide(currentIndex);
+            resetAutoSlide();
+        });
+        slideIndicatorsContainer.appendChild(indicator);
     });
 
-    // Automatically change the slide every minute (60000 milliseconds)
-    setInterval(changeSlide, 10000);
-
-    // Initialize the first slide to be visible
+    autoSlideInterval = setInterval(changeSlide, 10000);
     showSlide(currentIndex);
+});
+
+window.addEventListener('scroll', () => {
+    const section = document.querySelector('.site-description-section');
+    const images = document.querySelectorAll('.site-image-1, .site-image-2, .site-image-3');
+
+    const sectionTop = section.offsetTop;
+    const sectionHeight = section.offsetHeight;
+    const windowBottom = window.scrollY + window.innerHeight;
+
+    images.forEach((img) => {
+        const imgTop = img.getBoundingClientRect().top + window.scrollY;
+        const imgBottom = imgTop + img.offsetHeight;
+
+        // Fade in + slide in if the image is in the section's view area
+        if (windowBottom > imgTop + 100 && window.scrollY < imgBottom - 100) {
+            img.classList.add('fade-in');
+            img.classList.remove('fade-out');
+        }
+        // Fade out + slide out if you scroll past the image
+        else if (window.scrollY > imgBottom + 100) {
+            img.classList.add('fade-out');
+            img.classList.remove('fade-in');
+        }
+        // If scroll is not in range, reset to invisible (for smooth re-entry)
+        else {
+            img.classList.remove('fade-in', 'fade-out');
+        }
+    });
 });
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -82,16 +129,36 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
-function updateStarRating(rating) {
-  const stars = document.querySelectorAll('.product-rating .star');
+document.addEventListener('DOMContentLoaded', function() {
+    const actionButtons = document.querySelectorAll('.favorite, .cart');
 
-  // Fill whole stars
-  for (let i = 0; i < Math.floor(rating); i++) {
-    stars[i].classList.add('filled');
-  }
+    actionButtons.forEach(function(button) {
+        button.addEventListener('click', function() {
+            const action = button.dataset.action;
+            const productId = button.dataset.productId;
 
-  // Handle half-star
-  if (rating - Math.floor(rating) > 0) {
-    stars[Math.floor(rating)].classList.add('half');
-  }
-}
+            const csrfToken = document.querySelector('[name="csrfmiddlewaretoken"]').value;
+
+            const formData = new FormData();
+            formData.append('action', action + '_' + productId);
+            formData.append('product_id', productId);
+            formData.append('csrfmiddlewaretoken', csrfToken);
+
+            fetch('', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    location.reload();
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(error => {
+                alert('Something went wrong. Please try again later.');
+            });
+        });
+    });
+});
