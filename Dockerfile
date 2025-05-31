@@ -19,4 +19,4 @@ COPY . .
 EXPOSE 8000
 
 # Run the application.
-CMD ["gunicorn", "my_site.wsgi:application", "--workers", "3", "--bind", "0.0.0.0:8000"]
+CMD ["python", "run.py"]
