@@ -138,11 +138,14 @@ DATABASES = {
         'NAME': os.environ.get('DATABASE_NAME'),
         'USER': os.environ.get('DATABASE_USER'),
         'PASSWORD': os.environ.get('DATABASE_PASSWORD'),
-        'HOST': os.environ.get('DATABASE_HOST', 'DOCKER_DATABASE_HOST'),
+        'HOST': (
+            os.environ.get('DATABASE_HOST') or
+            os.environ.get('DOCKER_DATABASE_HOST') or
+            os.environ.get('CODESPACE_DATABASE_HOST')
+        ),
         'PORT': os.environ.get('DATABASE_PORT'),
     }
 }
-
 AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
 AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
 AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
