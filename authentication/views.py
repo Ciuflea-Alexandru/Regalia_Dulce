@@ -1,5 +1,6 @@
 import os
 import posthog
+import stripe
 
 from django.conf import settings
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
@@ -21,6 +22,10 @@ from django.contrib.auth.hashers import make_password
 from .forms import SignUpForm, ProfilePictureForm, UserUpdateForm, ProfileUpdateForm
 from .models import DatabaseConfiguration, EmailConfiguration, AWSConfiguration, VerificationCode, Person
 from shop.models import Product
+
+stripe.api_key = settings.STRIPE_SECRET_KEY
+posthog.project_api_key = settings.POSTHOG_API_KEY
+posthog.host = settings.POSTHOG_HOST
 
 
 @csrf_protect
@@ -101,6 +106,12 @@ def verify_code(request):
             verification_code.delete()
             user.active = True
             user.save()
+
+            stripe_customer = stripe.Customer.create(
+                email=user.email,
+                name=user.username,
+                metadata={'django_user_id': user.id}
+            )
 
             posthog.capture(
                 distinct_id=user.email,

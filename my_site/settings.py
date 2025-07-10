@@ -120,7 +120,7 @@ AUTH_USER_MODEL = 'authentication.Person'
 SITE_URL = 'http://localhost:8000'
 
 # URL path to redirect users to when they need to log in
-LOGIN_URL = 'http://127.0.0.1:8000/signin/'
+LOGIN_URL = '/signin/'
 
 EMAIL_BACKEND = os.environ.get('EMAIL_BACKEND')
 EMAIL_HOST = os.environ.get('EMAIL_HOST')
@@ -138,14 +138,11 @@ DATABASES = {
         'NAME': os.environ.get('DATABASE_NAME'),
         'USER': os.environ.get('DATABASE_USER'),
         'PASSWORD': os.environ.get('DATABASE_PASSWORD'),
-        'HOST': (
-            os.environ.get('DATABASE_HOST') or
-            os.environ.get('DOCKER_DATABASE_HOST') or
-            os.environ.get('CODESPACE_DATABASE_HOST')
-        ),
+        'HOST': os.environ.get('DATABASE_HOST', 'DOCKER_DATABASE_HOST'),
         'PORT': os.environ.get('DATABASE_PORT'),
     }
 }
+
 AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
 AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
 AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
